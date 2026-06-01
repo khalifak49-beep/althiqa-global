@@ -1,0 +1,26 @@
+@model List<Offer>
+@{ ViewData["Title"] = "العروض"; }
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="fw-bold mb-0">العروض</h1>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus"></i> إضافة عرض</a>
+</div>
+
+<div class="row g-3">
+@foreach (var o in Model)
+{
+    <div class="col-md-6 col-lg-4">
+        <div class="offer-card h-100">
+            <span class="badge mb-2">@(o.DiscountType == DiscountType.Percent ? $"خصم {o.DiscountValue:0}%" : $"خصم {o.DiscountValue:0} ر.ع.")</span>
+            <h5 class="fw-bold">@o.Title</h5>
+            <p class="text-muted small">@o.Description</p>
+            <div class="small text-muted"><i class="bi bi-clock"></i> @o.ValidFrom.ToString("yyyy-MM-dd") - @o.ValidTo.ToString("yyyy-MM-dd")</div>
+            <div class="d-flex gap-2 mt-3">
+                <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@o.Id"><i class="bi bi-pencil"></i> تعديل</a>
+                <form asp-action="Delete" asp-route-id="@o.Id" method="post" onsubmit="return confirm('تعطيل العرض؟');">
+                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+</div>

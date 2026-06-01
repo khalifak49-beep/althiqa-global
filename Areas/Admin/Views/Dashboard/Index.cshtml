@@ -1,0 +1,126 @@
+@model AdminDashboardViewModel
+@{ ViewData["Title"] = "لوحة التحكم"; }
+
+<h1 class="fw-bold mb-3">لوحة التحكم</h1>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon mb-2"><i class="bi bi-cash-coin"></i></div>
+            <div class="value">@Model.TotalRevenue.ToString("N0") <small class="text-muted fs-6">ر.ع.</small></div>
+            <div class="label">إجمالي الإيرادات</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon mb-2"><i class="bi bi-graph-up"></i></div>
+            <div class="value">@Model.RevenueThisMonth.ToString("N0") <small class="text-muted fs-6">ر.ع.</small></div>
+            <div class="label">إيرادات الشهر</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon mb-2"><i class="bi bi-calendar-check"></i></div>
+            <div class="value">@Model.TotalBookings</div>
+            <div class="label">إجمالي الحجوزات</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon mb-2"><i class="bi bi-people"></i></div>
+            <div class="value">@Model.TotalCustomers</div>
+            <div class="label">عميل مسجل</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="stat-card"><div class="label">حجوزات اليوم</div><div class="value">@Model.BookingsToday</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="label">حجوزات الشهر</div><div class="value">@Model.BookingsThisMonth</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="label">عاملات نشطات</div><div class="value">@Model.TotalWorkers</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="label">حجوزات قيد الانتظار</div><div class="value text-warning">@Model.PendingBookings</div></div></div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card-modern p-4">
+            <h5 class="fw-bold mb-3">الإحصائيات الشهرية</h5>
+            <canvas id="chartMonthly" height="120"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card-modern p-4 h-100">
+            <h5 class="fw-bold mb-3">حجوزات حسب الحالة</h5>
+            <canvas id="chartStatus"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-lg-6">
+        <div class="card-modern p-4">
+            <h5 class="fw-bold mb-3">آخر الحجوزات</h5>
+            <table class="table table-modern table-sm">
+                <thead><tr><th>الرقم</th><th>العميل</th><th>العاملة</th><th>الحالة</th><th>المبلغ</th></tr></thead>
+                <tbody>
+                @foreach (var b in Model.RecentBookings)
+                {
+                    <tr>
+                        <td><a asp-area="Admin" asp-controller="Bookings" asp-action="Details" asp-route-id="@b.Id"><code>@b.BookingNumber</code></a></td>
+                        <td>@(b.Customer?.FullName ?? "-")</td>
+                        <td>@(b.Worker?.FullName ?? "-")</td>
+                        <td><span class="status-pill status-@b.Status">@b.Status</span></td>
+                        <td>@b.TotalAmount.ToString("N2")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-modern p-4">
+            <h5 class="fw-bold mb-3">أفضل العاملات أداءً</h5>
+            <table class="table table-modern table-sm">
+                <thead><tr><th>الاسم</th><th>الحجوزات</th><th>الإيرادات</th><th>التقييم</th></tr></thead>
+                <tbody>
+                @foreach (var t in Model.TopWorkers)
+                {
+                    <tr>
+                        <td>@t.Name</td>
+                        <td>@t.Bookings</td>
+                        <td>@t.Revenue.ToString("N2")</td>
+                        <td><span class="stars"><i class="bi bi-star-fill"></i></span> @t.Rating.ToString("0.0")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const monthly = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyStats));
+    new Chart(document.getElementById('chartMonthly'), {
+        type: 'bar',
+        data: {
+            labels: monthly.map(m => m.month),
+            datasets: [
+                { label: 'الحجوزات', data: monthly.map(m => m.bookings), backgroundColor: 'rgba(108,92,231,.6)', borderRadius: 6 },
+                { label: 'الإيرادات', data: monthly.map(m => m.revenue), backgroundColor: 'rgba(0,184,148,.6)', borderRadius: 6 }
+            ]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    const status = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BookingsByStatus));
+    new Chart(document.getElementById('chartStatus'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(status),
+            datasets: [{ data: Object.values(status), backgroundColor: ['#fdcb6e','#00b894','#0984e3','#1e8e3e','#e74c3c','#6c5ce7'] }]
+        },
+        options: { plugins: { legend: { position: 'bottom' } } }
+    });
+</script>
+}

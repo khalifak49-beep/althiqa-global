@@ -1,0 +1,44 @@
+@model PhoneOtpViewModel
+@{ ViewData["Title"] = "دخول/تسجيل برقم الجوال"; }
+
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5" data-aos="fade-up">
+                <div class="card-modern p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <img src="~/images/logo/al-thiqa-full.png"
+                             onerror="this.onerror=null;this.src='/images/logo/al-thiqa-full.svg';"
+                             alt="الثقة العالمية" class="auth-logo mb-2" />
+                        <h3 class="fw-bold mt-3">دخول برقم الجوال</h3>
+                        <p class="text-muted mb-0"><i class="bi bi-whatsapp text-success"></i> سنرسل لك رمز تحقق عبر واتساب</p>
+                    </div>
+
+                    <form method="post" asp-action="SendOtp">
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none-empty"></div>
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label">رقم الجوال</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text fw-bold">+968</span>
+                                <input asp-for="Phone" class="form-control text-start ltr-input" dir="ltr" placeholder="77005570" autocomplete="tel" inputmode="numeric" />
+                            </div>
+                            <small class="text-muted">أدخل 8 أرقام (مثلاً 77005570)</small>
+                            <span asp-validation-for="Phone" class="text-danger small d-block"></span>
+                        </div>
+                        <button class="btn btn-primary w-100 btn-lg">
+                            <i class="bi bi-whatsapp"></i> أرسل الرمز عبر واتساب
+                        </button>
+                    </form>
+
+                    <hr />
+                    <div class="text-center text-muted small">
+                        أو سجّل دخول بـ <a asp-action="Login">البريد الإلكتروني</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,55 @@
+@model List<PaymentGatewayConfig>
+@{ ViewData["Title"] = "بوابات الدفع"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="fw-bold mb-0">بوابات الدفع</h1>
+        <small class="text-muted">عدّل API Key، Publishable Key، والـ URL هنا — لا حاجة للرجوع للكود.</small>
+    </div>
+</div>
+
+<div class="card-modern p-0 overflow-hidden">
+    <table class="table table-modern mb-0 align-middle">
+        <thead><tr>
+            <th>المزود</th>
+            <th>الاسم</th>
+            <th>البيئة</th>
+            <th>API URL</th>
+            <th>الحالة</th>
+            <th>آخر تعديل</th>
+            <th></th>
+        </tr></thead>
+        <tbody>
+        @foreach (var g in Model)
+        {
+            <tr>
+                <td><strong>@g.Provider</strong></td>
+                <td>@g.DisplayName</td>
+                <td>
+                    @if (g.IsLive)
+                    {
+                        <span class="status-pill status-Confirmed">إنتاج (Live)</span>
+                    }
+                    else
+                    {
+                        <span class="status-pill status-Pending">تجريبي (UAT)</span>
+                    }
+                </td>
+                <td><code class="small">@g.ApiBaseUrl</code></td>
+                <td>
+                    @if (g.IsActive)
+                    {
+                        <span class="status-pill status-Confirmed">نشط</span>
+                    }
+                    else
+                    {
+                        <span class="status-pill status-Cancelled">معطّل</span>
+                    }
+                </td>
+                <td class="small text-muted">@g.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td><a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@g.Id"><i class="bi bi-pencil"></i> تعديل</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

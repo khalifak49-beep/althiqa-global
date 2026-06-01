@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 320" aria-label="الثقة العالمية لخدمات التنظيف — Al Thiqa Global Cleaning Services">
+  <defs>
+    <linearGradient id="atg" x1="0" y1="0.5" x2="1" y2="0.5">
+      <stop offset="0%" stop-color="#1bb3e0"/>
+      <stop offset="50%" stop-color="#1bb3e0"/>
+      <stop offset="50%" stop-color="#28c98a"/>
+      <stop offset="100%" stop-color="#28c98a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ===== Icon (teardrop with broom) ===== -->
+  <g transform="translate(20, 30)">
+    <!-- teardrop -->
+    <path d="M 130 5
+             C 65 5, 22 50, 22 110
+             C 22 168, 110 248, 130 268
+             C 150 248, 238 168, 238 110
+             C 238 50, 195 5, 130 5 Z"
+          fill="url(#atg)"/>
+    <!-- broom handle -->
+    <rect x="123" y="42" width="14" height="92" rx="3" fill="#ffffff"/>
+    <!-- broom head -->
+    <path d="M 74 128
+             L 186 128
+             L 178 172
+             C 162 166, 98 166, 82 172 Z"
+          fill="#ffffff"/>
+    <!-- sparkle large -->
+    <path d="M 178 70
+             l 5 -12 l 4 12 l 12 4 l -12 4 l -4 12 l -4 -12 l -12 -4 z"
+          fill="#ffffff"/>
+    <!-- sparkle small -->
+    <path d="M 188 104
+             l 3 -7 l 2 7 l 7 3 l -7 2 l -2 7 l -2 -7 l -7 -2 z"
+          fill="#ffffff"/>
+  </g>
+
+  <!-- ===== Text block ===== -->
+  <g font-family="'Tajawal', 'Segoe UI', Tahoma, Arial, sans-serif">
+    <!-- Arabic line 1: الثقة العالمية (green) -->
+    <text x="760" y="105" text-anchor="end" font-size="50" font-weight="700" fill="#28c98a" direction="rtl">الثقة العالمية</text>
+    <!-- Arabic line 2: لخدمات التنظيف (blue) -->
+    <text x="760" y="170" text-anchor="end" font-size="50" font-weight="700" fill="#1bb3e0" direction="rtl">لخدمات التنظيف</text>
+    <!-- English line 1: Al Thiqa Global (green) -->
+    <text x="290" y="230" text-anchor="start" font-size="36" font-weight="600" fill="#28c98a">Al Thiqa Global</text>
+    <!-- English line 2: Cleaning Services (blue, larger) -->
+    <text x="290" y="285" text-anchor="start" font-size="46" font-weight="700" fill="#1bb3e0">Cleaning Services</text>
+  </g>
+</svg>

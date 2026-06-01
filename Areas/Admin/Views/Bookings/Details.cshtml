@@ -1,0 +1,78 @@
+@model Booking
+@{ ViewData["Title"] = "تفاصيل الحجز"; }
+<h1 class="fw-bold mb-3">حجز <code>@Model.BookingNumber</code></h1>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card-modern p-4 mb-3">
+            <h5 class="fw-bold">العميل والعاملة</h5>
+            <div class="row">
+                <div class="col-md-6"><strong>@(Model.Customer?.FullName ?? "-")</strong><div class="text-muted small">@Model.Customer?.Email • @Model.Customer?.PhoneNumber</div></div>
+                <div class="col-md-6"><strong>@(Model.Worker?.FullName ?? "-")</strong><div class="text-muted small">@Model.Worker?.Nationality • @Model.Worker?.HourlyRate.ToString("0") ر.ع./ساعة</div></div>
+            </div>
+        </div>
+        <div class="card-modern p-4 mb-3">
+            <h5 class="fw-bold">المعلومات</h5>
+            <div class="row g-2">
+                <div class="col-md-4"><div class="text-muted small">التاريخ</div><strong>@Model.BookingDate.ToString("yyyy-MM-dd")</strong></div>
+                <div class="col-md-4"><div class="text-muted small">من-إلى</div><strong>@Model.StartTime.ToString("hh\\:mm") - @Model.EndTime.ToString("hh\\:mm")</strong></div>
+                <div class="col-md-4"><div class="text-muted small">عدد الساعات</div><strong>@Model.Hours</strong></div>
+                <div class="col-12">
+                    <div class="text-muted small">العنوان</div>
+                    <strong>@Model.Address</strong>
+                    @if (Model.Latitude.HasValue && Model.Longitude.HasValue)
+                    {
+                        <a class="btn btn-sm btn-outline-primary ms-2" target="_blank"
+                           href="https://www.openstreetmap.org/?mlat=@Model.Latitude&mlon=@Model.Longitude#map=17/@Model.Latitude/@Model.Longitude">
+                            <i class="bi bi-geo-alt"></i> فتح في OpenStreetMap
+                        </a>
+                        <a class="btn btn-sm btn-outline-success ms-1" target="_blank"
+                           href="https://www.google.com/maps/?q=@Model.Latitude,@Model.Longitude">
+                            <i class="bi bi-google"></i> Google Maps
+                        </a>
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div class="col-12"><div class="text-muted small">ملاحظات</div><span>@Model.Notes</span></div>
+                }
+            </div>
+        </div>
+        @if (Model.Payment != null)
+        {
+            <div class="card-modern p-4">
+                <h5 class="fw-bold">معلومات الدفع</h5>
+                <table class="table table-sm">
+                    <tbody>
+                    <tr><td>الحالة</td><td><span class="status-pill status-@Model.Payment.Status">@Model.Payment.Status</span></td></tr>
+                    <tr><td>رقم العملية</td><td><code>@Model.Payment.TransactionRef</code></td></tr>
+                    <tr><td>الوسيلة</td><td>@Model.Payment.Method</td></tr>
+                    <tr><td>المبلغ</td><td>@Model.Payment.Amount.ToString("N2") ر.ع.</td></tr>
+                    <tr><td>تاريخ الدفع</td><td>@(Model.Payment.PaidAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    <div class="col-lg-4">
+        <div class="card-modern p-4 mb-3">
+            <h5 class="fw-bold mb-3">تغيير الحالة</h5>
+            <form asp-action="ChangeStatus" asp-route-id="@Model.Id" method="post" class="d-flex gap-2">
+                <select name="status" class="form-select">
+                    @foreach (BookingStatus s in Enum.GetValues<BookingStatus>())
+                    {
+                        <option value="@s" selected="@(Model.Status == s)">@s</option>
+                    }
+                </select>
+                <button class="btn btn-primary">حفظ</button>
+            </form>
+        </div>
+        <div class="card-modern p-4">
+            <h6 class="fw-bold">الفاتورة</h6>
+            <div class="row"><div class="col-6 text-muted">المجموع</div><div class="col-6 text-end">@Model.SubTotal.ToString("N2")</div></div>
+            <div class="row"><div class="col-6 text-muted">الخصم</div><div class="col-6 text-end">- @Model.DiscountAmount.ToString("N2")</div></div>
+            <div class="row"><div class="col-6 text-muted">الضريبة</div><div class="col-6 text-end">@Model.TaxAmount.ToString("N2")</div></div>
+            <div class="row"><div class="col-6">الإجمالي</div><div class="col-6 text-end total">@Model.TotalAmount.ToString("N2")</div></div>
+        </div>
+    </div>
+</div>

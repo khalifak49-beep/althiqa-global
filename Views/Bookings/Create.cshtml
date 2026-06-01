@@ -1,0 +1,185 @@
+@model CreateBookingViewModel
+@{ ViewData["Title"] = "إنشاء حجز"; }
+
+<section class="section page-with-logo-bg">
+    <div class="container">
+        <partial name="_BookingStepper" model="2" />
+        <h1 class="fw-bold mb-1">احجز موعدك</h1>
+        <p class="text-muted mb-3">اختر <strong>التاريخ</strong> ثم <strong>عدد الساعات</strong> ثم <strong>وقت البداية</strong>، وحدّد العنوان على الخريطة. الحد الأدنى ساعتان.</p>
+        <form method="post" asp-action="Create" id="bookingForm">
+            <input type="hidden" asp-for="WorkerId" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none-empty"></div>
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card-modern p-4 mb-3">
+                        @if (Model.Worker != null)
+                        {
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width:80px; height:80px; border-radius:14px; background-size:cover; background-position:center; background-image:url('@(string.IsNullOrEmpty(Model.Worker.PhotoUrl) ? $"https://i.pravatar.cc/200?u={Model.Worker.Id}" : Model.Worker.PhotoUrl)');"></div>
+                                <div>
+                                    <h5 class="mb-0 fw-bold">@Model.Worker.FullName</h5>
+                                    <div class="small text-muted">@Model.Worker.Nationality • @Model.Worker.Languages</div>
+                                    <div><strong class="text-primary">@Model.Worker.HourlyRate.ToString("0") ر.ع. / ساعة</strong></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="card-modern p-4">
+                        <h5 class="fw-bold mb-3">تفاصيل الحجز</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="BookingDate" class="form-label">التاريخ</label>
+                                <input asp-for="BookingDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="BookingDate" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Hours" class="form-label">عدد الساعات <span class="text-danger">*</span></label>
+                                <input asp-for="Hours" type="number" min="2" max="12" step="1" required class="form-control" />
+                                <small class="text-muted"><i class="bi bi-info-circle"></i> الحد الأدنى ساعتان</small>
+                                <span asp-validation-for="Hours" class="text-danger small d-block"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="StartTime" class="form-label">وقت البداية</label>
+                                <select asp-for="StartTime" class="form-select" id="StartTime" data-worker="@Model.WorkerId" data-dynamic="1">
+                                    <option value="@Model.StartTime">@Model.StartTime.ToString(@"hh\:mm")</option>
+                                </select>
+                                <span asp-validation-for="StartTime" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ServiceId" class="form-label">نوع الخدمة</label>
+                                <select asp-for="ServiceId" class="form-select">
+                                    <option value="">حدد الخدمة</option>
+                                    @if (Model.Services != null)
+                                    {
+                                        foreach (var s in Model.Services)
+                                        {
+                                            <option value="@s.Id">@s.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="CouponCode" class="form-label">كوبون الخصم (اختياري)</label>
+                                <div class="input-group">
+                                    <input asp-for="CouponCode" id="CouponCode" class="form-control" placeholder="مثلاً WELCOME20" autocomplete="off" />
+                                    <button type="button" id="btnApplyCoupon" class="btn btn-outline-primary"><i class="bi bi-check2"></i> تطبيق</button>
+                                </div>
+                                <div id="couponMsg" class="small mt-1"></div>
+                                <small class="text-muted d-block mt-1">جرّب: <code>WELCOME20</code> أو <code>SAVE2</code></small>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Address" class="form-label">العنوان <span class="text-danger">*</span></label>
+                                <textarea asp-for="Address" rows="2" class="form-control" placeholder="الحي، الشارع، رقم المبنى..."></textarea>
+                                <span asp-validation-for="Address" class="text-danger small"></span>
+                                @if (Model.SavedAddresses != null && Model.SavedAddresses.Any())
+                                {
+                                    <div class="mt-2 d-flex flex-wrap gap-2">
+                                        @foreach (var a in Model.SavedAddresses)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('Address').value = `@a.AddressLine`;">@a.Title</button>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">حدّد الموقع على الخريطة</label>
+                                <div class="d-flex gap-2 mb-2 flex-wrap">
+                                    <button type="button" id="btnGeo" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-geo-alt-fill"></i> موقعي الحالي
+                                    </button>
+                                    <span class="small text-muted align-self-center" id="coordsLabel">اضغط على الخريطة لتحديد الموقع</span>
+                                </div>
+                                <div id="bookingMap" style="height: 320px; border-radius: 14px; overflow: hidden; border: 1px solid var(--hm-border);"></div>
+                                <input type="hidden" asp-for="Latitude" id="Latitude" />
+                                <input type="hidden" asp-for="Longitude" id="Longitude" />
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Notes" class="form-label">ملاحظات (اختياري)</label>
+                                <textarea asp-for="Notes" rows="2" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="summary-box sticky-top" style="top: 90px;" id="priceQuote" data-worker="@Model.WorkerId">
+                        <h6 class="fw-bold mb-3">ملخص السعر</h6>
+                        <div class="row"><div class="col-6 text-muted">المجموع الفرعي</div><div class="col-6 text-end"><span data-f="sub">0.00</span> ر.ع.</div></div>
+                        <div class="row"><div class="col-6 text-muted">الخصم</div><div class="col-6 text-end text-success">- <span data-f="disc">0.00</span> ر.ع.</div></div>
+                        <div class="row"><div class="col-6 text-muted">الضريبة</div><div class="col-6 text-end"><span data-f="tax">0.00</span> ر.ع.</div></div>
+                        <div class="row"><div class="col-6">الإجمالي</div><div class="col-6 text-end total"><span data-f="total">0.00</span> ر.ع.</div></div>
+                        <button type="submit" class="btn btn-primary w-100 mt-3"><i class="bi bi-check-circle"></i> تأكيد الحجز ومتابعة الدفع</button>
+                        <div class="text-center small text-muted mt-2"><i class="bi bi-shield-lock"></i> دفع آمن ومشفّر</div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        (function () {
+            // Default center: Muscat, Oman
+            const defaultCenter = [23.5880, 58.3829];
+            const latInput = document.getElementById('Latitude');
+            const lngInput = document.getElementById('Longitude');
+            const label = document.getElementById('coordsLabel');
+
+            const startLat = parseFloat(latInput.value) || defaultCenter[0];
+            const startLng = parseFloat(lngInput.value) || defaultCenter[1];
+            const hasInitial = !!(parseFloat(latInput.value) && parseFloat(lngInput.value));
+
+            const map = L.map('bookingMap', { zoomControl: true }).setView([startLat, startLng], hasInitial ? 16 : 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap',
+                maxZoom: 19
+            }).addTo(map);
+
+            let marker = null;
+            function setMarker(lat, lng, fly = false) {
+                if (!marker) {
+                    marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+                    marker.on('dragend', () => {
+                        const p = marker.getLatLng();
+                        update(p.lat, p.lng);
+                    });
+                } else {
+                    marker.setLatLng([lat, lng]);
+                }
+                if (fly) map.setView([lat, lng], 16);
+                update(lat, lng);
+            }
+            function update(lat, lng) {
+                latInput.value = lat.toFixed(6);
+                lngInput.value = lng.toFixed(6);
+                label.textContent = `الإحداثيات: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+            }
+
+            if (hasInitial) setMarker(startLat, startLng);
+
+            map.on('click', (e) => setMarker(e.latlng.lat, e.latlng.lng));
+
+            document.getElementById('btnGeo').addEventListener('click', () => {
+                if (!navigator.geolocation) { alert('المتصفح لا يدعم تحديد الموقع.'); return; }
+                label.textContent = 'جاري تحديد موقعك...';
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => setMarker(pos.coords.latitude, pos.coords.longitude, true),
+                    (err) => { label.textContent = 'تعذر تحديد الموقع — اضغط على الخريطة يدوياً.'; },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            });
+
+            // Fix Leaflet sizing inside hidden containers
+            setTimeout(() => map.invalidateSize(), 200);
+        })();
+    </script>
+}

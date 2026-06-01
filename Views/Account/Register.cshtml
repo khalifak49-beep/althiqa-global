@@ -1,0 +1,61 @@
+@model RegisterViewModel
+@{ ViewData["Title"] = "تسجيل حساب"; }
+
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <div class="card-modern p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <img src="~/images/logo/al-thiqa-full.png"
+                             onerror="this.onerror=null;this.src='/images/logo/al-thiqa-full.svg';"
+                             alt="الثقة العالمية" class="auth-logo mb-2" />
+                        <h3 class="fw-bold mt-3">إنشاء حساب جديد</h3>
+                        <p class="text-muted mb-0">انضم لعائلة الثقة العالمية واستفد من العروض</p>
+                    </div>
+
+                    <form method="post">
+                        <div asp-validation-summary="All" class="alert alert-danger d-none-empty"></div>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label asp-for="FullName" class="form-label">الاسم الكامل</label>
+                                <input asp-for="FullName" class="form-control" />
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label">البريد الإلكتروني</label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="PhoneNumber" class="form-label">رقم الجوال</label>
+                                <input asp-for="PhoneNumber" class="form-control" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Password" class="form-label">كلمة المرور</label>
+                                <input asp-for="Password" class="form-control" />
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ConfirmPassword" class="form-label">تأكيد كلمة المرور</label>
+                                <input asp-for="ConfirmPassword" class="form-control" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary w-100 mt-4">سجّل الآن</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <a asp-action="Phone" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-phone"></i> تسجيل سريع برقم الجوال
+                        </a>
+                    </div>
+                    <hr />
+                    <div class="text-center text-muted">لديك حساب بالفعل؟ <a asp-action="Login">تسجيل الدخول</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

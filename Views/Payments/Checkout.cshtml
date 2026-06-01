@@ -1,0 +1,55 @@
+@model CheckoutViewModel
+@{ ViewData["Title"] = "الدفع"; }
+
+<section class="section page-with-logo-bg">
+    <div class="container">
+        <partial name="_BookingStepper" model="3" />
+        <h1 class="fw-bold">إتمام الدفع</h1>
+        <p class="text-muted">راجع المبلغ ثم اضغط <strong>"ادفع الآن"</strong> لتحوّل لبوابة <strong>Thawani Pay</strong> الآمنة.</p>
+
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card-modern p-4 mb-3">
+                    <h5 class="fw-bold mb-3">ملخص الحجز</h5>
+                    <div class="row g-2">
+                        <div class="col-md-6"><div class="text-muted small">رقم الحجز</div><strong><code>@Model.Booking.BookingNumber</code></strong></div>
+                        <div class="col-md-6"><div class="text-muted small">العاملة</div><strong>@Model.Booking.Worker?.FullName</strong></div>
+                        <div class="col-md-6"><div class="text-muted small">التاريخ</div><strong>@Model.Booking.BookingDate.ToString("yyyy-MM-dd")</strong></div>
+                        <div class="col-md-6"><div class="text-muted small">الساعات</div><strong>@Model.Booking.Hours</strong></div>
+                    </div>
+                </div>
+
+                <div class="card-modern p-4">
+                    <h5 class="fw-bold mb-3">طرق الدفع المتاحة</h5>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="chip"><i class="bi bi-credit-card-2-front"></i> Visa</span>
+                        <span class="chip"><i class="bi bi-credit-card"></i> MasterCard</span>
+                        <span class="chip"><i class="bi bi-bank"></i> بطاقة بنكية عمانية</span>
+                        <span class="chip"><i class="bi bi-apple"></i> Apple Pay</span>
+                    </div>
+                    <div class="alert alert-info small mb-0"><i class="bi bi-shield-lock"></i> سيتم تحويلك إلى صفحة بوابة <strong>Thawani Pay</strong> الآمنة لإكمال الدفع، ثم العودة إلى الموقع تلقائياً.</div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="summary-box sticky-top" style="top: 90px;">
+                    <h6 class="fw-bold mb-3">المبلغ المستحق</h6>
+                    <div class="row"><div class="col-6 text-muted">المجموع الفرعي</div><div class="col-6 text-end">@Model.Booking.SubTotal.ToString("N3")</div></div>
+                    <div class="row"><div class="col-6 text-muted">الخصم</div><div class="col-6 text-end text-success">- @Model.Booking.DiscountAmount.ToString("N3")</div></div>
+                    <div class="row"><div class="col-6 text-muted">الضريبة (5%)</div><div class="col-6 text-end">@Model.Booking.TaxAmount.ToString("N3")</div></div>
+                    <div class="row"><div class="col-6">الإجمالي</div><div class="col-6 text-end total">@Model.Booking.TotalAmount.ToString("N3") ر.ع.</div></div>
+
+                    <form method="post" asp-action="Checkout" asp-route-bookingId="@Model.Booking.Id" class="mt-3">
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">
+                            <i class="bi bi-shield-lock"></i> ادفع الآن عبر Thawani
+                        </button>
+                    </form>
+
+                    <div class="d-flex justify-content-center gap-2 mt-3 text-muted small">
+                        <i class="bi bi-shield-check"></i><span>اتصال آمن SSL</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

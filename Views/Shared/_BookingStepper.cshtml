@@ -1,0 +1,37 @@
+@model int
+@*
+    Booking flow progress indicator.
+    Model = current step index (1..4).
+    Steps:
+      1 = اختيار العاملة
+      2 = تفاصيل الحجز
+      3 = الدفع
+      4 = التأكيد
+*@
+@{
+    var steps = new (int Num, string Title, string Icon)[]
+    {
+        (1, "اختر العاملة", "bi-person-check"),
+        (2, "تفاصيل الحجز", "bi-calendar2-week"),
+        (3, "الدفع",        "bi-credit-card"),
+        (4, "التأكيد",      "bi-check-circle")
+    };
+    var current = Math.Clamp(Model, 1, 4);
+}
+
+<div class="booking-stepper" role="navigation" aria-label="خطوات الحجز">
+    @for (var i = 0; i < steps.Length; i++)
+    {
+        var s = steps[i];
+        var state = s.Num < current ? "done" : (s.Num == current ? "active" : "pending");
+        <div class="step step-@state">
+            <div class="step-circle"><i class="bi @s.Icon"></i><span class="step-num">@s.Num</span></div>
+            <div class="step-label">@s.Title</div>
+        </div>
+        if (i < steps.Length - 1)
+        {
+            var connState = steps[i + 1].Num <= current ? "done" : "pending";
+            <div class="step-connector step-connector-@connState"></div>
+        }
+    }
+</div>

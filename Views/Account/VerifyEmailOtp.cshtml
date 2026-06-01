@@ -1,0 +1,141 @@
+@model EmailOtpViewModel
+@{ ViewData["Title"] = "تأكيد رمز البريد"; }
+
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5" data-aos="fade-up">
+                <div class="card-modern p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <img src="~/images/logo/al-thiqa-full.png"
+                             onerror="this.onerror=null;this.src='/images/logo/al-thiqa-full.svg';"
+                             alt="الثقة العالمية" class="auth-logo mb-2" />
+                        @if (Model.IsExisting)
+                        {
+                            <h3 class="fw-bold mt-3 text-primary">أهلاً بعودتك، @Model.ExistingName 👋</h3>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-envelope-fill text-primary"></i> هذا البريد <strong dir="ltr">@Model.Email</strong> مسجّل مسبقاً —
+                                أدخل الرمز لتسجيل الدخول
+                            </p>
+                        }
+                        else
+                        {
+                            <h3 class="fw-bold mt-3">أدخل رمز التحقق</h3>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-envelope-fill text-primary"></i> أُرسل الرمز إلى
+                                <strong dir="ltr">@Model.Email</strong>
+                            </p>
+                        }
+                    </div>
+                    @{ var isExisting = Model.IsExisting; }
+
+                    @if (!string.IsNullOrEmpty(Model.DevCode))
+                    {
+                        <div class="alert alert-warning d-flex align-items-center" role="alert">
+                            <i class="bi bi-info-circle me-2 fs-4"></i>
+                            <div>
+                                <strong>وضع التطوير:</strong> رمز التحقق هو
+                                <code class="fs-5">@Model.DevCode</code>
+                                <small class="d-block text-muted">SMTP غير مُهيّأ — في الإنتاج يصل عبر البريد فقط.</small>
+                            </div>
+                        </div>
+                    }
+
+                    <form method="post" asp-action="VerifyEmailOtp">
+                        <input type="hidden" asp-for="Email" />
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none-empty"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-center w-100">رمز التحقق (6 أرقام)</label>
+                            <div class="otp-boxes" dir="ltr">
+                                <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" data-idx="0" autocomplete="one-time-code" />
+                                <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" data-idx="1" />
+                                <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" data-idx="2" />
+                                <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" data-idx="3" />
+                                <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" data-idx="4" />
+                                <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" data-idx="5" />
+                            </div>
+                            <input type="hidden" asp-for="Code" id="OtpCombined" />
+                            <span asp-validation-for="Code" class="text-danger small d-block text-center"></span>
+                        </div>
+
+                        <input type="hidden" asp-for="IsExisting" />
+                        <input type="hidden" asp-for="ExistingName" />
+                        @if (!isExisting)
+                        {
+                            <div class="alert alert-info small py-2 mb-3">
+                                <i class="bi bi-info-circle"></i> أكمل بياناتك مرة واحدة لتسهيل التواصل والحجز
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="FullName" class="form-label">الاسم الكامل <span class="text-danger">*</span></label>
+                                <input asp-for="FullName" class="form-control" placeholder="مثلاً: محمد العامري" required />
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="PhoneNumber" class="form-label">رقم الجوال <small class="text-muted">(اختياري، لإشعارات الحجز)</small></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">+968</span>
+                                    <input asp-for="PhoneNumber" class="form-control" placeholder="77005570" dir="ltr" inputmode="numeric" />
+                                </div>
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+                        }
+                        else
+                        {
+                            <input type="hidden" asp-for="FullName" value="@Model.ExistingName" />
+                        }
+
+                        <button class="btn btn-primary w-100 btn-lg" id="btnVerify">
+                            <i class="bi bi-check2-circle"></i> تحقّق ودخول
+                        </button>
+                    </form>
+
+                    <hr />
+                    <div class="text-center small">
+                        لم يصلك الرمز؟
+                        <form method="post" asp-action="SendEmailOtp" class="d-inline">
+                            <input type="hidden" asp-for="Email" />
+                            <input type="hidden" asp-for="ReturnUrl" />
+                            <button type="submit" class="btn btn-link btn-sm p-0 align-baseline">أعد الإرسال</button>
+                        </form>
+                        ·
+                        <a asp-action="Email">تغيير البريد</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const digits = Array.from(document.querySelectorAll('.otp-digit'));
+            const combined = document.getElementById('OtpCombined');
+            function update() {
+                combined.value = digits.map(d => d.value).join('');
+                if (combined.value.length === 6) document.getElementById('btnVerify').classList.add('pulse-attention');
+            }
+            digits.forEach((d, i) => {
+                d.addEventListener('input', e => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 1);
+                    if (e.target.value && i < digits.length - 1) digits[i + 1].focus();
+                    update();
+                });
+                d.addEventListener('keydown', e => {
+                    if (e.key === 'Backspace' && !d.value && i > 0) digits[i - 1].focus();
+                });
+                d.addEventListener('paste', e => {
+                    e.preventDefault();
+                    const txt = (e.clipboardData.getData('text') || '').replace(/[^0-9]/g, '').slice(0, 6);
+                    txt.split('').forEach((ch, idx) => { if (digits[idx]) digits[idx].value = ch; });
+                    update();
+                    (digits[Math.min(txt.length, digits.length - 1)] || digits[0]).focus();
+                });
+            });
+            digits[0] && digits[0].focus();
+        })();
+    </script>
+}

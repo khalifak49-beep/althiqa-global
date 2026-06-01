@@ -1,0 +1,52 @@
+@model LoginViewModel
+@{ ViewData["Title"] = "تسجيل الدخول"; }
+
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card-modern p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <img src="~/images/logo/al-thiqa-full.png"
+                             onerror="this.onerror=null;this.src='/images/logo/al-thiqa-full.svg';"
+                             alt="الثقة العالمية" class="auth-logo mb-2" />
+                        <h3 class="fw-bold mt-3">مرحباً بعودتك</h3>
+                        <p class="text-muted mb-0">سجل الدخول للمتابعة</p>
+                    </div>
+
+                    <form method="post">
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none-empty"></div>
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">البريد الإلكتروني</label>
+                            <input asp-for="Email" class="form-control" placeholder="email@example.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">كلمة المرور</label>
+                            <input asp-for="Password" class="form-control" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label">تذكّرني</label>
+                        </div>
+                        <button class="btn btn-primary w-100">دخول</button>
+                    </form>
+                    <div class="d-grid gap-2 mt-3">
+                        <a asp-action="Email" class="btn btn-outline-primary">
+                            <i class="bi bi-envelope-at"></i> دخول/تسجيل برمز عبر البريد (مجاني)
+                        </a>
+                        <a asp-action="Phone" class="btn btn-outline-secondary">
+                            <i class="bi bi-phone"></i> دخول/تسجيل برقم الجوال (واتساب)
+                        </a>
+                    </div>
+                    <hr />
+                    <div class="text-center text-muted">ليس لديك حساب؟ <a asp-action="Register">سجّل الآن</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

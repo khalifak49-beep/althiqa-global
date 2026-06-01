@@ -1,0 +1,25 @@
+@model List<Favorite>
+@{ ViewData["Title"] = "المفضلة"; }
+<section class="section">
+    <div class="container">
+        <h1 class="fw-bold mb-3">المفضلة</h1>
+        @if (!Model.Any())
+        {
+            <div class="card-modern p-5 text-center">
+                <i class="bi bi-heart text-muted" style="font-size:3rem;"></i>
+                <h4 class="mt-3">لا توجد عاملات في المفضلة</h4>
+                <a class="btn btn-primary mt-2" asp-controller="Workers" asp-action="Index">تصفّح العاملات</a>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var f in Model.Where(x => x.Worker != null))
+                {
+                    <partial name="_WorkerCard" model="f.Worker!" />
+                }
+            </div>
+        }
+    </div>
+</section>
+@Html.AntiForgeryToken()

@@ -1,0 +1,45 @@
+@model EmailOtpViewModel
+@{ ViewData["Title"] = "دخول/تسجيل بالبريد"; }
+
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5" data-aos="fade-up">
+                <div class="card-modern p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <img src="~/images/logo/al-thiqa-full.png"
+                             onerror="this.onerror=null;this.src='/images/logo/al-thiqa-full.svg';"
+                             alt="الثقة العالمية" class="auth-logo mb-2" />
+                        <h3 class="fw-bold mt-3">دخول بالبريد الإلكتروني</h3>
+                        <p class="text-muted mb-0"><i class="bi bi-envelope-fill text-primary"></i> سنرسل لك رمز التحقق عبر البريد</p>
+                    </div>
+
+                    <form method="post" asp-action="SendEmailOtp">
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none-empty"></div>
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">البريد الإلكتروني</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" type="email" class="form-control text-start" dir="ltr" placeholder="you@example.com" autocomplete="email" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small d-block"></span>
+                        </div>
+                        <button class="btn btn-primary w-100 btn-lg">
+                            <i class="bi bi-send"></i> أرسل الرمز إلى بريدي
+                        </button>
+                    </form>
+
+                    <hr />
+                    <div class="text-center text-muted small">
+                        أو سجّل دخول بـ
+                        <a asp-action="Login">كلمة المرور</a> ·
+                        <a asp-action="Phone">رقم الجوال</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

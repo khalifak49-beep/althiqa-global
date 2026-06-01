@@ -1,0 +1,52 @@
+@model List<Booking>
+@{ ViewData["Title"] = "التقارير"; }
+
+<h1 class="fw-bold mb-3">التقارير</h1>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3"><label class="form-label small">من</label><input type="date" name="from" value="@ViewBag.From" class="form-control" /></div>
+    <div class="col-md-3"><label class="form-label small">إلى</label><input type="date" name="to" value="@ViewBag.To" class="form-control" /></div>
+    <div class="col-md-2 d-flex align-items-end"><button class="btn btn-primary w-100"><i class="bi bi-funnel"></i> تطبيق</button></div>
+</form>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="stat-card"><div class="label">إجمالي الحجوزات</div><div class="value">@ViewBag.TotalBookings</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="label">المدفوع</div><div class="value text-success">@ViewBag.PaidBookings</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="label">الملغي</div><div class="value text-danger">@ViewBag.CancelledBookings</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="label">الإيرادات</div><div class="value">@(((decimal)ViewBag.Revenue).ToString("N2")) ر.ع.</div></div></div>
+</div>
+
+<div class="card-modern p-4">
+    <h5 class="fw-bold mb-3">الإيرادات اليومية</h5>
+    <canvas id="reportChart" height="100"></canvas>
+</div>
+
+<div class="card-modern p-0 overflow-hidden mt-3">
+    <table class="table table-modern mb-0">
+        <thead><tr><th>الرقم</th><th>التاريخ</th><th>الحالة</th><th>المبلغ</th></tr></thead>
+        <tbody>
+        @foreach (var b in Model)
+        {
+            <tr>
+                <td><code>@b.BookingNumber</code></td>
+                <td>@b.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td><span class="status-pill status-@b.Status">@b.Status</span></td>
+                <td>@b.TotalAmount.ToString("N2") ر.ع.</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+<script>
+    const data = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ByDay));
+    new Chart(document.getElementById('reportChart'), {
+        type: 'line',
+        data: { labels: data.map(d => d.date), datasets: [
+            { label: 'الإيرادات', data: data.map(d => d.revenue), borderColor: '#6c5ce7', backgroundColor: 'rgba(108,92,231,.1)', fill: true, tension: .3 },
+            { label: 'الحجوزات', data: data.map(d => d.count), borderColor: '#00b894', tension: .3 }
+        ] }
+    });
+</script>
+}

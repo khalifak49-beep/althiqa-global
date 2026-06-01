@@ -1,0 +1,39 @@
+@model List<ApplicationUser>
+@{ ViewData["Title"] = "المستخدمون"; }
+<h1 class="fw-bold mb-3">المستخدمون</h1>
+<form method="get" class="mb-3">
+    <div class="input-group"><input name="q" value="@ViewBag.Q" class="form-control" placeholder="ابحث بالاسم أو البريد" /><button class="btn btn-outline-primary"><i class="bi bi-search"></i></button></div>
+</form>
+
+<div class="card-modern p-0 overflow-hidden">
+    <table class="table table-modern mb-0">
+        <thead><tr><th>الاسم</th><th>البريد</th><th>الجوال</th><th>النقاط</th><th>منذ</th><th>الحالة</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.FullName</td>
+                <td>@u.Email</td>
+                <td>@u.PhoneNumber</td>
+                <td>@u.LoyaltyPoints</td>
+                <td>@u.CreatedAt.ToString("yyyy-MM-dd")</td>
+                <td>
+                    @if (u.IsActive)
+                    {
+                        <span class="status-pill status-Confirmed">نشط</span>
+                    }
+                    else
+                    {
+                        <span class="status-pill status-Cancelled">معطّل</span>
+                    }
+                </td>
+                <td>
+                    <form asp-action="ToggleActive" asp-route-id="@u.Id" method="post" class="d-inline">
+                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-power"></i></button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

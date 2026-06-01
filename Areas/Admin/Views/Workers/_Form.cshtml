@@ -1,0 +1,108 @@
+@model WorkerEditViewModel
+
+<div class="card-modern p-4">
+    <form method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="PhotoUrl" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none-empty"></div>
+
+        <div class="row g-3">
+            <div class="col-md-3 text-center">
+                <label class="form-label d-block">صورة العاملة</label>
+                <div class="position-relative d-inline-block">
+                    <img id="photoPreview"
+                         src="@(string.IsNullOrEmpty(Model.PhotoUrl) ? "/images/logo/al-thiqa-icon.svg" : Model.PhotoUrl)"
+                         alt="معاينة"
+                         style="width: 160px; height: 160px; object-fit: cover; border-radius: 14px; border: 1px solid var(--hm-border); background: var(--hm-bg);" />
+                    <label for="PhotoFile" class="position-absolute btn btn-primary btn-sm"
+                           style="bottom: 6px; left: 6px; cursor: pointer;">
+                        <i class="bi bi-camera"></i>
+                    </label>
+                </div>
+                <input asp-for="PhotoFile" type="file" id="PhotoFile" accept="image/*" class="form-control d-none" />
+                <small class="text-muted d-block mt-2">PNG / JPG / WEBP — حتى 5 ميجابايت</small>
+                <span asp-validation-for="PhotoFile" class="text-danger small d-block"></span>
+            </div>
+
+            <div class="col-md-9">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label asp-for="FullName" class="form-label">الاسم</label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Age" class="form-label">العمر</label>
+                        <input asp-for="Age" type="number" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Nationality" class="form-label">الجنسية</label>
+                        <input asp-for="Nationality" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="YearsOfExperience" class="form-label">سنوات الخبرة</label>
+                        <input asp-for="YearsOfExperience" type="number" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="HourlyRate" class="form-label">السعر / الساعة (ر.ع.)</label>
+                        <input asp-for="HourlyRate" type="number" step="0.001" class="form-control" />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Languages" class="form-label">اللغات</label>
+                        <input asp-for="Languages" class="form-control" placeholder="مثلاً: العربية، الإنجليزية" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ServiceId" class="form-label">الخدمة</label>
+                        <select asp-for="ServiceId" asp-items="ViewBag.Services" class="form-select"><option value="">— اختر —</option></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Availability" class="form-label">حالة التوفر</label>
+                        <select asp-for="Availability" class="form-select">
+                            @foreach (var a in Enum.GetValues<WorkerAvailability>())
+                            {
+                                <option value="@a">@a</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Bio" class="form-label">نبذة</label>
+                        <textarea asp-for="Bio" rows="3" class="form-control"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label">العاملة نشطة</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-4" />
+        <button class="btn btn-primary"><i class="bi bi-check2"></i> حفظ</button>
+        <a class="btn btn-link" asp-action="Index">إلغاء</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const input = document.getElementById('PhotoFile');
+            const preview = document.getElementById('photoPreview');
+            if (!input || !preview) return;
+            input.addEventListener('change', () => {
+                const f = input.files && input.files[0];
+                if (!f) return;
+                if (f.size > 5 * 1024 * 1024) {
+                    alert('حجم الصورة أكبر من 5 ميجابايت.');
+                    input.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => preview.src = e.target.result;
+                reader.readAsDataURL(f);
+            });
+        })();
+    </script>
+}

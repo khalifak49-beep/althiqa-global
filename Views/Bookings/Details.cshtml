@@ -1,0 +1,134 @@
+@model Booking
+@{ ViewData["Title"] = "تفاصيل الحجز"; }
+
+<section class="section">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+            <div>
+                <h1 class="fw-bold mb-0">حجز <code>@Model.BookingNumber</code></h1>
+                <span class="text-muted">تم الإنشاء في @Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span>
+            </div>
+            <span class="status-pill status-@Model.Status fs-6">@Model.Status</span>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card-modern p-4 mb-3">
+                    <h5 class="fw-bold mb-3">بيانات العاملة</h5>
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width:80px; height:80px; border-radius:14px; background-size:cover; background-position:center; background-image:url('@(string.IsNullOrEmpty(Model.Worker?.PhotoUrl) ? $"https://i.pravatar.cc/200?u={Model.WorkerId}" : Model.Worker.PhotoUrl)');"></div>
+                        <div>
+                            <strong class="fs-5">@Model.Worker?.FullName</strong>
+                            <div class="small text-muted">@Model.Worker?.Nationality • @Model.Worker?.Languages</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-modern p-4 mb-3">
+                    <h5 class="fw-bold mb-3">تفاصيل الموعد</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4"><div class="text-muted small">التاريخ</div><strong>@Model.BookingDate.ToString("yyyy-MM-dd")</strong></div>
+                        <div class="col-md-4"><div class="text-muted small">من - إلى</div><strong>@Model.StartTime.ToString("hh\\:mm") - @Model.EndTime.ToString("hh\\:mm")</strong></div>
+                        <div class="col-md-4"><div class="text-muted small">عدد الساعات</div><strong>@Model.Hours</strong></div>
+                        <div class="col-12">
+                            <div class="text-muted small">العنوان</div>
+                            <strong>@Model.Address</strong>
+                            @if (Model.Latitude.HasValue && Model.Longitude.HasValue)
+                            {
+                                <a class="btn btn-sm btn-outline-primary ms-2" target="_blank"
+                                   href="https://www.openstreetmap.org/?mlat=@Model.Latitude&mlon=@Model.Longitude#map=17/@Model.Latitude/@Model.Longitude">
+                                    <i class="bi bi-geo-alt"></i> فتح الخريطة
+                                </a>
+                                <div id="addrMap" class="mt-2" data-lat="@Model.Latitude" data-lng="@Model.Longitude" style="height:240px; border-radius:14px; overflow:hidden; border:1px solid var(--hm-border);"></div>
+                            }
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Notes))
+                        {
+                            <div class="col-12"><div class="text-muted small">ملاحظات</div><span>@Model.Notes</span></div>
+                        }
+                    </div>
+                </div>
+
+                @if (Model.Payment != null && Model.Status != BookingStatus.Cancelled && Model.Status != BookingStatus.Refunded)
+                {
+                    <div class="card-modern p-4">
+                        <h5 class="fw-bold mb-3">حالة الدفع</h5>
+                        <div class="row g-3">
+                            <div class="col-md-3"><div class="text-muted small">الحالة</div><strong><span class="status-pill status-@Model.Payment.Status">@Model.Payment.Status</span></strong></div>
+                            <div class="col-md-4"><div class="text-muted small">رقم العملية</div><code>@Model.Payment.TransactionRef</code></div>
+                            <div class="col-md-3"><div class="text-muted small">طريقة الدفع</div><strong>@Model.Payment.Method</strong></div>
+                            @if (!string.IsNullOrEmpty(Model.Payment.CardLast4))
+                            {
+                                <div class="col-md-2"><div class="text-muted small">البطاقة</div><strong>**** @Model.Payment.CardLast4</strong></div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="col-lg-4">
+                <div class="summary-box">
+                    <h6 class="fw-bold mb-3">ملخص الفاتورة</h6>
+                    <div class="row"><div class="col-6 text-muted">المجموع الفرعي</div><div class="col-6 text-end">@Model.SubTotal.ToString("N2") ر.ع.</div></div>
+                    <div class="row"><div class="col-6 text-muted">الخصم</div><div class="col-6 text-end text-success">- @Model.DiscountAmount.ToString("N2") ر.ع.</div></div>
+                    <div class="row"><div class="col-6 text-muted">الضريبة</div><div class="col-6 text-end">@Model.TaxAmount.ToString("N2") ر.ع.</div></div>
+                    <div class="row"><div class="col-6">الإجمالي</div><div class="col-6 text-end total">@Model.TotalAmount.ToString("N2") ر.ع.</div></div>
+
+                    @{
+                        var isCancelledOrRefunded = Model.Status is BookingStatus.Cancelled or BookingStatus.Refunded;
+                        var isPaid = Model.Payment?.Status == PaymentStatus.Paid;
+                    }
+                    @if (isCancelledOrRefunded)
+                    {
+                        <div class="alert alert-secondary mt-3 mb-0 text-center small">
+                            <i class="bi bi-x-circle"></i> هذا الحجز ملغى — لا حاجة للدفع.
+                        </div>
+                    }
+                    else if (!isPaid)
+                    {
+                        <a class="btn btn-primary w-100 mt-3" asp-controller="Payments" asp-action="Checkout" asp-route-bookingId="@Model.Id"><i class="bi bi-credit-card"></i> الانتقال للدفع</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-primary w-100 mt-3" asp-action="Invoice" asp-route-id="@Model.Id"><i class="bi bi-file-pdf"></i> تنزيل الفاتورة PDF</a>
+                    }
+
+                    @if (Model.Status is BookingStatus.Pending or BookingStatus.Confirmed)
+                    {
+                        <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="mt-2"
+                              onsubmit="return confirm('هل أنت متأكد من إلغاء الحجز؟');">
+                            <input name="reason" class="form-control mb-2" placeholder="سبب الإلغاء (اختياري)" />
+                            <button class="btn btn-outline-danger w-100"><i class="bi bi-x-circle"></i> إلغاء الحجز</button>
+                        </form>
+                    }
+
+                    @if (Model.Status == BookingStatus.Completed && Model.Review == null)
+                    {
+                        <a class="btn btn-warning w-100 mt-2" asp-controller="Reviews" asp-action="Create" asp-route-bookingId="@Model.Id"><i class="bi bi-star"></i> أضف تقييماً</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@if (Model.Latitude.HasValue && Model.Longitude.HasValue)
+{
+    @section Styles {
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    }
+    @section Scripts {
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        <script>
+            (function () {
+                const el = document.getElementById('addrMap');
+                if (!el) return;
+                const lat = parseFloat(el.dataset.lat), lng = parseFloat(el.dataset.lng);
+                const m = L.map(el, { zoomControl: true, scrollWheelZoom: false }).setView([lat, lng], 16);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(m);
+                L.marker([lat, lng]).addTo(m);
+                setTimeout(() => m.invalidateSize(), 200);
+            })();
+        </script>
+    }
+}

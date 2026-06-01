@@ -1,0 +1,53 @@
+# Build artifacts
+bin/
+obj/
+out/
+*.dll
+*.pdb
+*.exe
+
+# IDE
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userprefs
+
+# Claude/AI editors
+.claude/
+.qodo/
+.sixth/
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Logs
+Logs/
+*.log
+
+# Local DB files
+*.db
+*.db-shm
+*.db-wal
+app.db
+
+# Secrets and local settings — DO NOT commit production credentials
+appsettings.Local.json
+secrets.json
+*.pfx
+
+# NuGet
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+.nuget/
+
+# Worker uploaded photos (local user-generated, may be re-uploaded after deploy)
+wwwroot/images/workers/uploads/
+
+# Misc
+*.swp
+*~

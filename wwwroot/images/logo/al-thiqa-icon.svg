@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 280" aria-label="Al Thiqa Global Cleaning Services">
+  <defs>
+    <linearGradient id="al-thiqa-grad" x1="0" y1="0.5" x2="1" y2="0.5">
+      <stop offset="0%" stop-color="#1bb3e0"/>
+      <stop offset="50%" stop-color="#1bb3e0"/>
+      <stop offset="50%" stop-color="#28c98a"/>
+      <stop offset="100%" stop-color="#28c98a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Teardrop / location pin -->
+  <path d="M 120 10
+           C 60 10, 18 56, 18 116
+           C 18 178, 100 250, 120 268
+           C 140 250, 222 178, 222 116
+           C 222 56, 180 10, 120 10 Z"
+        fill="url(#al-thiqa-grad)"/>
+
+  <!-- Broom handle (vertical stick) -->
+  <rect x="113" y="48" width="14" height="92" rx="3" fill="#ffffff"/>
+
+  <!-- Broom head (trapezoid with bristles hint) -->
+  <path d="M 64 134
+           L 176 134
+           L 168 178
+           C 152 172, 88 172, 72 178 Z"
+        fill="#ffffff"/>
+
+  <!-- Sparkle 1 (top) -->
+  <path d="M 168 76
+           l 5 -12
+           l 4 12
+           l 12 4
+           l -12 4
+           l -4 12
+           l -4 -12
+           l -12 -4 z"
+        fill="#ffffff"/>
+
+  <!-- Sparkle 2 (small, below the first) -->
+  <path d="M 178 110
+           l 3 -7
+           l 2 7
+           l 7 3
+           l -7 2
+           l -2 7
+           l -2 -7
+           l -7 -2 z"
+        fill="#ffffff"/>
+</svg>

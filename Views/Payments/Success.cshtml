@@ -1,0 +1,28 @@
+@model Booking
+@{ ViewData["Title"] = "تم الدفع بنجاح"; }
+
+<section class="section">
+    <div class="container">
+        <partial name="_BookingStepper" model="4" />
+        <div class="card-modern p-5 text-center" style="max-width: 600px; margin: 0 auto;">
+            <img src="~/images/logo/al-thiqa-full.png"
+                 onerror="this.onerror=null;this.src='/images/logo/al-thiqa-full.svg';"
+                 alt="الثقة العالمية" class="auth-logo mb-3" />
+            <div class="mx-auto mb-3" style="width:80px; height:80px; border-radius:50%; background: rgba(0,184,148,.15); display:flex; align-items:center; justify-content:center;">
+                <i class="bi bi-check-lg text-success" style="font-size:3rem;"></i>
+            </div>
+            <h2 class="fw-bold">شكراً، تم الدفع بنجاح!</h2>
+            <p class="text-muted">سنرسل لك تأكيد الحجز عبر البريد والإشعارات.</p>
+            <div class="my-3">
+                <small class="text-muted">رقم الحجز</small>
+                <div class="fs-5"><code>@Model.BookingNumber</code></div>
+                <small class="text-muted">رقم العملية</small>
+                <div><code>@Model.Payment?.TransactionRef</code></div>
+            </div>
+            <div class="d-flex gap-2 justify-content-center">
+                <a class="btn btn-primary" asp-controller="Bookings" asp-action="Details" asp-route-id="@Model.Id"><i class="bi bi-eye"></i> عرض الحجز</a>
+                <a class="btn btn-outline-primary" asp-controller="Bookings" asp-action="Invoice" asp-route-id="@Model.Id"><i class="bi bi-file-pdf"></i> تنزيل الفاتورة</a>
+            </div>
+        </div>
+    </div>
+</section>

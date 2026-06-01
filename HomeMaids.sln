@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeMaids", "HomeMaids.csproj", "{2EF8FD01-C07F-9F19-167C-983F70E02C6A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2EF8FD01-C07F-9F19-167C-983F70E02C6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EF8FD01-C07F-9F19-167C-983F70E02C6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EF8FD01-C07F-9F19-167C-983F70E02C6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EF8FD01-C07F-9F19-167C-983F70E02C6A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {30200188-AF5A-40B8-80CA-28781BF83652}
+	EndGlobalSection
+EndGlobal

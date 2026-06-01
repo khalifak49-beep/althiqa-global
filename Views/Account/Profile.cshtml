@@ -1,0 +1,88 @@
+@model ProfileViewModel
+@{ ViewData["Title"] = "الملف الشخصي"; }
+
+<section class="section">
+    <div class="container">
+        <h1 class="fw-bold mb-3">الملف الشخصي</h1>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card-modern p-4 text-center">
+                    <div class="brand-mark mx-auto mb-3" style="width:80px;height:80px;font-size:2rem;"><i class="bi bi-person"></i></div>
+                    <h5 class="fw-bold mb-1">@Model.FullName</h5>
+                    <div class="text-muted">@Model.Email</div>
+                    <hr />
+                    <div class="d-flex align-items-center justify-content-around">
+                        <div>
+                            <div class="text-muted small">نقاط الولاء</div>
+                            <strong class="fs-4 text-primary">@Model.LoyaltyPoints</strong>
+                        </div>
+                    </div>
+                    <a asp-action="ChangePassword" class="btn btn-outline-primary w-100 mt-3"><i class="bi bi-key"></i> تغيير كلمة المرور</a>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card-modern p-4">
+                    <h5 class="fw-bold mb-3">بيانات العميل (Customer Metadata)</h5>
+                    @{
+                        var hasRealEmail = !string.IsNullOrEmpty(Model.Email) && !Model.Email.EndsWith("@phone.al-thiqa.local", StringComparison.OrdinalIgnoreCase);
+                        var hasPhone = !string.IsNullOrEmpty(Model.PhoneNumber);
+                        var missing = (!hasRealEmail ? 1 : 0) + (!hasPhone ? 1 : 0) + (string.IsNullOrEmpty(Model.DefaultAddress) ? 1 : 0);
+                    }
+                    @if (missing > 0)
+                    {
+                        <div class="alert alert-warning small d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle me-2 fs-5"></i>
+                            <span>هناك <strong>@missing</strong> حقول ناقصة — أكمل بياناتك لتسهيل التواصل والحجز.</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-success small d-flex align-items-center">
+                            <i class="bi bi-check-circle me-2 fs-5"></i> ملفك مكتمل ✓
+                        </div>
+                    }
+
+                    <form method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="FullName" class="form-label">الاسم الكامل <span class="text-danger">*</span></label>
+                                <input asp-for="FullName" class="form-control" required />
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="PhoneNumber" class="form-label">رقم الجوال
+                                    @if (!hasPhone) { <span class="badge bg-warning text-dark">ناقص</span> }
+                                </label>
+                                <input asp-for="PhoneNumber" class="form-control" dir="ltr" placeholder="+96877005570" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label">البريد الإلكتروني
+                                    @if (!hasRealEmail) { <span class="badge bg-warning text-dark">ناقص أو افتراضي</span> }
+                                </label>
+                                <input value="@Model.Email" type="email" class="form-control" dir="ltr" readonly disabled />
+                                <small class="text-muted">لا يمكن تغيير البريد الأساسي — لتغييره تواصل مع الإدارة.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">نقاط الولاء</label>
+                                <input value="@Model.LoyaltyPoints" class="form-control" readonly disabled />
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="DefaultAddress" class="form-label">العنوان الافتراضي
+                                    @if (string.IsNullOrEmpty(Model.DefaultAddress)) { <span class="badge bg-warning text-dark">ناقص</span> }
+                                </label>
+                                <textarea asp-for="DefaultAddress" rows="2" class="form-control" placeholder="مسقط، الخوض، الشارع..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="AvatarUrl" class="form-label">رابط الصورة الشخصية (اختياري)</label>
+                                <input asp-for="AvatarUrl" class="form-control" dir="ltr" />
+                            </div>
+                        </div>
+                        <button class="btn btn-primary mt-3"><i class="bi bi-check2"></i> حفظ التغييرات</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

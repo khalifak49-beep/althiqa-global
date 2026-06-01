@@ -1,0 +1,34 @@
+{
+  "name": "الثقة العالمية لخدمات التنظيف",
+  "short_name": "الثقة",
+  "description": "حجز عاملات منزليات بالساعات — Al Thiqa Global Cleaning Services",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f7fb",
+  "theme_color": "#6c5ce7",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["lifestyle", "productivity", "business"],
+  "icons": [
+    {
+      "src": "/images/logo/al-thiqa-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "تصفّح العاملات",
+      "url": "/Workers",
+      "icons": [{ "src": "/images/logo/al-thiqa-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "حجوزاتي",
+      "url": "/Bookings",
+      "icons": [{ "src": "/images/logo/al-thiqa-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    }
+  ]
+}
