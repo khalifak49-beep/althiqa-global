@@ -5,6 +5,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-HomeMaids-abd665d4-6269-4e15-bf76-a615bbc9a63a</UserSecretsId>
+    <!-- Avoid memory-hungry static asset compression on small build machines (Render free tier). -->
+    <CompressionEnabled>false</CompressionEnabled>
+    <NoStaticWebAssetsCompression>true</NoStaticWebAssetsCompression>
   </PropertyGroup>
 
   <ItemGroup>
