@@ -8,6 +8,13 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Honor the PORT env var (used by Render, Heroku, Railway, etc.)
+var portEnv = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(portEnv))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{portEnv}");
+}
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
@@ -15,11 +22,44 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 builder.Host.UseSerilog();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// === Database provider selection ===
+// On Render/Heroku/Railway: DATABASE_URL is set (postgres://...).
+// Locally: falls back to SQL Server via "DefaultConnection".
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+var useNpgsql = !string.IsNullOrWhiteSpace(databaseUrl);
+
+string connectionString;
+if (useNpgsql)
+{
+    // Convert "postgres://user:pass@host:port/db" → Npgsql key/value string
+    var uri = new Uri(databaseUrl!);
+    var userInfo = uri.UserInfo.Split(':', 2);
+    var b = new Npgsql.NpgsqlConnectionStringBuilder
+    {
+        Host = uri.Host,
+        Port = uri.Port > 0 ? uri.Port : 5432,
+        Username = Uri.UnescapeDataString(userInfo[0]),
+        Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "",
+        Database = uri.AbsolutePath.TrimStart('/'),
+        SslMode = Npgsql.SslMode.Require,
+        TrustServerCertificate = true,
+        Pooling = true
+    };
+    connectionString = b.ConnectionString;
+}
+else
+{
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+}
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    if (useNpgsql)
+        options.UseNpgsql(connectionString);
+    else
+        options.UseSqlServer(connectionString);
+});
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -107,6 +147,7 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<HomeMaids.Services.MaintenanceMiddleware>();
 
 app.MapControllerRoute(
     name: "areas",
@@ -122,7 +163,15 @@ using (var scope = app.Services.CreateScope())
 {
     var sp = scope.ServiceProvider;
     var db = sp.GetRequiredService<ApplicationDbContext>();
-    await db.Database.MigrateAsync();
+    if (useNpgsql)
+    {
+        // PostgreSQL deploys (Render) bootstrap schema from the live EF model — skips SQL Server-flavoured migrations.
+        await db.Database.EnsureCreatedAsync();
+    }
+    else
+    {
+        await db.Database.MigrateAsync();
+    }
     await DbInitializer.SeedRolesAndAdminAsync(sp, builder.Configuration);
 }
 

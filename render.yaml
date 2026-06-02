@@ -1,0 +1,34 @@
+# =====================================================================
+#  Render.com Blueprint - Al Thiqa Global Cleaning Services
+#  This file lets Render auto-provision both the web service and DB
+#  when you connect this repo as a "Blueprint" (https://dashboard.render.com/blueprints).
+# =====================================================================
+
+databases:
+  - name: althiqa-db
+    plan: free                # 90-day expiry on free tier
+    databaseName: althiqa
+    user: althiqa_app
+
+services:
+  - type: web
+    name: althiqa
+    runtime: docker
+    plan: free                # sleeps after 15 min idle; first request wakes it
+    region: frankfurt         # closest free region to Oman
+    healthCheckPath: /
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true          # auto-redeploy on every push to GitHub
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: althiqa-db
+          property: connectionString
+      - key: AdminSeed__Email
+        value: admin@homemaids.local
+      - key: AdminSeed__Password
+        value: Admin@123456
+      - key: AdminSeed__FullName
+        value: System Administrator

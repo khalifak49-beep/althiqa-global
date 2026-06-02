@@ -1,0 +1,59 @@
+@model HomeMaids.Areas.Admin.Controllers.HealthViewModel
+@{ ViewData["Title"] = "صحة النظام"; }
+
+<div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1 class="fw-bold mb-0"><i class="bi bi-heart-pulse text-danger"></i> مراقبة صحة النظام</h1>
+        <small class="text-muted">الإصدار @Model.AppVersion · .NET @Model.RuntimeVersion · @Model.MachineName</small>
+    </div>
+    <button class="btn btn-outline-primary" onclick="location.reload()"><i class="bi bi-arrow-clockwise"></i> تحديث</button>
+</div>
+
+@{
+    var ok = Model.Checks.Count(c => c.Status == "ok");
+    var warn = Model.Checks.Count(c => c.Status == "warn");
+    var err = Model.Checks.Count(c => c.Status == "error");
+    var overall = err > 0 ? "خطأ" : warn > 0 ? "تحذير" : "ممتاز";
+    var color = err > 0 ? "danger" : warn > 0 ? "warning" : "success";
+}
+
+<div class="alert alert-@color d-flex align-items-center">
+    <i class="bi bi-@(err > 0 ? "x-octagon" : warn > 0 ? "exclamation-triangle" : "check-circle") fs-3 me-3"></i>
+    <div>
+        <strong>الحالة العامة: @overall</strong><br />
+        <small>@ok ناجح · @warn تحذير · @err خطأ</small>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-3"><div class="stat-card"><div class="label">مدة التشغيل</div><div class="value" style="font-size:1.3rem">@($"{Model.Uptime.Days}د {Model.Uptime.Hours}س {Model.Uptime.Minutes}د")</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="label">استهلاك الذاكرة</div><div class="value" style="font-size:1.3rem">@Model.MemoryMb MB</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="label">عدد العملاء</div><div class="value">@Model.CustomerCount</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="label">عدد الحجوزات</div><div class="value">@Model.BookingCount</div></div></div>
+</div>
+
+<div class="card-modern p-0 overflow-hidden">
+    <table class="table table-modern mb-0 align-middle">
+        <thead><tr><th style="width:40px"></th><th>الفحص</th><th>الحالة</th><th>التفاصيل</th><th>الزمن</th></tr></thead>
+        <tbody>
+            @foreach (var c in Model.Checks)
+            {
+                var (badge, ic) = c.Status switch
+                {
+                    "ok"   => ("success", "bi-check-circle-fill"),
+                    "warn" => ("warning", "bi-exclamation-triangle-fill"),
+                    _      => ("danger",  "bi-x-circle-fill")
+                };
+                <tr>
+                    <td><i class="bi @ic text-@badge fs-4"></i></td>
+                    <td><strong>@c.Name</strong></td>
+                    <td><span class="badge bg-@badge">@c.Status.ToUpper()</span></td>
+                    <td class="small">@c.Detail</td>
+                    <td class="small text-muted">@(c.LatencyMs.HasValue ? $"{c.LatencyMs:F0} ms" : "—")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="text-muted small mt-3 text-center">آخر فحص: @Model.ServerTime.ToString("yyyy-MM-dd HH:mm:ss")</div>
