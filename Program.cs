@@ -167,14 +167,27 @@ using (var scope = app.Services.CreateScope())
 {
     var sp = scope.ServiceProvider;
     var db = sp.GetRequiredService<ApplicationDbContext>();
-    if (useNpgsql)
+
+    // Render Postgres may not be DNS-resolvable immediately on first deploy.
+    // Retry with backoff so the container survives the cold-start race.
+    const int maxAttempts = 6;
+    for (int attempt = 1; attempt <= maxAttempts; attempt++)
     {
-        // PostgreSQL deploys (Render) bootstrap schema from the live EF model — skips SQL Server-flavoured migrations.
-        await db.Database.EnsureCreatedAsync();
-    }
-    else
-    {
-        await db.Database.MigrateAsync();
+        try
+        {
+            if (useNpgsql)
+                await db.Database.EnsureCreatedAsync();
+            else
+                await db.Database.MigrateAsync();
+            break;
+        }
+        catch (Exception ex) when (attempt < maxAttempts)
+        {
+            var delay = TimeSpan.FromSeconds(Math.Min(30, 5 * attempt));
+            Console.Error.WriteLine($"[DB-INIT] attempt {attempt}/{maxAttempts} failed: {ex.GetType().Name}: {ex.Message}");
+            Console.Error.WriteLine($"[DB-INIT] retrying in {delay.TotalSeconds:N0}s...");
+            await Task.Delay(delay);
+        }
     }
     await DbInitializer.SeedRolesAndAdminAsync(sp, builder.Configuration);
 }

@@ -15,7 +15,8 @@ services:
     name: althiqa
     runtime: docker
     plan: free                # sleeps after 15 min idle; first request wakes it
-    region: frankfurt         # closest free region to Oman
+    # No region specified — Render auto-matches the free Postgres region.
+    # Cross-region internal connections cause DNS resolution failures.
     healthCheckPath: /
     dockerfilePath: ./Dockerfile
     autoDeploy: true          # auto-redeploy on every push to GitHub
