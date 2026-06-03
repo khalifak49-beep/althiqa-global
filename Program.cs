@@ -41,9 +41,13 @@ if (useNpgsql)
         Username = Uri.UnescapeDataString(userInfo[0]),
         Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "",
         Database = uri.AbsolutePath.TrimStart('/'),
-        SslMode = Npgsql.SslMode.Require,
+        // Prefer SSL but don't force it (Render internal connections may not support SSL)
+        SslMode = Npgsql.SslMode.Prefer,
         TrustServerCertificate = true,
-        Pooling = true
+        Pooling = true,
+        MaxPoolSize = 10,         // Keep memory footprint low on free tier
+        Timeout = 30,
+        CommandTimeout = 60
     };
     connectionString = b.ConnectionString;
 }
