@@ -213,13 +213,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 Id = 1,
                 Provider = "Thawani",
                 DisplayName = "Thawani Pay",
-                ApiBaseUrl = "https://uatcheckout.thawani.om/api/v1",
-                CheckoutBaseUrl = "https://uatcheckout.thawani.om/pay/",
-                SecretKey = "rRQ26GcsZzoEhbrP2HZvLYDbn9C9et",
-                PublishableKey = "HGvTMLDssJghr9tlN9gr4DVYt0qyBy",
+                ApiBaseUrl = "https://checkout.thawani.om/api/v1",
+                CheckoutBaseUrl = "https://checkout.thawani.om/pay/",
+                SecretKey = "GFi9XiaHOrKzSdkbbYXnNMQy8WSsLA",
+                PublishableKey = "g29bBIGL8U8PsSH0iFaAGOXwcb1MfU",
                 SuccessUrl = "/Payments/ThawaniSuccess",
                 CancelUrl = "/Payments/ThawaniCancel",
-                IsLive = false,
+                IsLive = true,
                 IsActive = true,
                 UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             }

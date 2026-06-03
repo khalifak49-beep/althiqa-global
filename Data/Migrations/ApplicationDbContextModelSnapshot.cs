@@ -628,15 +628,15 @@ namespace HomeMaids.Data.Migrations
                         new
                         {
                             Id = 1,
-                            ApiBaseUrl = "https://uatcheckout.thawani.om/api/v1",
+                            ApiBaseUrl = "https://checkout.thawani.om/api/v1",
                             CancelUrl = "/Payments/ThawaniCancel",
-                            CheckoutBaseUrl = "https://uatcheckout.thawani.om/pay/",
+                            CheckoutBaseUrl = "https://checkout.thawani.om/pay/",
                             DisplayName = "Thawani Pay",
                             IsActive = true,
-                            IsLive = false,
+                            IsLive = true,
                             Provider = "Thawani",
-                            PublishableKey = "HGvTMLDssJghr9tlN9gr4DVYt0qyBy",
-                            SecretKey = "rRQ26GcsZzoEhbrP2HZvLYDbn9C9et",
+                            PublishableKey = "g29bBIGL8U8PsSH0iFaAGOXwcb1MfU",
+                            SecretKey = "GFi9XiaHOrKzSdkbbYXnNMQy8WSsLA",
                             SuccessUrl = "/Payments/ThawaniSuccess",
                             UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         });
