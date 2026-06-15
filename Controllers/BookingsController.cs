@@ -38,6 +38,70 @@ public class BookingsController : Controller
         _ => 4
     };
 
+    private static int VisitsPerWeek(MonthlyPlan p) => p switch
+    {
+        MonthlyPlan.Weekly => 1,
+        MonthlyPlan.TwiceWeekly => 2,
+        MonthlyPlan.ThriceWeekly => 3,
+        MonthlyPlan.Daily => 7,
+        _ => 1
+    };
+
+    /// <summary>
+    /// Generates concrete visit dates given weekly slots, start date, and total visits.
+    /// For Daily plan: produces one visit per day until quota is met.
+    /// For other plans: walks forward day-by-day and picks dates matching the slot days.
+    /// </summary>
+    private static List<MonthlyVisit> GenerateVisits(
+        MonthlyPlan plan,
+        DateTime startDate,
+        int totalVisits,
+        int hoursPerVisit,
+        List<MonthlyVisitSlotInput> slots)
+    {
+        var result = new List<MonthlyVisit>();
+        if (slots.Count == 0) return result;
+
+        var current = startDate.Date;
+        var maxDays = 60; // safety: scan at most 60 days
+
+        if (plan == MonthlyPlan.Daily)
+        {
+            var time = slots[0].StartTime;
+            for (int i = 0; i < totalVisits; i++)
+            {
+                var d = current.AddDays(i);
+                result.Add(new MonthlyVisit
+                {
+                    ScheduledDate = d,
+                    DayOfWeek = d.DayOfWeek,
+                    StartTime = time,
+                    EndTime = time.Add(TimeSpan.FromHours(hoursPerVisit)),
+                    Status = BookingStatus.Pending
+                });
+            }
+            return result;
+        }
+
+        var slotsByDay = slots.ToDictionary(s => s.DayOfWeek, s => s.StartTime);
+        for (int dayOffset = 0; dayOffset < maxDays && result.Count < totalVisits; dayOffset++)
+        {
+            var d = current.AddDays(dayOffset);
+            if (slotsByDay.TryGetValue(d.DayOfWeek, out var time))
+            {
+                result.Add(new MonthlyVisit
+                {
+                    ScheduledDate = d,
+                    DayOfWeek = d.DayOfWeek,
+                    StartTime = time,
+                    EndTime = time.Add(TimeSpan.FromHours(hoursPerVisit)),
+                    Status = BookingStatus.Pending
+                });
+            }
+        }
+        return result;
+    }
+
     [HttpGet]
     public async Task<IActionResult> Monthly(int workerId)
     {
@@ -56,6 +120,19 @@ public class BookingsController : Controller
     [HttpPost]
     public async Task<IActionResult> Monthly(CreateMonthlyBookingViewModel vm)
     {
+        var expectedSlots = VisitsPerWeek(vm.Plan);
+        if (vm.Slots == null || vm.Slots.Count != expectedSlots)
+        {
+            ModelState.AddModelError(nameof(vm.Slots),
+                $"يجب تحديد {expectedSlots} زيارة أسبوعية. لديك حالياً {(vm.Slots?.Count ?? 0)}.");
+        }
+        else if (vm.Plan != MonthlyPlan.Daily)
+        {
+            var distinctDays = vm.Slots.Select(s => s.DayOfWeek).Distinct().Count();
+            if (distinctDays != vm.Slots.Count)
+                ModelState.AddModelError(nameof(vm.Slots), "لا يمكن اختيار نفس اليوم لزيارتين.");
+        }
+
         if (!ModelState.IsValid)
         {
             vm.Worker = await _db.Workers.Include(w => w.Service).FirstOrDefaultAsync(w => w.Id == vm.WorkerId);
@@ -139,6 +216,51 @@ public class BookingsController : Controller
             ContractEndDate = vm.StartDate.Date.AddMonths(1),
             CreatedAt = DateTime.UtcNow
         };
+
+        var generatedVisits = GenerateVisits(vm.Plan, vm.StartDate.Date, visits, vm.HoursPerVisit, vm.Slots);
+        booking.Visits = generatedVisits;
+
+        // Use the first generated visit as the booking's start time/end time (legacy compatibility)
+        if (generatedVisits.Count > 0)
+        {
+            booking.BookingDate = generatedVisits[0].ScheduledDate;
+            booking.StartTime = generatedVisits[0].StartTime;
+            booking.EndTime = generatedVisits[0].EndTime;
+            booking.ContractEndDate = generatedVisits[^1].ScheduledDate;
+        }
+
+        // Conflict check against other bookings (hourly + other monthly visits) for this worker
+        var conflictDates = generatedVisits.Select(v => v.ScheduledDate).ToList();
+        var hourlyConflicts = await _db.Bookings.AsNoTracking()
+            .Where(b => b.WorkerId == worker.Id
+                     && b.Status != BookingStatus.Cancelled
+                     && conflictDates.Contains(b.BookingDate))
+            .Select(b => new { b.BookingDate, b.StartTime, b.EndTime })
+            .ToListAsync();
+        var monthlyConflicts = await _db.MonthlyVisits.AsNoTracking()
+            .Where(v => v.Booking!.WorkerId == worker.Id
+                     && v.Status != BookingStatus.Cancelled
+                     && conflictDates.Contains(v.ScheduledDate))
+            .Select(v => new { BookingDate = v.ScheduledDate, v.StartTime, v.EndTime })
+            .ToListAsync();
+        var allConflicts = hourlyConflicts.Concat(monthlyConflicts).ToList();
+
+        var conflictMsg = new List<string>();
+        foreach (var v in generatedVisits)
+        {
+            var clash = allConflicts.FirstOrDefault(c => c.BookingDate == v.ScheduledDate
+                                                     && v.StartTime < c.EndTime
+                                                     && c.StartTime < v.EndTime);
+            if (clash != null)
+                conflictMsg.Add($"{v.ScheduledDate:yyyy-MM-dd} {v.StartTime:hh\\:mm}");
+        }
+        if (conflictMsg.Count > 0)
+        {
+            ModelState.AddModelError("", "تعارض في المواعيد التالية للعاملة: " + string.Join(", ", conflictMsg));
+            vm.Worker = await _db.Workers.Include(w => w.Service).FirstOrDefaultAsync(w => w.Id == vm.WorkerId);
+            vm.Services = await _db.Services.Where(s => s.IsActive).ToListAsync();
+            return View(vm);
+        }
 
         _db.Bookings.Add(booking);
         if (coupon != null)

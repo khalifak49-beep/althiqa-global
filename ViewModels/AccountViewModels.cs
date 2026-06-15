@@ -15,7 +15,7 @@ public class RegisterViewModel
 
     [Required(ErrorMessage = "كلمة المرور مطلوبة")]
     [DataType(DataType.Password)]
-    [StringLength(100, MinimumLength = 6, ErrorMessage = "كلمة المرور 6 أحرف على الأقل")]
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "كلمة المرور 8 أحرف على الأقل وتحتوي على حرف كبير وصغير ورقم ورمز")]
     public string Password { get; set; } = string.Empty;
 
     [DataType(DataType.Password)]
@@ -115,7 +115,7 @@ public class ChangePasswordViewModel
     [Required, DataType(DataType.Password)]
     public string CurrentPassword { get; set; } = string.Empty;
 
-    [Required, DataType(DataType.Password), StringLength(100, MinimumLength = 6)]
+    [Required, DataType(DataType.Password), StringLength(100, MinimumLength = 8)]
     public string NewPassword { get; set; } = string.Empty;
 
     [DataType(DataType.Password), Compare(nameof(NewPassword))]

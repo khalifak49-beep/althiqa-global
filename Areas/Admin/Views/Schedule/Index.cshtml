@@ -1,0 +1,148 @@
+@model AdminScheduleViewModel
+@{
+    ViewData["Title"] = "جدول العاملات";
+    var dayNames = new[] { "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت" };
+    int startHour = 7;
+    int endHour = 22;
+    var hours = Enumerable.Range(startHour, endHour - startHour).ToArray();
+    var days = Enumerable.Range(0, Model.Days).Select(i => Model.From.AddDays(i)).ToArray();
+
+    // Helper: is a worker scheduled to work this day-of-week (per WorkerSchedule.IsAvailable)
+    bool IsWorkingDay(Worker w, DayOfWeek dow)
+    {
+        if (w.Schedules == null || !w.Schedules.Any()) return true; // no schedule => assume always available
+        return w.Schedules.Any(s => s.DayOfWeek == dow && s.IsAvailable);
+    }
+
+    // Build map: workerId -> (date -> list of busy slots)
+    var busy = Model.BusyByWorker.ToDictionary(
+        kv => kv.Key,
+        kv => kv.Value.GroupBy(s => s.Date.Date).ToDictionary(g => g.Key, g => g.ToList()));
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h1 class="fw-bold mb-0"><i class="bi bi-calendar-week"></i> جدول العاملات</h1>
+    <form method="get" class="d-flex gap-2 align-items-center">
+        <label class="form-label mb-0 small">من</label>
+        <input type="date" name="from" value="@Model.From.ToString("yyyy-MM-dd")" class="form-control form-control-sm" style="width: 160px;" />
+        <label class="form-label mb-0 small">عدد الأيام</label>
+        <select name="days" class="form-select form-select-sm" style="width: 100px;">
+            @foreach (var d in new[] { 3, 7, 14, 21, 30 })
+            {
+                <option value="@d" selected="@(d == Model.Days)">@d</option>
+            }
+        </select>
+        <button class="btn btn-sm btn-primary">عرض</button>
+        <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-from="@DateTime.Today.ToString("yyyy-MM-dd")" asp-route-days="7">هذا الأسبوع</a>
+    </form>
+</div>
+
+<div class="card-modern p-3 mb-3">
+    <div class="d-flex gap-3 flex-wrap small">
+        <span><span class="d-inline-block" style="width:14px;height:14px;background:#d4edda;border-radius:3px;"></span> متاحة</span>
+        <span><span class="d-inline-block" style="width:14px;height:14px;background:#f8d7da;border-radius:3px;"></span> مشغولة</span>
+        <span><span class="d-inline-block" style="width:14px;height:14px;background:#fff3cd;border-radius:3px;"></span> فترة مقدّرة الفراغ بعد الحجز</span>
+        <span><span class="d-inline-block" style="width:14px;height:14px;background:#e9ecef;border-radius:3px;"></span> خارج ساعات العمل</span>
+    </div>
+</div>
+
+@foreach (var worker in Model.Workers)
+{
+    var workerBusy = busy.TryGetValue(worker.Id, out var wb) ? wb : new Dictionary<DateTime, List<ScheduleBusySlot>>();
+    var totalBusyHours = workerBusy.Sum(d => d.Value.Sum(s => (s.EndTime - s.StartTime).TotalHours));
+
+    <div class="card-modern p-3 mb-3">
+        <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+            <div style="width:56px;height:56px;border-radius:12px;background-size:cover;background-position:center;background-image:url('@(string.IsNullOrEmpty(worker.PhotoUrl) ? $"https://i.pravatar.cc/120?u={worker.Id}" : worker.PhotoUrl)');"></div>
+            <div>
+                <h5 class="fw-bold mb-0">@worker.FullName</h5>
+                <div class="small text-muted">@worker.Nationality • @(worker.Service?.Name ?? "—") • @worker.HourlyRate.ToString("N3") ر.ع./ساعة</div>
+            </div>
+            <div class="ms-auto small">
+                <span class="badge bg-light text-dark">إجمالي مشغول: @totalBusyHours.ToString("0.#") ساعة في @Model.Days يوم</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0 small text-center" style="min-width: 900px;">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 90px;">الوقت</th>
+                        @foreach (var d in days)
+                        {
+                            <th>
+                                <div>@dayNames[(int)d.DayOfWeek]</div>
+                                <div class="text-muted">@d.ToString("dd/MM")</div>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var h in hours)
+                    {
+                        <tr>
+                            <td class="fw-bold text-muted">@h.ToString("00"):00</td>
+                            @foreach (var d in days)
+                            {
+                                var cellStart = new TimeSpan(h, 0, 0);
+                                var cellEnd = new TimeSpan(h + 1, 0, 0);
+                                var working = IsWorkingDay(worker, d.DayOfWeek);
+                                List<ScheduleBusySlot>? daySlots = null;
+                                workerBusy.TryGetValue(d.Date, out daySlots);
+
+                                ScheduleBusySlot? slot = null;
+                                if (daySlots != null)
+                                {
+                                    slot = daySlots.FirstOrDefault(s => s.StartTime < cellEnd && cellStart < s.EndTime);
+                                }
+
+                                // Estimated free: next hour right after a slot ends (within work hours)
+                                bool estimatedFree = false;
+                                if (slot == null && daySlots != null)
+                                {
+                                    estimatedFree = daySlots.Any(s => s.EndTime > cellStart - TimeSpan.FromHours(1) && s.EndTime <= cellStart);
+                                }
+
+                                string bg, content, tip;
+                                if (!working)
+                                {
+                                    bg = "#e9ecef"; content = ""; tip = "خارج ساعات العمل";
+                                }
+                                else if (slot != null)
+                                {
+                                    bg = "#f8d7da";
+                                    content = slot.BookingNumber;
+                                    tip = $"{slot.Kind} — {slot.BookingNumber} ({slot.StartTime:hh\\:mm}-{slot.EndTime:hh\\:mm})";
+                                }
+                                else if (estimatedFree)
+                                {
+                                    bg = "#fff3cd"; content = "★"; tip = "فراغ متوقع بعد انتهاء حجز سابق";
+                                }
+                                else
+                                {
+                                    bg = "#d4edda"; content = ""; tip = "متاحة";
+                                }
+
+                                <td style="background:@bg; padding:4px;" title="@tip">
+                                    @if (slot != null)
+                                    {
+                                        <a asp-controller="Bookings" asp-action="Details" asp-route-id="@slot.BookingId" class="text-decoration-none text-dark fw-bold" style="font-size:11px;">@content</a>
+                                    }
+                                    else
+                                    {
+                                        @content
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@if (!Model.Workers.Any())
+{
+    <div class="alert alert-warning"><i class="bi bi-info-circle"></i> لا توجد عاملات نشطات.</div>
+}

@@ -76,6 +76,17 @@
                                 </select>
                             </div>
                             <div class="col-12">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-calendar2-event"></i> جدول الزيارات الأسبوعية
+                                </label>
+                                <p class="small text-muted mb-2">حدّد لكل زيارة في الأسبوع: اليوم والوقت. سيتم تكرار هذا الجدول على مدار الشهر.</p>
+                                <div id="visitSlotsContainer" class="row g-3"></div>
+                                <div class="alert alert-info mt-2 py-2 px-3 small d-none" id="dailyHint">
+                                    <i class="bi bi-info-circle"></i> الباقة اليومية: زيارة في نفس الوقت كل يوم. حدّد وقت البدء فقط.
+                                </div>
+                                <div class="text-danger small mt-1" id="slotsValidationMsg"></div>
+                            </div>
+                            <div class="col-12">
                                 <label asp-for="Address" class="form-label">العنوان</label>
                                 <textarea asp-for="Address" rows="2" class="form-control" placeholder="الحي، الشارع، رقم المبنى..."></textarea>
                                 <span asp-validation-for="Address" class="text-danger small"></span>
@@ -120,6 +131,11 @@
                         <div class="row"><div class="col-6 text-muted">الزيارات الشهرية</div><div class="col-6 text-end" id="monVisits">4</div></div>
                         <div class="row"><div class="col-6 text-muted">ساعات/زيارة</div><div class="col-6 text-end" id="monHpv">3</div></div>
                         <div class="row"><div class="col-6 text-muted">إجمالي الساعات</div><div class="col-6 text-end" id="monTotalH">12</div></div>
+                        <hr class="my-2" />
+                        <div class="row"><div class="col-6 text-muted"><i class="bi bi-calendar-event"></i> بداية العقد</div><div class="col-6 text-end fw-bold" id="monStartDate">—</div></div>
+                        <div class="row"><div class="col-6 text-muted"><i class="bi bi-calendar-check"></i> نهاية العقد</div><div class="col-6 text-end fw-bold text-primary" id="monEndDate">—</div></div>
+                        <div class="row"><div class="col-6 text-muted">مدة العقد</div><div class="col-6 text-end" id="monDuration">—</div></div>
+                        <hr class="my-2" />
                         <div class="row"><div class="col-6 text-muted">المجموع الفرعي</div><div class="col-6 text-end"><span id="monSub">—</span> ر.ع.</div></div>
                         <div class="row" id="monDiscRow" style="display:none;"><div class="col-6 text-muted">الخصم</div><div class="col-6 text-end text-success">- <span id="monDisc">0</span> ر.ع.</div></div>
                         <div class="row"><div class="col-6 text-muted">ضريبة 5%</div><div class="col-6 text-end"><span id="monTax">—</span> ر.ع.</div></div>
@@ -194,6 +210,68 @@
             setTimeout(() => map.invalidateSize(), 200);
         })();
 
+        // ===== Dynamic visit-slot pickers =====
+        (function () {
+            const slotsPerWeek = { 'Weekly':1, 'TwiceWeekly':2, 'ThriceWeekly':3, 'Daily':7 };
+            const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+            const container = document.getElementById('visitSlotsContainer');
+            const dailyHint = document.getElementById('dailyHint');
+
+            function buildSlot(index, plan) {
+                const isDaily = plan === 'Daily';
+                const dayMarkup = isDaily
+                    ? `<input type="hidden" name="Slots[${index}].DayOfWeek" value="${index}" />`
+                    : `<select name="Slots[${index}].DayOfWeek" class="form-select form-select-sm slot-day">
+                         ${dayNames.map((n,i)=>`<option value="${i}">${n}</option>`).join('')}
+                       </select>`;
+                const labelText = isDaily ? dayNames[index] : `الزيارة ${index + 1}`;
+                const colCls = isDaily ? 'col-md-3 col-6' : 'col-md-6';
+                return `
+                <div class="${colCls} slot-card">
+                    <div class="border rounded p-2">
+                        <div class="small fw-bold mb-1">${labelText}</div>
+                        ${isDaily ? '' : `<div class="mb-2">${dayMarkup}</div>`}
+                        <input type="time" name="Slots[${index}].StartTime" value="10:00"
+                               class="form-control form-control-sm slot-time" required />
+                    </div>
+                </div>`;
+            }
+
+            function renderSlots() {
+                const planEl = document.querySelector('input[name="Plan"]:checked');
+                const plan = planEl ? planEl.value : 'Weekly';
+                const count = slotsPerWeek[plan] || 1;
+                container.innerHTML = '';
+                for (let i = 0; i < count; i++) container.insertAdjacentHTML('beforeend', buildSlot(i, plan));
+                dailyHint.classList.toggle('d-none', plan !== 'Daily');
+
+                if (plan !== 'Daily') {
+                    const selects = container.querySelectorAll('.slot-day');
+                    selects.forEach((s, idx) => { s.selectedIndex = idx % 7; });
+                }
+            }
+
+            document.querySelectorAll('input[name="Plan"]').forEach(r => r.addEventListener('change', renderSlots));
+            renderSlots();
+
+            // Client-side validation: distinct days for non-Daily plans
+            const form = document.querySelector('form');
+            const msg = document.getElementById('slotsValidationMsg');
+            form.addEventListener('submit', function (e) {
+                const planEl = document.querySelector('input[name="Plan"]:checked');
+                const plan = planEl ? planEl.value : 'Weekly';
+                if (plan === 'Daily') { msg.textContent = ''; return; }
+                const days = Array.from(container.querySelectorAll('.slot-day')).map(s => s.value);
+                const unique = new Set(days);
+                if (unique.size !== days.length) {
+                    e.preventDefault();
+                    msg.textContent = 'لا يمكن اختيار نفس اليوم لزيارتين. غيّر التواريخ.';
+                    return;
+                }
+                msg.textContent = '';
+            });
+        })();
+
         // ===== Monthly pricing live calc =====
         (function () {
             const rate = parseFloat('@Model.Worker?.HourlyRate.ToString("0.000")' || '0');
@@ -249,9 +327,53 @@
                 } else {
                     discRow.style.display = 'none';
                 }
+
+                computeContractDates(plan, visits);
             }
+
+            function computeContractDates(plan, totalVisits) {
+                const startInput = document.getElementById('StartDate');
+                const startVal = startInput?.value;
+                const startEl = document.getElementById('monStartDate');
+                const endEl = document.getElementById('monEndDate');
+                const durEl = document.getElementById('monDuration');
+                if (!startVal) { startEl.textContent = endEl.textContent = durEl.textContent = '—'; return; }
+
+                const start = new Date(startVal + 'T00:00:00');
+                if (isNaN(start)) { startEl.textContent = endEl.textContent = durEl.textContent = '—'; return; }
+
+                const slotDays = Array.from(document.querySelectorAll('#visitSlotsContainer .slot-day'))
+                    .map(s => parseInt(s.value, 10));
+                const hiddenDays = Array.from(document.querySelectorAll('#visitSlotsContainer input[type="hidden"][name$=".DayOfWeek"]'))
+                    .map(h => parseInt(h.value, 10));
+                const targetDays = (plan === 'Daily') ? [0,1,2,3,4,5,6]
+                                  : (slotDays.length ? slotDays : hiddenDays);
+                if (targetDays.length === 0) { endEl.textContent = '—'; return; }
+
+                let lastDate = null;
+                let scheduled = 0;
+                for (let offset = 0; offset < 90 && scheduled < totalVisits; offset++) {
+                    const d = new Date(start);
+                    d.setDate(d.getDate() + offset);
+                    if (plan === 'Daily' || targetDays.includes(d.getDay())) {
+                        lastDate = d;
+                        scheduled++;
+                    }
+                }
+                if (!lastDate) { endEl.textContent = '—'; return; }
+
+                const fmt = (dt) => `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
+                const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+                startEl.textContent = `${dayNames[start.getDay()]} ${fmt(start)}`;
+                endEl.textContent = `${dayNames[lastDate.getDay()]} ${fmt(lastDate)}`;
+                const daysDiff = Math.round((lastDate - start) / 86400000) + 1;
+                durEl.textContent = `${daysDiff} يوم`;
+            }
+
             document.querySelectorAll('input[name="Plan"]').forEach(r => r.addEventListener('change', recalc));
             document.getElementById('HoursPerVisit').addEventListener('input', recalc);
+            document.getElementById('StartDate')?.addEventListener('change', recalc);
+            document.getElementById('visitSlotsContainer').addEventListener('change', recalc);
             couponEl && couponEl.addEventListener('input', () => clearTimeout(window.__mcTO) || (window.__mcTO = setTimeout(recalc, 400)));
             btn && btn.addEventListener('click', recalc);
             recalc();

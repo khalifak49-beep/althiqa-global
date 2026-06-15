@@ -12,11 +12,13 @@ public class MaintenanceController : Controller
 {
     private readonly ApplicationDbContext _db;
     private readonly IWebHostEnvironment _env;
+    private readonly ILogger<MaintenanceController> _logger;
 
-    public MaintenanceController(ApplicationDbContext db, IWebHostEnvironment env)
+    public MaintenanceController(ApplicationDbContext db, IWebHostEnvironment env, ILogger<MaintenanceController> logger)
     {
         _db = db;
         _env = env;
+        _logger = logger;
     }
 
     public async Task<IActionResult> Index()
@@ -67,7 +69,8 @@ public class MaintenanceController : Controller
         }
         catch (Exception ex)
         {
-            TempData["Error"] = $"فشل النسخ الاحتياطي: {ex.Message}";
+            _logger.LogError(ex, "Backup failed for {FullPath}", fullPath);
+            TempData["Error"] = "فشل النسخ الاحتياطي. راجع السجلات للتفاصيل.";
         }
         return RedirectToAction(nameof(Index));
     }

@@ -26,6 +26,21 @@ public class CreateMonthlyBookingViewModel
 
     [StringLength(500)] public string? Notes { get; set; }
     [StringLength(30)] public string? CouponCode { get; set; }
+
+    /// <summary>
+    /// One entry per weekly visit slot. Count must equal weekly visits in the chosen plan
+    /// (Weekly=1, TwiceWeekly=2, ThriceWeekly=3, Daily=7).
+    /// </summary>
+    public List<MonthlyVisitSlotInput> Slots { get; set; } = new();
+}
+
+public class MonthlyVisitSlotInput
+{
+    [Required(ErrorMessage = "حدد اليوم")]
+    public DayOfWeek DayOfWeek { get; set; } = DayOfWeek.Sunday;
+
+    [Required(ErrorMessage = "حدد وقت البدء")]
+    public TimeSpan StartTime { get; set; } = new(10, 0, 0);
 }
 
 public class CreateBookingViewModel

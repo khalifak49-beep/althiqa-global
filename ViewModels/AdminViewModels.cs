@@ -85,3 +85,23 @@ public class OfferEditViewModel
     [DataType(DataType.Date)] public DateTime ValidTo { get; set; } = DateTime.Today.AddMonths(1);
     public bool IsActive { get; set; } = true;
 }
+
+public class AdminScheduleViewModel
+{
+    public DateTime From { get; set; }
+    public int Days { get; set; }
+    public IReadOnlyList<Worker> Workers { get; set; } = Array.Empty<Worker>();
+    public IReadOnlyDictionary<int, List<ScheduleBusySlot>> BusyByWorker { get; set; }
+        = new Dictionary<int, List<ScheduleBusySlot>>();
+}
+
+public class ScheduleBusySlot
+{
+    public int WorkerId { get; set; }
+    public DateTime Date { get; set; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan EndTime { get; set; }
+    public int BookingId { get; set; }
+    public string BookingNumber { get; set; } = string.Empty;
+    public string Kind { get; set; } = string.Empty;
+}

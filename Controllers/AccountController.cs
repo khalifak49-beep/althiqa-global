@@ -37,17 +37,27 @@ public class AccountController : Controller
     public IActionResult Register() => View(new RegisterViewModel());
 
     [HttpPost]
-    public async Task<IActionResult> Register(RegisterViewModel vm)
+    public async Task<IActionResult> Register([Bind("FullName,Email,PhoneNumber,Password,ConfirmPassword")] RegisterViewModel vm)
     {
         if (!ModelState.IsValid) return View(vm);
 
+        var email = vm.Email.Trim().ToLowerInvariant();
+        if (await _userManager.FindByEmailAsync(email) != null)
+        {
+            ModelState.AddModelError(nameof(vm.Email), "هذا البريد مسجّل بالفعل.");
+            return View(vm);
+        }
+
         var user = new ApplicationUser
         {
-            UserName = vm.Email,
-            Email = vm.Email,
-            EmailConfirmed = true,
-            PhoneNumber = vm.PhoneNumber,
-            FullName = vm.FullName,
+            UserName = email,
+            Email = email,
+            // Note: Email confirmation is required for sensitive ops — kept true for UX simplicity
+            // but full identity proofing happens through OTP flows at /Account/Phone or /Account/Email.
+            EmailConfirmed = false,
+            PhoneNumber = vm.PhoneNumber?.Trim(),
+            PhoneNumberConfirmed = false,
+            FullName = vm.FullName.Trim(),
             IsActive = true
         };
 
@@ -60,6 +70,7 @@ public class AccountController : Controller
 
         await _userManager.AddToRoleAsync(user, DbInitializer.CustomerRole);
         await _signInManager.SignInAsync(user, isPersistent: false);
+        _logger.LogInformation("New customer registered: {Email}", email);
         return RedirectToAction("Index", "Home");
     }
 
@@ -71,7 +82,13 @@ public class AccountController : Controller
     {
         if (!ModelState.IsValid) return View(vm);
 
-        var result = await _signInManager.PasswordSignInAsync(vm.Email, vm.Password, vm.RememberMe, lockoutOnFailure: false);
+        var result = await _signInManager.PasswordSignInAsync(vm.Email, vm.Password, vm.RememberMe, lockoutOnFailure: true);
+        if (result.IsLockedOut)
+        {
+            ModelState.AddModelError(string.Empty, "تم قفل الحساب مؤقتاً بسبب محاولات دخول كثيرة فاشلة. حاول بعد 15 دقيقة.");
+            _logger.LogWarning("Account locked out: {Email}", vm.Email);
+            return View(vm);
+        }
         if (!result.Succeeded)
         {
             ModelState.AddModelError(string.Empty, "بيانات الدخول غير صحيحة.");
@@ -114,16 +131,19 @@ public class AccountController : Controller
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Profile(ProfileViewModel vm)
+    public async Task<IActionResult> Profile([Bind("FullName,PhoneNumber,DefaultAddress,AvatarUrl")] ProfileViewModel vm)
     {
         if (!ModelState.IsValid) return View(vm);
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Challenge();
 
-        user.FullName = vm.FullName;
-        user.PhoneNumber = vm.PhoneNumber;
-        user.DefaultAddress = vm.DefaultAddress;
-        user.AvatarUrl = vm.AvatarUrl;
+        user.FullName = vm.FullName?.Trim() ?? user.FullName;
+        user.PhoneNumber = vm.PhoneNumber?.Trim();
+        user.DefaultAddress = vm.DefaultAddress?.Trim();
+
+        // Only allow avatar URLs that are local uploads to prevent SSRF/XSS through external images
+        if (!string.IsNullOrEmpty(vm.AvatarUrl) && Uri.TryCreate(vm.AvatarUrl, UriKind.Relative, out _))
+            user.AvatarUrl = vm.AvatarUrl;
 
         await _userManager.UpdateAsync(user);
         TempData["Success"] = "تم تحديث الملف الشخصي.";

@@ -15,6 +15,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<WorkerSchedule> WorkerSchedules => Set<WorkerSchedule>();
     public DbSet<Service> Services => Set<Service>();
     public DbSet<Booking> Bookings => Set<Booking>();
+    public DbSet<MonthlyVisit> MonthlyVisits => Set<MonthlyVisit>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<Coupon> Coupons => Set<Coupon>();
     public DbSet<Offer> Offers => Set<Offer>();
@@ -75,6 +76,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
              .WithMany(c => c.Bookings)
              .HasForeignKey(b => b.CouponId)
              .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<MonthlyVisit>(e =>
+        {
+            e.HasIndex(v => new { v.BookingId, v.ScheduledDate });
+            e.HasIndex(v => new { v.ScheduledDate, v.StartTime });
+            e.HasOne(v => v.Booking)
+             .WithMany(b => b.Visits)
+             .HasForeignKey(v => v.BookingId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<Payment>(e =>

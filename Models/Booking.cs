@@ -77,6 +77,25 @@ public class Booking
 
     public Payment? Payment { get; set; }
     public Review? Review { get; set; }
+
+    public ICollection<MonthlyVisit> Visits { get; set; } = new List<MonthlyVisit>();
+}
+
+public class MonthlyVisit
+{
+    public int Id { get; set; }
+
+    public int BookingId { get; set; }
+    public Booking? Booking { get; set; }
+
+    public DateTime ScheduledDate { get; set; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan EndTime { get; set; }
+
+    public DayOfWeek DayOfWeek { get; set; }
+
+    public BookingStatus Status { get; set; } = BookingStatus.Pending;
+    public DateTime? CompletedAt { get; set; }
 }
 
 public class Payment

@@ -29,14 +29,15 @@
                     </div>
                     @{ var isExistingPhone = Model.IsExisting; }
 
-                    @if (!string.IsNullOrEmpty(Model.DevCode))
+                    @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnv
+                    @if (!string.IsNullOrEmpty(Model.DevCode) && HostEnv.IsDevelopment())
                     {
                         <div class="alert alert-warning d-flex align-items-center" role="alert">
                             <i class="bi bi-info-circle me-2 fs-4"></i>
                             <div>
                                 <strong>وضع التطوير:</strong> رمز التحقق هو
                                 <code class="fs-5">@Model.DevCode</code>
-                                <small class="d-block text-muted">في الإنتاج يصلك عبر SMS فقط.</small>
+                                <small class="d-block text-muted">يظهر فقط في بيئة التطوير.</small>
                             </div>
                         </div>
                     }
