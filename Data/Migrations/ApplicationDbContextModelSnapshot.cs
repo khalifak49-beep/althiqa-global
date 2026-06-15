@@ -671,10 +671,10 @@ namespace HomeMaids.Data.Migrations
                             CheckoutBaseUrl = "https://checkout.thawani.om/pay/",
                             DisplayName = "Thawani Pay",
                             IsActive = true,
-                            IsLive = true,
+                            IsLive = false,
                             Provider = "Thawani",
-                            PublishableKey = "g29bBIGL8U8PsSH0iFaAGOXwcb1MfU",
-                            SecretKey = "GFi9XiaHOrKzSdkbbYXnNMQy8WSsLA",
+                            PublishableKey = "REPLACE_VIA_ADMIN_UI",
+                            SecretKey = "REPLACE_VIA_ADMIN_UI",
                             SuccessUrl = "/Payments/ThawaniSuccess",
                             UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         });

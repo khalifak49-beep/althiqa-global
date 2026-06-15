@@ -37,7 +37,7 @@ namespace HomeMaids.Data.Migrations
             migrationBuilder.InsertData(
                 table: "PaymentGatewayConfigs",
                 columns: new[] { "Id", "ApiBaseUrl", "CancelUrl", "CheckoutBaseUrl", "DisplayName", "IsActive", "IsLive", "Provider", "PublishableKey", "SecretKey", "SuccessUrl", "UpdatedAt" },
-                values: new object[] { 1, "https://checkout.thawani.om/api/v1", "/Payments/ThawaniCancel", "https://checkout.thawani.om/pay/", "Thawani Pay", true, true, "Thawani", "g29bBIGL8U8PsSH0iFaAGOXwcb1MfU", "GFi9XiaHOrKzSdkbbYXnNMQy8WSsLA", "/Payments/ThawaniSuccess", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) });
+                values: new object[] { 1, "https://checkout.thawani.om/api/v1", "/Payments/ThawaniCancel", "https://checkout.thawani.om/pay/", "Thawani Pay", true, false, "Thawani", "REPLACE_VIA_ADMIN_UI", "REPLACE_VIA_ADMIN_UI", "/Payments/ThawaniSuccess", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) });
 
             migrationBuilder.CreateIndex(
                 name: "IX_PaymentGatewayConfigs_Provider",

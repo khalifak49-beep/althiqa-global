@@ -226,11 +226,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 DisplayName = "Thawani Pay",
                 ApiBaseUrl = "https://checkout.thawani.om/api/v1",
                 CheckoutBaseUrl = "https://checkout.thawani.om/pay/",
-                SecretKey = "GFi9XiaHOrKzSdkbbYXnNMQy8WSsLA",
-                PublishableKey = "g29bBIGL8U8PsSH0iFaAGOXwcb1MfU",
+                // Keys MUST be set via /Admin/PaymentGateways after first deploy.
+                // Never commit real keys to source control.
+                SecretKey = "REPLACE_VIA_ADMIN_UI",
+                PublishableKey = "REPLACE_VIA_ADMIN_UI",
                 SuccessUrl = "/Payments/ThawaniSuccess",
                 CancelUrl = "/Payments/ThawaniCancel",
-                IsLive = true,
+                IsLive = false,
                 IsActive = true,
                 UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             }
