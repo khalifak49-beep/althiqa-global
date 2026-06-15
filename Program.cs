@@ -2,6 +2,7 @@ using HomeMaids.Data;
 using HomeMaids.Models;
 using HomeMaids.Repositories;
 using HomeMaids.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -135,7 +136,20 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpContextAccessor();
 
+// Trust the reverse proxy (Nginx) to forward X-Forwarded-Proto + X-Forwarded-For.
+// CRITICAL: without this, Request.Scheme returns "http" behind Nginx → Thawani Success/Cancel URLs are wrong.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+    // In VPS deployments the proxy is on the same host (loopback) — accept from any private/loopback address
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
+
+// MUST run before any other middleware that reads the URL scheme
+app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
 {

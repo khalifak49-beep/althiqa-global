@@ -115,29 +115,18 @@ public class PaymentsController : Controller
             .FirstOrDefaultAsync(b => b.Id == bookingId && b.CustomerId == userId);
         if (booking == null) return NotFound();
 
-        if (booking.Payment != null && !string.IsNullOrEmpty(booking.Payment.TransactionRef))
+        // Idempotent: only credit loyalty + send notification on the FIRST transition to Paid.
+        // Refreshes/repeat visits to this URL are safe.
+        if (booking.Payment != null
+            && booking.Payment.Status != PaymentStatus.Paid
+            && !string.IsNullOrEmpty(booking.Payment.TransactionRef))
         {
             var status = await _thawani.GetSessionStatusAsync(booking.Payment.TransactionRef);
             _logger.LogInformation("Thawani status for booking {Id}: {Status}", booking.Id, status);
 
             if (string.Equals(status, "paid", StringComparison.OrdinalIgnoreCase))
             {
-                booking.Payment.Status = PaymentStatus.Paid;
-                booking.Payment.PaidAt = DateTime.UtcNow;
-                booking.Payment.GatewayResponse = "PAID";
-                booking.Status = BookingStatus.Confirmed;
-
-                var customer = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                if (customer != null)
-                {
-                    customer.LoyaltyPoints += (int)Math.Floor(booking.TotalAmount / 10m);
-                }
-
-                await _db.SaveChangesAsync();
-                await _notifications.SendAsync(userId!, NotificationType.PaymentSuccess,
-                    "تم الدفع بنجاح",
-                    $"تم دفع {booking.TotalAmount:N3} ر.ع. للحجز {booking.BookingNumber}.",
-                    $"/Bookings/Details/{booking.Id}");
+                await MarkPaidAsync(booking, userId!);
             }
             else
             {
@@ -147,6 +136,81 @@ public class PaymentsController : Controller
         }
 
         return View("Success", booking);
+    }
+
+    /// <summary>
+    /// Thawani webhook receiver — fires asynchronously when payment status changes,
+    /// even if the customer closed the browser before the success redirect.
+    /// Configure in Thawani Dashboard → Developers → Webhooks → POST {site}/Payments/ThawaniWebhook
+    /// </summary>
+    [HttpPost]
+    [AllowAnonymous]
+    [Microsoft.AspNetCore.Mvc.IgnoreAntiforgeryToken]
+    public async Task<IActionResult> ThawaniWebhook()
+    {
+        using var reader = new StreamReader(Request.Body);
+        var rawBody = await reader.ReadToEndAsync();
+        _logger.LogInformation("Thawani webhook received: {Body}", rawBody);
+
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(rawBody);
+            var root = doc.RootElement;
+
+            // Webhook payload shape: { event_type, data: { session_id, payment_status, ... } }
+            if (!root.TryGetProperty("data", out var data)) return Ok();
+            if (!data.TryGetProperty("session_id", out var sidEl)) return Ok();
+            var sessionId = sidEl.GetString();
+            if (string.IsNullOrEmpty(sessionId)) return Ok();
+
+            var payment = await _db.Payments
+                .Include(p => p.Booking)
+                .ThenInclude(b => b!.Worker)
+                .FirstOrDefaultAsync(p => p.TransactionRef == sessionId);
+            if (payment?.Booking == null)
+            {
+                _logger.LogWarning("Webhook for unknown session {SessionId}", sessionId);
+                return Ok();
+            }
+
+            // Verify status with Thawani's own API (don't trust webhook body alone)
+            var verifiedStatus = await _thawani.GetSessionStatusAsync(sessionId);
+
+            if (string.Equals(verifiedStatus, "paid", StringComparison.OrdinalIgnoreCase)
+                && payment.Status != PaymentStatus.Paid)
+            {
+                await MarkPaidAsync(payment.Booking, payment.Booking.CustomerId);
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Thawani webhook processing failed");
+            return Ok(); // Return 200 anyway so Thawani doesn't keep retrying — we logged it for review
+        }
+    }
+
+    private async Task MarkPaidAsync(Booking booking, string userId)
+    {
+        if (booking.Payment == null) return;
+        booking.Payment.Status = PaymentStatus.Paid;
+        booking.Payment.PaidAt = DateTime.UtcNow;
+        booking.Payment.GatewayResponse = "PAID";
+        booking.Status = BookingStatus.Confirmed;
+
+        var customer = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (customer != null)
+        {
+            customer.LoyaltyPoints += (int)Math.Floor(booking.TotalAmount / 10m);
+        }
+
+        await _db.SaveChangesAsync();
+        await _notifications.SendAsync(userId, NotificationType.PaymentSuccess,
+            "تم الدفع بنجاح",
+            $"تم دفع {booking.TotalAmount:N3} ر.ع. للحجز {booking.BookingNumber}.",
+            $"/Bookings/Details/{booking.Id}");
+        _logger.LogInformation("Booking {Id} marked paid via {Source}", booking.Id, "API/webhook");
     }
 
     [HttpGet]
