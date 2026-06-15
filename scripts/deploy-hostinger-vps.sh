@@ -15,20 +15,31 @@
 set -e  # Stop on any error
 
 # ===== EDIT THESE BEFORE RUNNING =====
-DOMAIN="althiqa.com"              # Your domain (must point to this VPS IP via A record)
-EMAIL="admin@althiqa.com"          # For Let's Encrypt SSL certificate
+# Leave DOMAIN empty ("") to run on IP only (HTTP). Add the domain + re-run the SSL step later.
+DOMAIN=""                          # Your domain (or leave empty for IP-only access)
+EMAIL="admin@althiqa.local"        # For Let's Encrypt SSL certificate (only used when DOMAIN is set)
 DB_PASSWORD="ChangeMe_Strong_2026!" # PostgreSQL password — pick a strong one!
-ADMIN_EMAIL="admin@althiqa.com"     # Initial admin login
+ADMIN_EMAIL="admin@althiqa.local"   # Initial admin login
 ADMIN_PASSWORD="ChangeMe_Strong_2026!" # Initial admin password
 REPO_URL="https://github.com/khalifak49-beep/althiqa-global.git"
 APP_DIR="/var/www/althiqa"
 SERVICE_USER="althiqa"
 # ======================================
 
+# Auto-detect server IP (used when DOMAIN is empty)
+SERVER_IP="$(curl -s ifconfig.me || curl -s ipinfo.io/ip || hostname -I | awk '{print $1}')"
+SERVER_NAME="${DOMAIN:-$SERVER_IP}"
+
 echo "================================================"
 echo " Al Thiqa Global — Hostinger VPS Deployment"
 echo "================================================"
-echo "Domain:   $DOMAIN"
+if [ -z "$DOMAIN" ]; then
+    echo " Mode:     IP-only (no domain, HTTP only)"
+    echo " Access:   http://$SERVER_IP"
+else
+    echo " Domain:   $DOMAIN  (must point to $SERVER_IP)"
+    echo " Access:   https://$DOMAIN"
+fi
 echo "App dir:  $APP_DIR"
 echo ""
 
@@ -127,10 +138,17 @@ sleep 5
 
 # === 8. Configure Nginx as reverse proxy ===
 echo "[8/9] Configuring Nginx reverse proxy..."
+
+if [ -z "$DOMAIN" ]; then
+    NGINX_SERVER_NAME="_"
+else
+    NGINX_SERVER_NAME="$DOMAIN www.$DOMAIN"
+fi
+
 cat > /etc/nginx/sites-available/althiqa <<EOF
 server {
-    listen 80;
-    server_name $DOMAIN www.$DOMAIN;
+    listen 80 default_server;
+    server_name $NGINX_SERVER_NAME;
 
     client_max_body_size 20M;
 
@@ -153,21 +171,28 @@ ln -sf /etc/nginx/sites-available/althiqa /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl restart nginx
 
-# === 9. SSL with Let's Encrypt ===
-echo "[9/9] Obtaining SSL certificate from Let's Encrypt..."
-echo "If DNS hasn't propagated yet, this step may fail. Re-run later: certbot --nginx -d $DOMAIN -d www.$DOMAIN"
-
-certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos -m $EMAIL --redirect || echo "SSL step skipped — run manually once DNS is ready."
-
-# Setup auto-renewal cron (certbot already adds this on install — verify)
-systemctl enable certbot.timer 2>/dev/null || true
+# === 9. SSL with Let's Encrypt (only when DOMAIN is set) ===
+if [ -z "$DOMAIN" ]; then
+    echo "[9/9] Skipping SSL — no domain configured."
+    echo "      Site is reachable at: http://$SERVER_IP"
+    echo "      To add SSL later: edit /tmp/deploy.sh, set DOMAIN, then run: certbot --nginx -d <domain> -m <email>"
+else
+    echo "[9/9] Obtaining SSL certificate from Let's Encrypt..."
+    certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos -m $EMAIL --redirect \
+        || echo "⚠️  SSL step failed — DNS may not have propagated yet. Re-run later: certbot --nginx -d $DOMAIN -d www.$DOMAIN -m $EMAIL --agree-tos"
+    systemctl enable certbot.timer 2>/dev/null || true
+fi
 
 # === DONE ===
 echo ""
 echo "================================================"
 echo " ✅ DEPLOYMENT COMPLETE"
 echo "================================================"
-echo " 🌐 Site:    https://$DOMAIN"
+if [ -z "$DOMAIN" ]; then
+    echo " 🌐 Site:    http://$SERVER_IP"
+else
+    echo " 🌐 Site:    https://$DOMAIN"
+fi
 echo " 🔑 Admin:   $ADMIN_EMAIL / $ADMIN_PASSWORD"
 echo " 📊 Status:  systemctl status althiqa"
 echo " 📋 Logs:    journalctl -u althiqa -f"
