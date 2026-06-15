@@ -32,21 +32,47 @@ var useNpgsql = !string.IsNullOrWhiteSpace(databaseUrl);
 string connectionString;
 if (useNpgsql)
 {
-    // Convert "postgres://user:pass@host:port/db" → Npgsql key/value string
-    var uri = new Uri(databaseUrl!);
-    var userInfo = uri.UserInfo.Split(':', 2);
+    // Robust manual parser that tolerates unescaped @ # ! etc. in passwords
+    // (System.Uri rejects unescaped reserved chars in user-info).
+    // Format expected: postgres[ql]://user:password@host[:port]/database[?...]
+    var raw = databaseUrl!;
+    var schemeEnd = raw.IndexOf("://", StringComparison.Ordinal);
+    if (schemeEnd < 0) throw new InvalidOperationException("Invalid DATABASE_URL: missing scheme.");
+    var rest = raw[(schemeEnd + 3)..];
+
+    // Split off query string
+    var queryStart = rest.IndexOf('?');
+    if (queryStart >= 0) rest = rest[..queryStart];
+
+    // Split into "userinfo@hostpath" using the LAST '@' (passwords may contain '@')
+    var atIdx = rest.LastIndexOf('@');
+    if (atIdx < 0) throw new InvalidOperationException("Invalid DATABASE_URL: missing '@' before host.");
+    var userInfoPart = rest[..atIdx];
+    var hostPath = rest[(atIdx + 1)..];
+
+    var colonIdx = userInfoPart.IndexOf(':');
+    var dbUser = colonIdx >= 0 ? userInfoPart[..colonIdx] : userInfoPart;
+    var dbPass = colonIdx >= 0 ? userInfoPart[(colonIdx + 1)..] : string.Empty;
+
+    var slashIdx = hostPath.IndexOf('/');
+    var hostPort = slashIdx >= 0 ? hostPath[..slashIdx] : hostPath;
+    var dbName = slashIdx >= 0 ? hostPath[(slashIdx + 1)..] : "postgres";
+
+    var hostColon = hostPort.IndexOf(':');
+    var dbHost = hostColon >= 0 ? hostPort[..hostColon] : hostPort;
+    var dbPort = 5432;
+    if (hostColon >= 0 && int.TryParse(hostPort[(hostColon + 1)..], out var p)) dbPort = p;
+
     var b = new Npgsql.NpgsqlConnectionStringBuilder
     {
-        Host = uri.Host,
-        Port = uri.Port > 0 ? uri.Port : 5432,
-        Username = Uri.UnescapeDataString(userInfo[0]),
-        Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "",
-        Database = uri.AbsolutePath.TrimStart('/'),
-        // Prefer SSL but don't force it (Render internal connections may not support SSL)
+        Host = dbHost,
+        Port = dbPort,
+        Username = Uri.UnescapeDataString(dbUser),
+        Password = Uri.UnescapeDataString(dbPass),
+        Database = dbName,
         SslMode = Npgsql.SslMode.Prefer,
-        TrustServerCertificate = true,
         Pooling = true,
-        MaxPoolSize = 10,         // Keep memory footprint low on free tier
+        MaxPoolSize = 10,
         Timeout = 30,
         CommandTimeout = 60
     };
