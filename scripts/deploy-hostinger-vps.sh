@@ -105,6 +105,11 @@ chown -R $SERVICE_USER:$SERVICE_USER $APP_DIR/publish
 
 # === 7. Configure systemd ===
 echo "[7/9] Setting up systemd service..."
+# URL-encode reserved characters in DB password so the postgres:// URL is parseable by .NET's Uri.
+# Then double every '%' so systemd doesn't try to interpret %XX as one of its own specifiers.
+db_pass_urlenc="$(python3 -c "import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=''))" "$DB_PASSWORD")"
+db_pass_systemd="${db_pass_urlenc//%/%%}"
+
 cat > /etc/systemd/system/althiqa.service <<EOF
 [Unit]
 Description=Al Thiqa Global Cleaning Services
@@ -121,10 +126,10 @@ SyslogIdentifier=althiqa
 User=$SERVICE_USER
 Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=ASPNETCORE_URLS=http://127.0.0.1:5000
-Environment=DATABASE_URL=postgres://althiqa_app:$DB_PASSWORD@localhost:5432/althiqa
+Environment=DATABASE_URL=postgres://althiqa_app:$db_pass_systemd@localhost:5432/althiqa
 Environment=AdminSeed__Email=$ADMIN_EMAIL
 Environment=AdminSeed__Password=$ADMIN_PASSWORD
-Environment=AdminSeed__FullName=System Administrator
+Environment="AdminSeed__FullName=System Administrator"
 Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 
 [Install]
