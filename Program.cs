@@ -7,6 +7,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
+// Enable legacy DateTime behavior so Npgsql accepts DateTime with Kind=Unspecified
+// against timestamp-with-time-zone columns. Required because the domain uses
+// DateTime.Today / form-bound dates without explicit Utc conversion.
+// MUST be set before the first connection is opened.
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Honor the PORT env var (used by Render, Heroku, Railway, etc.)
