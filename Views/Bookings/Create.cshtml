@@ -110,6 +110,19 @@
                         <div class="row"><div class="col-6 text-muted">الخصم</div><div class="col-6 text-end text-success">- <span data-f="disc">0.00</span> ر.ع.</div></div>
                         <div class="row"><div class="col-6 text-muted">الضريبة</div><div class="col-6 text-end"><span data-f="tax">0.00</span> ر.ع.</div></div>
                         <div class="row"><div class="col-6">الإجمالي</div><div class="col-6 text-end total"><span data-f="total">0.00</span> ر.ع.</div></div>
+
+                        <div class="form-check mt-3 p-3 bg-light rounded border">
+                            <input asp-for="AcceptTerms" class="form-check-input" id="AcceptTermsCheck" />
+                            <label class="form-check-label small" for="AcceptTermsCheck">
+                                أقرّ بأنني قرأت ووافقت على
+                                <a href="@Url.Action("Terms", "Home")" target="_blank" class="text-primary fw-bold">
+                                    <i class="bi bi-file-text"></i> الشروط والأحكام
+                                </a>
+                                الخاصة بعقد التنظيف.
+                            </label>
+                            <span asp-validation-for="AcceptTerms" class="text-danger small d-block mt-1"></span>
+                        </div>
+
                         <button type="submit" class="btn btn-primary w-100 mt-3"><i class="bi bi-check-circle"></i> تأكيد الحجز ومتابعة الدفع</button>
                         <div class="text-center small text-muted mt-2"><i class="bi bi-shield-lock"></i> دفع آمن ومشفّر</div>
                     </div>

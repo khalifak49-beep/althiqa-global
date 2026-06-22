@@ -75,6 +75,13 @@ public class Booking
     [StringLength(500)]
     public string? CancellationReason { get; set; }
 
+    /// <summary>Timestamp when the customer accepted the cleaning agreement terms.</summary>
+    public DateTime? TermsAcceptedAt { get; set; }
+
+    /// <summary>Version of the agreement the customer accepted (e.g. "2026-02-17").</summary>
+    [StringLength(20)]
+    public string? TermsVersion { get; set; }
+
     public Payment? Payment { get; set; }
     public Review? Review { get; set; }
 

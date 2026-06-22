@@ -21,6 +21,8 @@ public class CreateBookingRequest
     public decimal? Longitude { get; set; }
     public string? Notes { get; set; }
     public string? CouponCode { get; set; }
+    public bool TermsAccepted { get; set; }
+    public string? TermsVersion { get; set; }
 }
 
 public interface IBookingService

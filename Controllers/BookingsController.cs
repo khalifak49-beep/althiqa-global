@@ -214,7 +214,9 @@ public class BookingsController : Controller
             MonthlyPlan = vm.Plan,
             MonthlyVisits = visits,
             ContractEndDate = vm.StartDate.Date.AddMonths(1),
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            TermsAcceptedAt = DateTime.UtcNow,
+            TermsVersion = "2026-02-17"
         };
 
         var generatedVisits = GenerateVisits(vm.Plan, vm.StartDate.Date, visits, vm.HoursPerVisit, vm.Slots);
@@ -320,7 +322,9 @@ public class BookingsController : Controller
             Latitude = vm.Latitude,
             Longitude = vm.Longitude,
             Notes = vm.Notes,
-            CouponCode = vm.CouponCode
+            CouponCode = vm.CouponCode,
+            TermsAccepted = vm.AcceptTerms,
+            TermsVersion = "2026-02-17"
         });
 
         if (!result.Success)

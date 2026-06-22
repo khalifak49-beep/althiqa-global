@@ -32,6 +32,9 @@ public class CreateMonthlyBookingViewModel
     /// (Weekly=1, TwiceWeekly=2, ThriceWeekly=3, Daily=7).
     /// </summary>
     public List<MonthlyVisitSlotInput> Slots { get; set; } = new();
+
+    [Range(typeof(bool), "true", "true", ErrorMessage = "يجب الموافقة على الشروط والأحكام قبل المتابعة")]
+    public bool AcceptTerms { get; set; }
 }
 
 public class MonthlyVisitSlotInput
@@ -71,6 +74,9 @@ public class CreateBookingViewModel
 
     [StringLength(30)]
     public string? CouponCode { get; set; }
+
+    [Range(typeof(bool), "true", "true", ErrorMessage = "يجب الموافقة على الشروط والأحكام قبل المتابعة")]
+    public bool AcceptTerms { get; set; }
 
     public Worker? Worker { get; set; }
     public IReadOnlyList<Service>? Services { get; set; }

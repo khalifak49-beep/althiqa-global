@@ -129,7 +129,9 @@ public class BookingService : IBookingService
             TotalAmount = quote.Total,
             CouponId = quote.CouponId,
             Status = BookingStatus.Pending,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            TermsAcceptedAt = request.TermsAccepted ? DateTime.UtcNow : (DateTime?)null,
+            TermsVersion = request.TermsAccepted ? (request.TermsVersion ?? "2026-02-17") : null
         };
 
         await _uow.Bookings.AddAsync(booking);
