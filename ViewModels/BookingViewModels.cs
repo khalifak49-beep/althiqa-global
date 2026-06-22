@@ -3,6 +3,16 @@ using HomeMaids.Models;
 
 namespace HomeMaids.ViewModels;
 
+/// <summary>
+/// Validates that a boolean property is true. Use for "I accept the terms" checkboxes
+/// where [Required] is unhelpful (false would also satisfy it).
+/// </summary>
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class MustBeTrueAttribute : ValidationAttribute
+{
+    public override bool IsValid(object? value) => value is bool b && b;
+}
+
 public class CreateMonthlyBookingViewModel
 {
     [Required] public int WorkerId { get; set; }
@@ -33,7 +43,7 @@ public class CreateMonthlyBookingViewModel
     /// </summary>
     public List<MonthlyVisitSlotInput> Slots { get; set; } = new();
 
-    [Range(typeof(bool), "true", "true", ErrorMessage = "يجب الموافقة على الشروط والأحكام قبل المتابعة")]
+    [MustBeTrue(ErrorMessage = "يجب الموافقة على الشروط والأحكام قبل المتابعة")]
     public bool AcceptTerms { get; set; }
 }
 
@@ -75,7 +85,7 @@ public class CreateBookingViewModel
     [StringLength(30)]
     public string? CouponCode { get; set; }
 
-    [Range(typeof(bool), "true", "true", ErrorMessage = "يجب الموافقة على الشروط والأحكام قبل المتابعة")]
+    [MustBeTrue(ErrorMessage = "يجب الموافقة على الشروط والأحكام قبل المتابعة")]
     public bool AcceptTerms { get; set; }
 
     public Worker? Worker { get; set; }

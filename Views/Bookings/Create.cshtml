@@ -140,6 +140,31 @@
     <partial name="_ValidationScriptsPartial" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
+        // Terms-acceptance: clear validation error as soon as the box is ticked,
+        // and block form submission if it is unticked.
+        (function () {
+            const cb = document.getElementById('AcceptTermsCheck');
+            const errSpan = document.querySelector('span[data-valmsg-for="AcceptTerms"]');
+            if (!cb) return;
+            cb.addEventListener('change', function () {
+                if (cb.checked && errSpan) {
+                    errSpan.textContent = '';
+                    errSpan.classList.remove('field-validation-error');
+                }
+            });
+            cb.form?.addEventListener('submit', function (e) {
+                if (!cb.checked) {
+                    e.preventDefault();
+                    if (errSpan) {
+                        errSpan.textContent = 'يجب الموافقة على الشروط والأحكام قبل المتابعة';
+                        errSpan.classList.add('field-validation-error');
+                    }
+                    cb.focus();
+                }
+            });
+        })();
+    </script>
+    <script>
         (function () {
             // Default center: Muscat, Oman
             const defaultCenter = [23.5880, 58.3829];
