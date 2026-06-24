@@ -1,6 +1,6 @@
 @model HomePageViewModel
 @{
-    ViewData["Title"] = "الرئيسية";
+    ViewData["Title"] = L["home.title"].ToString();
 }
 
 <section class="hero">
@@ -9,23 +9,23 @@
             <div class="col-lg-6" data-aos="fade-up">
                 <img src="~/images/logo/al-thiqa-full.png"
                      onerror="this.onerror=null;this.src='/images/logo/al-thiqa-full.svg';"
-                     alt="الثقة العالمية لخدمات التنظيف"
+                     alt="@L["site.brand"]"
                      class="hero-logo mb-3" />
-                <h1>احجز عاملتك بنظام <span class="text-primary">الساعات</span> بكل سهولة</h1>
-                <p class="lead mt-3">عاملات محترفات في انتظارك. اختر الوقت المناسب. ادفع بأمان.</p>
-                <p class="small text-muted">* الحد الأدنى للحجز ساعتان. تطبق الشروط.</p>
+                <h1>@L["home.hero_heading_pre"] <span class="text-primary">@L["home.hero_heading_highlight"]</span> @L["home.hero_heading_post"]</h1>
+                <p class="lead mt-3">@L["home.hero_lead"]</p>
+                <p class="small text-muted">@L["home.hero_min_hours_note"]</p>
 
                 <form asp-controller="Workers" asp-action="Index" method="get" class="hero-search mt-4">
                     <div class="row g-2 align-items-center">
                         <div class="col-md-5">
                             <div class="input-group">
                                 <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
-                                <input type="text" name="q" placeholder="ابحث بالاسم أو اللغة" class="form-control border-start-0" />
+                                <input type="text" name="q" placeholder="@L["home.search_placeholder"]" class="form-control border-start-0" />
                             </div>
                         </div>
                         <div class="col-md-4">
                             <select name="serviceId" class="form-select">
-                                <option value="">كل الخدمات</option>
+                                <option value="">@L["home.search_all_services"]</option>
                                 @foreach (var s in Model.Services)
                                 {
                                     <option value="@s.Id">@s.Name</option>
@@ -33,7 +33,7 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <button class="btn btn-primary w-100"><i class="bi bi-search"></i> ابحث</button>
+                            <button class="btn btn-primary w-100"><i class="bi bi-search"></i> @L["home.search_button"]</button>
                         </div>
                     </div>
                 </form>
@@ -46,13 +46,13 @@
     </div>
 </section>
 
-<!-- ===== كيف تحجز؟ (Onboarding steps) ===== -->
+<!-- ===== How to book ===== -->
 <section class="section pt-4 pb-2">
     <div class="container">
         <div class="text-center mb-4" data-aos="fade-up">
-            <span class="chip chip-grad"><i class="bi bi-lightbulb"></i> طريقة الحجز</span>
-            <h2 class="mt-2">احجز عاملتك في 3 خطوات</h2>
-            <p class="text-muted">رحلة سهلة من اختيار العاملة إلى وصولها لباب منزلك</p>
+            <span class="chip chip-grad"><i class="bi bi-lightbulb"></i> @L["home.howto_pill"]</span>
+            <h2 class="mt-2">@L["home.howto_heading"]</h2>
+            <p class="text-muted">@L["home.howto_subtitle"]</p>
         </div>
         <div class="row g-3" data-aos="fade-up" data-aos-delay="100">
             <div class="col-md-4">
@@ -60,9 +60,9 @@
                     <div class="howto-card h-100">
                         <div class="howto-num">1</div>
                         <div class="howto-icon"><i class="bi bi-people"></i></div>
-                        <h5 class="fw-bold">اختر العاملة</h5>
-                        <p class="text-muted small mb-0">تصفّح العاملات حسب التقييم والسعر، واطّلع على تفاصيل كل عاملة.</p>
-                        <div class="howto-cta">ابدأ هنا <i class="bi bi-arrow-left"></i></div>
+                        <h5 class="fw-bold">@L["home.howto_step1_title"]</h5>
+                        <p class="text-muted small mb-0">@L["home.howto_step1_desc"]</p>
+                        <div class="howto-cta">@L["home.howto_step1_cta"] <i class="bi bi-arrow-@(L.IsArabic ? "left" : "right")"></i></div>
                     </div>
                 </a>
             </div>
@@ -70,16 +70,16 @@
                 <div class="howto-card h-100">
                     <div class="howto-num">2</div>
                     <div class="howto-icon"><i class="bi bi-calendar2-week"></i></div>
-                    <h5 class="fw-bold">حدّد الوقت والعنوان</h5>
-                    <p class="text-muted small mb-0">اختر التاريخ، عدد الساعات (الحد الأدنى ساعتان)، ووقت البداية. ضع موقعك على الخريطة.</p>
+                    <h5 class="fw-bold">@L["home.howto_step2_title"]</h5>
+                    <p class="text-muted small mb-0">@L["home.howto_step2_desc"]</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="howto-card h-100">
                     <div class="howto-num">3</div>
                     <div class="howto-icon"><i class="bi bi-shield-lock"></i></div>
-                    <h5 class="fw-bold">ادفع بأمان</h5>
-                    <p class="text-muted small mb-0">ادفع عبر بوابة Thawani Pay بفيزا أو ماستركارد أو Apple Pay، ثم تابع حالة حجزك.</p>
+                    <h5 class="fw-bold">@L["home.howto_step3_title"]</h5>
+                    <p class="text-muted small mb-0">@L["home.howto_step3_desc"]</p>
                 </div>
             </div>
         </div>
@@ -94,28 +94,28 @@
                 <div class="stat-card">
                     <div class="icon mb-2"><i class="bi bi-people"></i></div>
                     <div class="value">@Model.Stats.TotalWorkers+</div>
-                    <div class="label">عاملة موثقة</div>
+                    <div class="label">@L["home.stats_workers"]</div>
                 </div>
             </div>
             <div class="col-6 col-md-3" data-aos="zoom-in" data-aos-delay="80">
                 <div class="stat-card">
                     <div class="icon mb-2"><i class="bi bi-calendar-check"></i></div>
                     <div class="value">@Model.Stats.TotalBookings+</div>
-                    <div class="label">حجز ناجح</div>
+                    <div class="label">@L["home.stats_bookings"]</div>
                 </div>
             </div>
             <div class="col-6 col-md-3" data-aos="zoom-in" data-aos-delay="160">
                 <div class="stat-card">
                     <div class="icon mb-2"><i class="bi bi-emoji-smile"></i></div>
                     <div class="value">@Model.Stats.HappyCustomers+</div>
-                    <div class="label">عميل سعيد</div>
+                    <div class="label">@L["home.stats_happy"]</div>
                 </div>
             </div>
             <div class="col-6 col-md-3" data-aos="zoom-in" data-aos-delay="240">
                 <div class="stat-card">
                     <div class="icon mb-2"><i class="bi bi-star-fill"></i></div>
                     <div class="value">@Model.Stats.AverageRating.ToString("0.0")</div>
-                    <div class="label">متوسط التقييم</div>
+                    <div class="label">@L["home.stats_avg_rating"]</div>
                 </div>
             </div>
         </div>
@@ -126,8 +126,8 @@
 <section class="section">
     <div class="container">
         <div data-aos="fade-up">
-            <h2>الخدمات المتاحة</h2>
-            <p class="subtitle">اختر الخدمة المناسبة لاحتياجاتك</p>
+            <h2>@L["home.services_heading"]</h2>
+            <p class="subtitle">@L["home.services_subtitle"]</p>
         </div>
         <div class="row g-3">
             @{ var sIdx = 0; }
@@ -137,7 +137,7 @@
                     <a class="d-block service-tile h-100" asp-controller="Workers" asp-action="Index" asp-route-serviceId="@s.Id">
                         <div class="icon-wrap"><i class="bi @s.IconClass"></i></div>
                         <div class="fw-bold">@s.Name</div>
-                        <div class="small text-muted">من @s.BasePrice.ToString("0") ر.ع.</div>
+                        <div class="small text-muted">@L.T("home.services_from_price", s.BasePrice.ToString("0"))</div>
                     </a>
                 </div>
                 sIdx++;
@@ -151,10 +151,10 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-end mb-3" data-aos="fade-up">
             <div>
-                <h2>أفضل العاملات</h2>
-                <p class="subtitle">مرشحات بناءً على التقييم والشعبية</p>
+                <h2>@L["home.top_workers_heading"]</h2>
+                <p class="subtitle">@L["home.top_workers_subtitle"]</p>
             </div>
-            <a asp-controller="Workers" asp-action="Index" class="btn btn-outline-primary">عرض الكل <i class="bi bi-arrow-left"></i></a>
+            <a asp-controller="Workers" asp-action="Index" class="btn btn-outline-primary">@L["home.view_all"] <i class="bi bi-arrow-@(L.IsArabic ? "left" : "right")"></i></a>
         </div>
         <div class="row g-3">
             @foreach (var w in Model.TopWorkers)
@@ -170,8 +170,8 @@
 {
     <section class="section">
         <div class="container">
-            <h2>العروض الحالية</h2>
-            <p class="subtitle">اغتنم الفرصة قبل انتهاء الصلاحية</p>
+            <h2>@L["home.offers_heading"]</h2>
+            <p class="subtitle">@L["home.offers_subtitle"]</p>
             <div class="row g-3">
                 @foreach (var o in Model.Offers)
                 {
@@ -180,16 +180,16 @@
                             <span class="badge mb-2">
                                 @if (o.DiscountType == DiscountType.Percent)
                                 {
-                                    <text>خصم @o.DiscountValue.ToString("0")%</text>
+                                    @L.T("home.offer_percent", o.DiscountValue.ToString("0"))
                                 }
                                 else
                                 {
-                                    <text>خصم @o.DiscountValue.ToString("0") ر.ع.</text>
+                                    @L.T("home.offer_amount", o.DiscountValue.ToString("0"))
                                 }
                             </span>
                             <h5 class="fw-bold">@o.Title</h5>
                             <p class="text-muted">@o.Description</p>
-                            <div class="small text-muted"><i class="bi bi-clock"></i> ينتهي في @o.ValidTo.ToString("yyyy-MM-dd")</div>
+                            <div class="small text-muted"><i class="bi bi-clock"></i> @L.T("home.offer_expires", o.ValidTo.ToString("yyyy-MM-dd"))</div>
                         </div>
                     </div>
                 }
@@ -203,8 +203,8 @@
 {
     <section class="section">
         <div class="container">
-            <h2>آراء العملاء</h2>
-            <p class="subtitle">ما يقوله عملاؤنا عنا</p>
+            <h2>@L["home.reviews_heading"]</h2>
+            <p class="subtitle">@L["home.reviews_subtitle"]</p>
             <div class="row g-3">
                 @foreach (var r in Model.LatestReviews.Take(3))
                 {
@@ -217,7 +217,7 @@
                             <p>"@r.Comment"</p>
                             <hr />
                             <div class="d-flex align-items-center justify-content-between">
-                                <strong>@(r.Customer?.FullName ?? "عميل")</strong>
+                                <strong>@(r.Customer?.FullName ?? L["home.reviews_anonymous"].ToString())</strong>
                                 <span class="text-muted small"><i class="bi bi-clock"></i> @r.CreatedAt.ToString("yyyy-MM-dd")</span>
                             </div>
                         </div>
@@ -232,22 +232,22 @@
 <section class="section">
     <div class="container">
         <div class="card-modern p-4 p-md-5 text-center" style="background: linear-gradient(135deg, rgba(108,92,231,.1), rgba(0,184,148,.1));">
-            <h3 class="fw-bold mb-2">جاهز لتجربة خدمة استثنائية؟</h3>
-            <p class="text-muted">سجل الآن واحصل على خصم 20% على أول حجز باستخدام الكوبون <strong>WELCOME20</strong></p>
-            <a asp-controller="Workers" asp-action="Index" class="btn btn-primary btn-lg"><i class="bi bi-rocket"></i> ابدأ الآن</a>
+            <h3 class="fw-bold mb-2">@L["home.cta_heading"]</h3>
+            <p class="text-muted">@L["home.cta_description"] <strong>WELCOME20</strong></p>
+            <a asp-controller="Workers" asp-action="Index" class="btn btn-primary btn-lg"><i class="bi bi-rocket"></i> @L["home.cta_button"]</a>
         </div>
     </div>
 </section>
 
 @* Live chat widget *@
-<button class="chat-toggle" id="chatToggle" title="الدعم"><i class="bi bi-chat-dots"></i></button>
+<button class="chat-toggle" id="chatToggle" title="@L["home.chat_button_title"]"><i class="bi bi-chat-dots"></i></button>
 <div class="chat-window" id="chatWindow">
-    <div class="head"><strong><i class="bi bi-chat-dots"></i> الدعم الفوري</strong></div>
+    <div class="head"><strong><i class="bi bi-chat-dots"></i> @L["home.chat_title"]</strong></div>
     <div class="body" id="chatBody">
-        <div class="msg">مرحباً! كيف يمكننا مساعدتك؟ اسألنا عن الأسعار، الحجز، الدفع أو الإلغاء.</div>
+        <div class="msg">@L["home.chat_welcome"]</div>
     </div>
     <div class="foot d-flex gap-2">
-        <input id="chatInput" class="form-control" placeholder="اكتب رسالتك..." />
+        <input id="chatInput" class="form-control" placeholder="@L["home.chat_placeholder"]" />
         <button id="chatSend" class="btn btn-primary"><i class="bi bi-send"></i></button>
     </div>
 </div>
