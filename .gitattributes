@@ -1,0 +1,24 @@
+# Binary files must NEVER have their line endings or encoding altered by git.
+# Without these rules, Windows checkout (autocrlf=true) corrupts TTF/PNG/JPG/PDF.
+*.ttf  binary
+*.otf  binary
+*.woff binary
+*.woff2 binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.pdf  binary
+*.zip  binary
+*.bak  binary
+
+# Source code: enforce LF line endings on commit, allow CRLF in working copy on Windows.
+*.cs   text eol=lf
+*.cshtml text eol=lf
+*.js   text eol=lf
+*.json text eol=lf
+*.sh   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
