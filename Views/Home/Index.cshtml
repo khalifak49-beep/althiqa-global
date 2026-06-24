@@ -28,7 +28,7 @@
                                 <option value="">@L["home.search_all_services"]</option>
                                 @foreach (var s in Model.Services)
                                 {
-                                    <option value="@s.Id">@s.Name</option>
+                                    <option value="@s.Id">@L.D(s.Name)</option>
                                 }
                             </select>
                         </div>
@@ -136,7 +136,7 @@
                 <div class="col-6 col-md-4 col-lg-2" data-aos="zoom-in" data-aos-delay="@(sIdx * 60)">
                     <a class="d-block service-tile h-100" asp-controller="Workers" asp-action="Index" asp-route-serviceId="@s.Id">
                         <div class="icon-wrap"><i class="bi @s.IconClass"></i></div>
-                        <div class="fw-bold">@s.Name</div>
+                        <div class="fw-bold">@L.D(s.Name)</div>
                         <div class="small text-muted">@L.T("home.services_from_price", s.BasePrice.ToString("0"))</div>
                     </a>
                 </div>

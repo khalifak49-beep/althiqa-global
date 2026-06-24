@@ -20,7 +20,7 @@
                                 <div style="width:80px;height:80px;border-radius:14px;background-size:cover;background-position:center;background-image:url('@(string.IsNullOrEmpty(Model.Worker.PhotoUrl) ? $"https://i.pravatar.cc/200?u={Model.Worker.Id}" : Model.Worker.PhotoUrl)');"></div>
                                 <div>
                                     <h5 class="mb-0 fw-bold">@Model.Worker.FullName</h5>
-                                    <div class="small text-muted">@Model.Worker.Nationality • @Model.Worker.Service?.Name</div>
+                                    <div class="small text-muted">@Model.Worker.Nationality • @L.D(Model.Worker.Service?.Name)</div>
                                     <div><strong class="text-primary">@Model.Worker.HourlyRate.ToString("N3") @L["workers.currency_per_hour"]</strong></div>
                                 </div>
                             </div>
@@ -71,7 +71,7 @@
                                     <option value="">@L["booking.choose_service"]</option>
                                     @if (Model.Services != null)
                                     {
-                                        foreach (var s in Model.Services) { <option value="@s.Id">@s.Name</option> }
+                                        foreach (var s in Model.Services) { <option value="@s.Id">@L.D(s.Name)</option> }
                                     }
                                 </select>
                             </div>

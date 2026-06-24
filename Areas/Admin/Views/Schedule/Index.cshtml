@@ -65,7 +65,7 @@
             <div style="width:56px;height:56px;border-radius:12px;background-size:cover;background-position:center;background-image:url('@(string.IsNullOrEmpty(worker.PhotoUrl) ? $"https://i.pravatar.cc/120?u={worker.Id}" : worker.PhotoUrl)');"></div>
             <div>
                 <h5 class="fw-bold mb-0">@worker.FullName</h5>
-                <div class="small text-muted">@worker.Nationality • @(worker.Service?.Name ?? "—") • @worker.HourlyRate.ToString("N3") @L["workers.currency_per_hour"]</div>
+                <div class="small text-muted">@worker.Nationality • @(worker.Service?.Name != null ? L.D(worker.Service.Name) : "—") • @worker.HourlyRate.ToString("N3") @L["workers.currency_per_hour"]</div>
             </div>
             <div class="ms-auto small">
                 <span class="badge bg-light text-dark">@(L.IsArabic ? "إجمالي مشغول:" : "Total busy:") @totalBusyHours.ToString("0.#") @(L.IsArabic ? "ساعة" : "h") / @Model.Days @(L.IsArabic ? "يوم" : "days")</span>

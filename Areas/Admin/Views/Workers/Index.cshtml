@@ -32,7 +32,7 @@
                 <td>@w.Id</td>
                 <td>@w.FullName</td>
                 <td>@w.Nationality</td>
-                <td>@(w.Service?.Name ?? "-")</td>
+                <td>@(w.Service?.Name != null ? L.D(w.Service.Name) : "-")</td>
                 <td>@w.HourlyRate.ToString("0") @(L.IsArabic ? "ر.ع." : "OMR")</td>
                 <td><i class="bi bi-star-fill text-warning"></i> @w.AverageRating.ToString("0.0")</td>
                 <td><span class="chip availability-@w.Availability">@(w.IsActive ? w.Availability.ToString() : "Inactive")</span></td>

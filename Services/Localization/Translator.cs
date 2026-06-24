@@ -15,6 +15,12 @@ public interface ITranslator
     string T(string key, params object[] args);
     bool IsArabic { get; }
     string CurrentCulture { get; }
+
+    /// <summary>
+    /// Translates well-known DB-stored Arabic strings (service names, descriptions, etc.)
+    /// into the current culture. Returns the original string if no translation exists.
+    /// </summary>
+    string D(string? arabicValue);
 }
 
 public class Translator : ITranslator
@@ -44,6 +50,34 @@ public class Translator : ITranslator
     public bool IsArabic => CurrentCulture == "ar";
 
     public string this[string key] => T(key);
+
+    public string D(string? arabicValue)
+    {
+        if (string.IsNullOrEmpty(arabicValue)) return string.Empty;
+        if (CurrentCulture == "ar") return arabicValue;
+        return DbStringsEn.TryGetValue(arabicValue.Trim(), out var en) ? en : arabicValue;
+    }
+
+    // Arabic → English map for well-known DB seed values (service names + descriptions + monthly offers).
+    private static readonly Dictionary<string, string> DbStringsEn = new(StringComparer.Ordinal)
+    {
+        // Service names
+        ["تنظيف عام"] = "General cleaning",
+        ["تنظيف داخلي"] = "Indoor cleaning",
+        ["غسيل وكي ملابس"] = "Laundry & ironing",
+        ["تنظيف خارجي"] = "Outdoor cleaning",
+        // Service descriptions
+        ["تنظيف منزلي شامل لكل الغرف"] = "Full home cleaning for every room",
+        ["تنظيف داخلي تفصيلي للأرضيات والمطبخ والحمامات"] = "Detailed indoor cleaning for floors, kitchen and bathrooms",
+        ["خدمات غسيل وكي مع التوصيل"] = "Wash + iron with delivery",
+        ["تنظيف الواجهات والأسطح والحديقة"] = "Facades, rooftops and garden cleaning",
+        // Offers (sample)
+        ["خصم رمضان"] = "Ramadan discount",
+        ["باقة الصيف"] = "Summer package",
+        // Booking type
+        ["عقد شهري"] = "Monthly contract",
+        ["حجز ساعي"] = "Hourly booking",
+    };
 
     public string T(string key, params object[] args)
     {
