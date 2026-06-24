@@ -29,7 +29,9 @@ public class InvoiceService : IInvoiceService
     public InvoiceService(IWebHostEnvironment env)
     {
         _env = env;
-        EnsureFontsRegistered();
+        // Font registration is deferred to GenerateInvoicePdf so that simply
+        // resolving this service (e.g. when rendering Admin/Bookings/Details)
+        // does not touch SkiaSharp/HarfBuzz.
     }
 
     static InvoiceService()
@@ -61,6 +63,9 @@ public class InvoiceService : IInvoiceService
 
     public byte[] GenerateInvoicePdf(Booking booking)
     {
+        // Register Cairo only the first time we actually need to render a PDF.
+        EnsureFontsRegistered();
+
         var englishCulture = CultureInfo.InvariantCulture;
         var logoPath = Path.Combine(_env.WebRootPath, "images", "logo", "al-thiqa-full.png");
 
