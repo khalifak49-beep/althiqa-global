@@ -1,13 +1,20 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@{
+    var isAr = L.IsArabic;
+    var htmlLang = isAr ? "ar" : "en";
+    var htmlDir = isAr ? "rtl" : "ltr";
+    var otherCulture = isAr ? "en" : "ar";
+    var currentPath = Context.Request.Path + Context.Request.QueryString;
+}
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-bs-theme="light">
+<html lang="@htmlLang" dir="@htmlDir" data-bs-theme="light">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5" />
     <meta name="theme-color" content="#6c5ce7" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0f1320" media="(prefers-color-scheme: dark)" />
-    <title>@ViewData["Title"] - الثقة العالمية لخدمات التنظيف</title>
+    <title>@ViewData["Title"] - @L["site.brand"]</title>
 
     @* PWA + iOS install support *@
     <link rel="manifest" href="~/manifest.webmanifest" />
@@ -15,26 +22,38 @@
     <link rel="icon" type="image/svg+xml" href="~/images/logo/al-thiqa-icon.svg" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="الثقة" />
+    <meta name="apple-mobile-web-app-title" content="@L["site.brand_short"]" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="application-name" content="الثقة العالمية" />
+    <meta name="application-name" content="@L["site.brand"]" />
     <meta name="format-detection" content="telephone=no" />
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" />
+    @if (isAr)
+    {
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" />
+        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    }
+    else
+    {
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    }
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @if (!isAr)
+    {
+        <style>body, .navbar-brand, .nav-link, .btn, h1, h2, h3, h4, h5, h6, p { font-family: 'Inter', system-ui, -apple-system, sans-serif !important; }</style>
+    }
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-modern sticky-top">
             <div class="container">
-                <a class="navbar-brand fw-bold d-inline-flex align-items-center" asp-controller="Home" asp-action="Index" aria-label="الثقة العالمية لخدمات التنظيف">
+                <a class="navbar-brand fw-bold d-inline-flex align-items-center" asp-controller="Home" asp-action="Index" aria-label="@L["site.brand"]">
                     <img src="~/images/logo/al-thiqa-full.png"
                          onerror="this.onerror=null;this.src='/images/logo/al-thiqa-full.svg';"
-                         alt="الثقة العالمية لخدمات التنظيف"
+                         alt="@L["site.brand"]"
                          class="brand-circle" />
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"
@@ -44,31 +63,39 @@
                 <div class="collapse navbar-collapse" id="navMain">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">الرئيسية</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">@L["nav.home"]</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Workers" asp-action="Index">العاملات</a>
+                            <a class="nav-link" asp-controller="Workers" asp-action="Index">@L["nav.workers"]</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="About">عن الموقع</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="About">@L["nav.about"]</a>
                         </li>
                         @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Bookings" asp-action="Index">حجوزاتي</a>
+                                <a class="nav-link" asp-controller="Bookings" asp-action="Index">@L["nav.my_bookings"]</a>
                             </li>
                         }
                     </ul>
                     <ul class="navbar-nav align-items-lg-center gap-lg-2">
                         <li class="nav-item">
-                            <button class="btn btn-icon" id="themeToggle" title="تبديل الوضع">
+                            <a class="btn btn-icon"
+                               href="@Url.Action("Set", "Culture", new { culture = otherCulture, returnUrl = currentPath })"
+                               title="@L["nav.lang_switch"]">
+                                <i class="bi bi-translate"></i>
+                                <span class="d-none d-lg-inline ms-1">@L["nav.lang_switch"]</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-icon" id="themeToggle" title="@L["nav.theme_toggle"]">
                                 <i class="bi bi-moon-stars"></i>
                             </button>
                         </li>
                         @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item position-relative">
-                                <a class="btn btn-icon position-relative" asp-controller="Notifications" asp-action="Index" title="الإشعارات">
+                                <a class="btn btn-icon position-relative" asp-controller="Notifications" asp-action="Index" title="@L["nav.notifications"]">
                                     <i class="bi bi-bell"></i>
                                     <span id="notifBadge" class="notif-badge d-none">0</span>
                                 </a>
@@ -76,22 +103,22 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle d-inline-flex align-items-center gap-2" data-bs-toggle="dropdown" href="#" role="button">
                                     <span class="avatar-sm"><i class="bi bi-person-circle"></i></span>
-                                    @(User.Identity?.Name ?? "حسابي")
+                                    @(User.Identity?.Name ?? L["nav.account"].ToString())
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow">
-                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="bi bi-person"></i> الملف الشخصي</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Bookings" asp-action="Index"><i class="bi bi-calendar-check"></i> حجوزاتي</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Favorites"><i class="bi bi-heart"></i> المفضلة</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword"><i class="bi bi-key"></i> تغيير كلمة المرور</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="bi bi-person"></i> @L["nav.profile"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Bookings" asp-action="Index"><i class="bi bi-calendar-check"></i> @L["nav.my_bookings"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Favorites"><i class="bi bi-heart"></i> @L["nav.favorites"]</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword"><i class="bi bi-key"></i> @L["nav.change_password"]</a></li>
                                     @if (User.IsInRole("Admin"))
                                     {
                                         <li><hr class="dropdown-divider" /></li>
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2"></i> لوحة التحكم</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2"></i> @L["nav.dashboard"]</a></li>
                                     }
                                     <li><hr class="dropdown-divider" /></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="px-3">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</button>
+                                            <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-box-arrow-right"></i> @L["nav.logout"]</button>
                                         </form>
                                     </li>
                                 </ul>
@@ -100,10 +127,10 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="btn btn-outline-primary me-lg-2" asp-controller="Account" asp-action="Login">دخول</a>
+                                <a class="btn btn-outline-primary me-lg-2" asp-controller="Account" asp-action="Login">@L["nav.login"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="btn btn-primary" asp-controller="Account" asp-action="Register">تسجيل</a>
+                                <a class="btn btn-primary" asp-controller="Account" asp-action="Register">@L["nav.register"]</a>
                             </li>
                         }
                     </ul>
@@ -134,8 +161,8 @@
             <div class="alert alert-warning alert-dismissible fade show shadow-sm small d-flex align-items-center" role="alert">
                 <i class="bi bi-person-exclamation me-2 fs-5"></i>
                 <div class="flex-grow-1">
-                    بياناتك ناقصة — أكمل ملفك الشخصي لتسهيل التواصل والحجز.
-                    <a asp-controller="Account" asp-action="Profile" class="alert-link">إكمال الآن</a>
+                    @L["profile.nudge"]
+                    <a asp-controller="Account" asp-action="Profile" class="alert-link">@L["profile.complete_now"]</a>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -167,23 +194,23 @@
                 <div class="col-md-4">
                     <img src="~/images/logo/al-thiqa-full.png"
                          onerror="this.onerror=null;this.src='/images/logo/al-thiqa-full.svg';"
-                         alt="الثقة العالمية لخدمات التنظيف"
+                         alt="@L["site.brand"]"
                          class="footer-logo-circle mb-3" />
-                    <p class="text-white-50 mb-0">منصة احترافية لحجز عاملات منزليات بالساعات. خدمة سريعة، آمنة، وبأسعار تنافسية.</p>
+                    <p class="text-white-50 mb-0">@L["site.tagline"]</p>
                 </div>
                 <div class="col-md-2">
-                    <h6 class="text-white mb-3">روابط</h6>
+                    <h6 class="text-white mb-3">@L["footer.links_heading"]</h6>
                     <ul class="list-unstyled small">
-                        <li><a href="@Url.Action("Index","Home")">الرئيسية</a></li>
-                        <li><a href="@Url.Action("Index","Workers")">العاملات</a></li>
-                        <li><a href="@Url.Action("About","Home")">عن الموقع</a></li>
-                        <li><a href="@Url.Action("Privacy","Home")">سياسة الخصوصية</a></li>
-                        <li><a href="@Url.Action("Refund","Home")">سياسة الاسترجاع</a></li>
-                        <li><a href="@Url.Action("Terms","Home")">الشروط والأحكام</a></li>
+                        <li><a href="@Url.Action("Index","Home")">@L["nav.home"]</a></li>
+                        <li><a href="@Url.Action("Index","Workers")">@L["nav.workers"]</a></li>
+                        <li><a href="@Url.Action("About","Home")">@L["nav.about"]</a></li>
+                        <li><a href="@Url.Action("Privacy","Home")">@L["footer.privacy"]</a></li>
+                        <li><a href="@Url.Action("Refund","Home")">@L["footer.refund"]</a></li>
+                        <li><a href="@Url.Action("Terms","Home")">@L["footer.terms"]</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
-                    <h6 class="text-white mb-3">تواصل معنا</h6>
+                    <h6 class="text-white mb-3">@L["footer.contact_heading"]</h6>
                     <ul class="list-unstyled small contact-links">
                         <li>
                             <a href="tel:+96877005570"><i class="bi bi-telephone-fill"></i> 77005570</a>
@@ -195,11 +222,11 @@
                         <li>
                             <a href="mailto:althiqaglobalom@gmail.com"><i class="bi bi-envelope-fill"></i> althiqaglobalom@gmail.com</a>
                         </li>
-                        <li class="text-white-50"><i class="bi bi-geo-alt-fill"></i> سلطنة عُمان</li>
+                        <li class="text-white-50"><i class="bi bi-geo-alt-fill"></i> @L["footer.location"]</li>
                     </ul>
                 </div>
                 <div class="col-md-3">
-                    <h6 class="text-white mb-3">طرق الدفع المتاحة</h6>
+                    <h6 class="text-white mb-3">@L["footer.payment_heading"]</h6>
                     <div class="d-flex flex-wrap gap-2">
                         <span class="pay-chip"><i class="bi bi-credit-card-2-front"></i> Visa</span>
                         <span class="pay-chip"><i class="bi bi-credit-card-2-front"></i> Mastercard</span>
@@ -210,7 +237,7 @@
                 </div>
             </div>
             <hr class="text-white-50" />
-            <div class="text-center text-white-50 small">© @DateTime.UtcNow.Year الثقة العالمية لخدمات التنظيف — جميع الحقوق محفوظة. تطبق الشروط.</div>
+            <div class="text-center text-white-50 small">@L.T("footer.copyright", DateTime.UtcNow.Year)</div>
         </div>
     </footer>
 
@@ -219,7 +246,7 @@
         var fabAction = SignInManager.IsSignedIn(User) ? "Index" : "Login";
         var fabController = SignInManager.IsSignedIn(User) ? "Workers" : "Account";
     }
-    <a class="fab-book d-lg-none" asp-controller="@fabController" asp-action="@fabAction" aria-label="احجز الآن" title="احجز الآن">
+    <a class="fab-book d-lg-none" asp-controller="@fabController" asp-action="@fabAction" aria-label="@L["nav.book_now"]" title="@L["nav.book_now"]">
         <i class="bi bi-plus-lg"></i>
     </a>
 
@@ -232,29 +259,29 @@
         <a class="bnav-item @(currentController == "Home" && currentAction == "Index" ? "active" : "")"
            asp-controller="Home" asp-action="Index">
             <i class="bi bi-house-door-fill"></i>
-            <span>الرئيسية</span>
+            <span>@L["nav.home"]</span>
         </a>
         <a class="bnav-item @(currentController == "Workers" ? "active" : "")"
            asp-controller="Workers" asp-action="Index">
             <i class="bi bi-people-fill"></i>
-            <span>العاملات</span>
+            <span>@L["nav.workers"]</span>
         </a>
         @if (SignInManager.IsSignedIn(User))
         {
             <a class="bnav-item @(currentController == "Bookings" ? "active" : "")"
                asp-controller="Bookings" asp-action="Index">
                 <i class="bi bi-calendar-check-fill"></i>
-                <span>حجوزاتي</span>
+                <span>@L["nav.my_bookings"]</span>
             </a>
             <a class="bnav-item @(currentController == "Notifications" ? "active" : "")"
                asp-controller="Notifications" asp-action="Index">
                 <i class="bi bi-bell-fill"></i>
-                <span>الإشعارات</span>
+                <span>@L["nav.notifications"]</span>
             </a>
             <a class="bnav-item @(currentController == "Account" ? "active" : "")"
                asp-controller="Account" asp-action="Profile">
                 <i class="bi bi-person-fill"></i>
-                <span>حسابي</span>
+                <span>@L["nav.account"]</span>
             </a>
         }
         else
@@ -262,7 +289,7 @@
             <a class="bnav-item @(currentController == "Account" && currentAction == "Login" ? "active" : "")"
                asp-controller="Account" asp-action="Login">
                 <i class="bi bi-box-arrow-in-right"></i>
-                <span>دخول</span>
+                <span>@L["nav.login"]</span>
             </a>
         }
     </nav>

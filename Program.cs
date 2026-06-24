@@ -146,7 +146,17 @@ builder.Services.AddScoped<IEmailOtpSender, GmailOtpSender>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IWorkerRecommender, WorkerRecommender>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddScoped<HomeMaids.Services.Localization.ITranslator, HomeMaids.Services.Localization.Translator>();
 builder.Services.AddHttpClient();
+
+// Localization: Arabic (default) + English with cookie persistence.
+builder.Services.Configure<Microsoft.AspNetCore.Builder.RequestLocalizationOptions>(options =>
+{
+    var supported = new[] { new System.Globalization.CultureInfo("ar"), new System.Globalization.CultureInfo("en") };
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("ar");
+    options.SupportedCultures = supported;
+    options.SupportedUICultures = supported;
+});
 
 builder.Services.AddControllersWithViews(options =>
 {
@@ -204,6 +214,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseMiddleware<HomeMaids.Services.SecurityHeadersMiddleware>();
+
+// Honor the language cookie set by /Culture/Set
+app.UseRequestLocalization();
 
 app.UseRouting();
 app.UseSession();
