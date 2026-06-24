@@ -19,7 +19,7 @@ public class InvoiceService : IInvoiceService
     private const string CompanyPhone = "77005570";
     private const string CompanyInstagram = "@althiqaglobal.om";
     private const string CompanyLocation = "Seeb - Muscat - Oman";
-    private const string ArabicFontFamily = "Cairo";
+    private const string ArabicFontFamily = "Amiri";
 
     private static readonly object _fontLock = new();
     private static bool _fontsRegistered;
@@ -45,8 +45,8 @@ public class InvoiceService : IInvoiceService
         lock (_fontLock)
         {
             if (_fontsRegistered) return;
-            var regularPath = Path.Combine(_env.WebRootPath, "fonts", "Cairo-Regular.ttf");
-            var boldPath = Path.Combine(_env.WebRootPath, "fonts", "Cairo-Bold.ttf");
+            var regularPath = Path.Combine(_env.WebRootPath, "fonts", "Amiri-Regular.ttf");
+            var boldPath = Path.Combine(_env.WebRootPath, "fonts", "Amiri-Bold.ttf");
             if (File.Exists(regularPath))
             {
                 using var fs = File.OpenRead(regularPath);
