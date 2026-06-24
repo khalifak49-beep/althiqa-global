@@ -2,7 +2,7 @@
 # =====================================================================
 #  Quick update script — pulls latest from GitHub + rebuilds + restarts
 #  Run this on the VPS each time you push changes:
-#    cd /var/www/althiqa && ./scripts/update-on-vps.sh
+#    /var/www/althiqa/scripts/update-on-vps.sh
 # =====================================================================
 set -e
 
@@ -10,19 +10,22 @@ APP_DIR="/var/www/althiqa"
 SERVICE_USER="althiqa"
 
 cd $APP_DIR
-echo "[1/4] Pulling latest changes..."
+echo "[1/5] Pulling latest changes..."
 git pull
 
-echo "[2/4] Publishing release build..."
+echo "[2/5] Stopping althiqa service (so publish can overwrite locked files)..."
+systemctl stop althiqa || true
+
+echo "[3/5] Publishing release build..."
 dotnet publish HomeMaids.csproj -c Release -o $APP_DIR/publish --no-self-contained
 
-echo "[3/4] Fixing permissions..."
+echo "[4/5] Fixing permissions..."
 chown -R $SERVICE_USER:$SERVICE_USER $APP_DIR/publish
 
-echo "[4/4] Restarting service..."
-systemctl restart althiqa
-sleep 3
+echo "[5/5] Starting service..."
+systemctl start althiqa
+sleep 4
 systemctl status althiqa --no-pager -l | head -10
 
 echo ""
-echo "✅ Update complete — site is live at \$DOMAIN"
+echo "✅ Update complete."
