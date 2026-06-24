@@ -1,20 +1,32 @@
 @model Booking
-@{ ViewData["Title"] = "تفاصيل الحجز"; }
+@{
+    ViewData["Title"] = L["booking.title"].ToString();
+    string StatusLabel(BookingStatus st) => st switch
+    {
+        BookingStatus.Pending => L["booking.status_pending"].ToString(),
+        BookingStatus.Confirmed => L["booking.status_confirmed"].ToString(),
+        BookingStatus.InProgress => L["booking.status_in_progress"].ToString(),
+        BookingStatus.Completed => L["booking.status_completed"].ToString(),
+        BookingStatus.Cancelled => L["booking.status_cancelled"].ToString(),
+        BookingStatus.Refunded => L["booking.status_refunded"].ToString(),
+        _ => st.ToString()
+    };
+}
 
 <section class="section">
     <div class="container">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
             <div>
-                <h1 class="fw-bold mb-0">حجز <code>@Model.BookingNumber</code></h1>
-                <span class="text-muted">تم الإنشاء في @Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span>
+                <h1 class="fw-bold mb-0">#<code>@Model.BookingNumber</code></h1>
+                <span class="text-muted">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span>
             </div>
-            <span class="status-pill status-@Model.Status fs-6">@Model.Status</span>
+            <span class="status-pill status-@Model.Status fs-6">@StatusLabel(Model.Status)</span>
         </div>
 
         <div class="row g-4">
             <div class="col-lg-8">
                 <div class="card-modern p-4 mb-3">
-                    <h5 class="fw-bold mb-3">بيانات العاملة</h5>
+                    <h5 class="fw-bold mb-3">@L["booking.step1"]</h5>
                     <div class="d-flex align-items-center gap-3">
                         <div style="width:80px; height:80px; border-radius:14px; background-size:cover; background-position:center; background-image:url('@(string.IsNullOrEmpty(Model.Worker?.PhotoUrl) ? $"https://i.pravatar.cc/200?u={Model.WorkerId}" : Model.Worker.PhotoUrl)');"></div>
                         <div>
@@ -25,26 +37,26 @@
                 </div>
 
                 <div class="card-modern p-4 mb-3">
-                    <h5 class="fw-bold mb-3">تفاصيل الموعد</h5>
+                    <h5 class="fw-bold mb-3">@L["booking.title"]</h5>
                     <div class="row g-3">
-                        <div class="col-md-4"><div class="text-muted small">التاريخ</div><strong>@Model.BookingDate.ToString("yyyy-MM-dd")</strong></div>
-                        <div class="col-md-4"><div class="text-muted small">من - إلى</div><strong>@Model.StartTime.ToString("hh\\:mm") - @Model.EndTime.ToString("hh\\:mm")</strong></div>
-                        <div class="col-md-4"><div class="text-muted small">عدد الساعات</div><strong>@Model.Hours</strong></div>
+                        <div class="col-md-4"><div class="text-muted small">@L["booking.date"]</div><strong>@Model.BookingDate.ToString("yyyy-MM-dd")</strong></div>
+                        <div class="col-md-4"><div class="text-muted small">@L["booking.start_time"]</div><strong>@Model.StartTime.ToString("hh\\:mm") - @Model.EndTime.ToString("hh\\:mm")</strong></div>
+                        <div class="col-md-4"><div class="text-muted small">@L["booking.hours"]</div><strong>@Model.Hours</strong></div>
                         <div class="col-12">
-                            <div class="text-muted small">العنوان</div>
+                            <div class="text-muted small">@L["booking.address_label"]</div>
                             <strong>@Model.Address</strong>
                             @if (Model.Latitude.HasValue && Model.Longitude.HasValue)
                             {
                                 <a class="btn btn-sm btn-outline-primary ms-2" target="_blank"
                                    href="https://www.openstreetmap.org/?mlat=@Model.Latitude&mlon=@Model.Longitude#map=17/@Model.Latitude/@Model.Longitude">
-                                    <i class="bi bi-geo-alt"></i> فتح الخريطة
+                                    <i class="bi bi-geo-alt"></i> @L["booking.map_label"]
                                 </a>
                                 <div id="addrMap" class="mt-2" data-lat="@Model.Latitude" data-lng="@Model.Longitude" style="height:240px; border-radius:14px; overflow:hidden; border:1px solid var(--hm-border);"></div>
                             }
                         </div>
                         @if (!string.IsNullOrEmpty(Model.Notes))
                         {
-                            <div class="col-12"><div class="text-muted small">ملاحظات</div><span>@Model.Notes</span></div>
+                            <div class="col-12"><div class="text-muted small">@L["booking.notes_label"]</div><span>@Model.Notes</span></div>
                         }
                     </div>
                 </div>
@@ -52,15 +64,11 @@
                 @if (Model.Payment != null && Model.Status != BookingStatus.Cancelled && Model.Status != BookingStatus.Refunded)
                 {
                     <div class="card-modern p-4">
-                        <h5 class="fw-bold mb-3">حالة الدفع</h5>
+                        <h5 class="fw-bold mb-3">@L["payment.title"]</h5>
                         <div class="row g-3">
-                            <div class="col-md-3"><div class="text-muted small">الحالة</div><strong><span class="status-pill status-@Model.Payment.Status">@Model.Payment.Status</span></strong></div>
-                            <div class="col-md-4"><div class="text-muted small">رقم العملية</div><code>@Model.Payment.TransactionRef</code></div>
-                            <div class="col-md-3"><div class="text-muted small">طريقة الدفع</div><strong>@Model.Payment.Method</strong></div>
-                            @if (!string.IsNullOrEmpty(Model.Payment.CardLast4))
-                            {
-                                <div class="col-md-2"><div class="text-muted small">البطاقة</div><strong>**** @Model.Payment.CardLast4</strong></div>
-                            }
+                            <div class="col-md-4"><div class="text-muted small">@L["booking.step3"]</div><strong><span class="status-pill status-@Model.Payment.Status">@Model.Payment.Status</span></strong></div>
+                            <div class="col-md-4"><div class="text-muted small">Transaction</div><code>@Model.Payment.TransactionRef</code></div>
+                            <div class="col-md-4"><div class="text-muted small">@L["payment.method"]</div><strong>@Model.Payment.Method</strong></div>
                         </div>
                     </div>
                 }
@@ -68,11 +76,11 @@
 
             <div class="col-lg-4">
                 <div class="summary-box">
-                    <h6 class="fw-bold mb-3">ملخص الفاتورة</h6>
-                    <div class="row"><div class="col-6 text-muted">المجموع الفرعي</div><div class="col-6 text-end">@Model.SubTotal.ToString("N2") ر.ع.</div></div>
-                    <div class="row"><div class="col-6 text-muted">الخصم</div><div class="col-6 text-end text-success">- @Model.DiscountAmount.ToString("N2") ر.ع.</div></div>
-                    <div class="row"><div class="col-6 text-muted">الضريبة</div><div class="col-6 text-end">@Model.TaxAmount.ToString("N2") ر.ع.</div></div>
-                    <div class="row"><div class="col-6">الإجمالي</div><div class="col-6 text-end total">@Model.TotalAmount.ToString("N2") ر.ع.</div></div>
+                    <h6 class="fw-bold mb-3">@L["booking.summary_heading"]</h6>
+                    <div class="row"><div class="col-6 text-muted">@L["booking.subtotal_label"]</div><div class="col-6 text-end">@Model.SubTotal.ToString("N2")</div></div>
+                    <div class="row"><div class="col-6 text-muted">@L["booking.discount_label"]</div><div class="col-6 text-end text-success">- @Model.DiscountAmount.ToString("N2")</div></div>
+                    <div class="row"><div class="col-6 text-muted">@L["booking.tax_label"]</div><div class="col-6 text-end">@Model.TaxAmount.ToString("N2")</div></div>
+                    <div class="row"><div class="col-6">@L["booking.total_label"]</div><div class="col-6 text-end total">@Model.TotalAmount.ToString("N2")</div></div>
 
                     @{
                         var isCancelledOrRefunded = Model.Status is BookingStatus.Cancelled or BookingStatus.Refunded;
@@ -81,30 +89,25 @@
                     @if (isCancelledOrRefunded)
                     {
                         <div class="alert alert-secondary mt-3 mb-0 text-center small">
-                            <i class="bi bi-x-circle"></i> هذا الحجز ملغى — لا حاجة للدفع.
+                            <i class="bi bi-x-circle"></i> @L["booking.status_cancelled"]
                         </div>
                     }
                     else if (!isPaid)
                     {
-                        <a class="btn btn-primary w-100 mt-3" asp-controller="Payments" asp-action="Checkout" asp-route-bookingId="@Model.Id"><i class="bi bi-credit-card"></i> الانتقال للدفع</a>
+                        <a class="btn btn-primary w-100 mt-3" asp-controller="Payments" asp-action="Checkout" asp-route-bookingId="@Model.Id"><i class="bi bi-credit-card"></i> @L["payment.pay_now"]</a>
                     }
                     else
                     {
-                        <a class="btn btn-outline-primary w-100 mt-3" asp-action="Invoice" asp-route-id="@Model.Id"><i class="bi bi-file-pdf"></i> تنزيل الفاتورة PDF</a>
+                        <a class="btn btn-outline-primary w-100 mt-3" asp-action="Invoice" asp-route-id="@Model.Id"><i class="bi bi-file-pdf"></i> @L["payment.download_invoice"]</a>
                     }
 
                     @if (Model.Status is BookingStatus.Pending or BookingStatus.Confirmed)
                     {
                         <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="mt-2"
-                              onsubmit="return confirm('هل أنت متأكد من إلغاء الحجز؟');">
-                            <input name="reason" class="form-control mb-2" placeholder="سبب الإلغاء (اختياري)" />
-                            <button class="btn btn-outline-danger w-100"><i class="bi bi-x-circle"></i> إلغاء الحجز</button>
+                              onsubmit="return confirm(@Html.Raw("'" + L["booking.cancel_confirm"] + "'"));">
+                            <input name="reason" class="form-control mb-2" placeholder="@L["booking.notes_label"]" />
+                            <button class="btn btn-outline-danger w-100"><i class="bi bi-x-circle"></i> @L["booking.cancel_btn"]</button>
                         </form>
-                    }
-
-                    @if (Model.Status == BookingStatus.Completed && Model.Review == null)
-                    {
-                        <a class="btn btn-warning w-100 mt-2" asp-controller="Reviews" asp-action="Create" asp-route-bookingId="@Model.Id"><i class="bi bi-star"></i> أضف تقييماً</a>
                     }
                 </div>
             </div>

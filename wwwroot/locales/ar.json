@@ -326,5 +326,12 @@
   "common.access_denied_desc": "ليست لديك صلاحية الوصول إلى هذه الصفحة.",
   "common.error_title": "حدث خطأ",
   "common.error_desc": "حصل خطأ أثناء معالجة طلبك. يرجى المحاولة لاحقاً.",
-  "common.go_home": "العودة للرئيسية"
+  "common.go_home": "العودة للرئيسية",
+
+  "notifications.title": "الإشعارات",
+  "notifications.empty": "لا توجد إشعارات",
+  "reviews.create_title": "أضف تقييماً",
+  "reviews.rating_label": "تقييمك",
+  "reviews.comment_label": "ملاحظتك (اختياري)",
+  "reviews.submit": "إرسال التقييم"
 }

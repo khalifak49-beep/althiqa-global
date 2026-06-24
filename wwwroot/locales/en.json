@@ -326,5 +326,12 @@
   "common.access_denied_desc": "You don't have permission to access this page.",
   "common.error_title": "Error",
   "common.error_desc": "An error occurred while processing your request. Please try again later.",
-  "common.go_home": "Back to home"
+  "common.go_home": "Back to home",
+
+  "notifications.title": "Notifications",
+  "notifications.empty": "No notifications",
+  "reviews.create_title": "Leave a review",
+  "reviews.rating_label": "Your rating",
+  "reviews.comment_label": "Your comment (optional)",
+  "reviews.submit": "Submit review"
 }

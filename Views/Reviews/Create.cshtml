@@ -1,26 +1,27 @@
 @model ReviewViewModel
-@{ ViewData["Title"] = "تقييم العاملة"; }
+@{ ViewData["Title"] = L["reviews.create_title"].ToString(); }
 
 <section class="section">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-7">
                 <div class="card-modern p-4 p-md-5">
-                    <h3 class="fw-bold mb-3">قيّم تجربتك مع @Model.WorkerName</h3>
+                    <h3 class="fw-bold mb-3">@L["reviews.create_title"] — @Model.WorkerName</h3>
                     <form method="post">
                         <input type="hidden" asp-for="BookingId" />
                         <input type="hidden" asp-for="WorkerId" />
                         <input type="hidden" asp-for="Rating" id="Rating" />
                         <div class="mb-4 text-center">
+                            <div class="form-label">@L["reviews.rating_label"]</div>
                             <div class="rate-stars" data-target="#Rating">
                                 @for (var i = 0; i < 5; i++) { <i class="bi bi-star-fill"></i> }
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label asp-for="Comment" class="form-label">تعليقك</label>
-                            <textarea asp-for="Comment" rows="4" class="form-control" placeholder="شاركنا تجربتك..."></textarea>
+                            <label asp-for="Comment" class="form-label">@L["reviews.comment_label"]</label>
+                            <textarea asp-for="Comment" rows="4" class="form-control"></textarea>
                         </div>
-                        <button class="btn btn-primary w-100">إرسال التقييم</button>
+                        <button class="btn btn-primary w-100">@L["reviews.submit"]</button>
                     </form>
                 </div>
             </div>

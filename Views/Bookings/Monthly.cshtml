@@ -1,11 +1,11 @@
 @model CreateMonthlyBookingViewModel
-@{ ViewData["Title"] = "عقد شهري"; }
+@{ ViewData["Title"] = L["workers.book_monthly_btn"].ToString(); }
 
 <section class="section page-with-logo-bg">
     <div class="container">
         <partial name="_BookingStepper" model="2" />
-        <h1 class="fw-bold mb-1">عقد شهري — حجز ثابت لمدة شهر</h1>
-        <p class="text-muted mb-3">اختر عدد الزيارات الأسبوعية وعدد الساعات لكل زيارة. سيُولّد الجدول ويُحسب السعر تلقائياً.</p>
+        <h1 class="fw-bold mb-1">@L["booking.monthly_title"]</h1>
+        <p class="text-muted mb-3">@L["booking.monthly_subtitle"]</p>
 
         <form method="post" asp-action="Monthly">
             <input type="hidden" asp-for="WorkerId" />
@@ -21,34 +21,34 @@
                                 <div>
                                     <h5 class="mb-0 fw-bold">@Model.Worker.FullName</h5>
                                     <div class="small text-muted">@Model.Worker.Nationality • @Model.Worker.Service?.Name</div>
-                                    <div><strong class="text-primary">@Model.Worker.HourlyRate.ToString("N3") ر.ع. / ساعة</strong></div>
+                                    <div><strong class="text-primary">@Model.Worker.HourlyRate.ToString("N3") @L["workers.currency_per_hour"]</strong></div>
                                 </div>
                             </div>
                         }
                     </div>
 
                     <div class="card-modern p-4">
-                        <h5 class="fw-bold mb-3">تفاصيل العقد</h5>
+                        <h5 class="fw-bold mb-3">@L["booking.contract_details"]</h5>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label asp-for="StartDate" class="form-label">تاريخ بداية العقد</label>
+                                <label asp-for="StartDate" class="form-label">@L["booking.start_date"]</label>
                                 <input asp-for="StartDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
                                 <span asp-validation-for="StartDate" class="text-danger small"></span>
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="HoursPerVisit" class="form-label">ساعات الزيارة الواحدة</label>
+                                <label asp-for="HoursPerVisit" class="form-label">@L["booking.hours_per_visit"]</label>
                                 <input asp-for="HoursPerVisit" type="number" min="2" max="8" id="HoursPerVisit" class="form-control" />
                                 <span asp-validation-for="HoursPerVisit" class="text-danger small"></span>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">باقة الزيارات</label>
+                                <label class="form-label">@L["booking.plan_label"]</label>
                                 <div class="row g-2">
                                     @{
                                         var plans = new[] {
-                                            (MonthlyPlan.Weekly,       "أسبوعي",     "زيارة واحدة كل أسبوع",  "4 زيارات/شهر", "bi-calendar-week"),
-                                            (MonthlyPlan.TwiceWeekly,  "مرتان أسبوعياً", "زيارتان كل أسبوع",   "8 زيارات/شهر", "bi-calendar2-week"),
-                                            (MonthlyPlan.ThriceWeekly, "3 مرات أسبوعياً","ثلاث زيارات أسبوعياً","12 زيارة/شهر", "bi-calendar3"),
-                                            (MonthlyPlan.Daily,        "يومي",       "زيارة يومية",          "24 زيارة/شهر", "bi-calendar-day")
+                                            (MonthlyPlan.Weekly,       L["booking.plan_weekly"].ToString(),  L["booking.plan_weekly_desc"].ToString(),  L.T("booking.visits_count", 4),  "bi-calendar-week"),
+                                            (MonthlyPlan.TwiceWeekly,  L["booking.plan_twice"].ToString(),   L["booking.plan_twice_desc"].ToString(),   L.T("booking.visits_count", 8),  "bi-calendar2-week"),
+                                            (MonthlyPlan.ThriceWeekly, L["booking.plan_thrice"].ToString(),  L["booking.plan_thrice_desc"].ToString(),  L.T("booking.visits_count", 12), "bi-calendar3"),
+                                            (MonthlyPlan.Daily,        L["booking.plan_daily"].ToString(),   L["booking.plan_daily_desc"].ToString(),   L.T("booking.visits_count", 24), "bi-calendar-day")
                                         };
                                     }
                                     @foreach (var (p, title, sub, visits, icon) in plans)
@@ -66,9 +66,9 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="ServiceId" class="form-label">نوع الخدمة</label>
+                                <label asp-for="ServiceId" class="form-label">@L["booking.choose_service"]</label>
                                 <select asp-for="ServiceId" class="form-select">
-                                    <option value="">حدد الخدمة</option>
+                                    <option value="">@L["booking.choose_service"]</option>
                                     @if (Model.Services != null)
                                     {
                                         foreach (var s in Model.Services) { <option value="@s.Id">@s.Name</option> }
@@ -77,47 +77,46 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-bold">
-                                    <i class="bi bi-calendar2-event"></i> جدول الزيارات الأسبوعية
+                                    <i class="bi bi-calendar2-event"></i> @L["booking.visits_schedule"]
                                 </label>
-                                <p class="small text-muted mb-2">حدّد لكل زيارة في الأسبوع: اليوم والوقت. سيتم تكرار هذا الجدول على مدار الشهر.</p>
+                                <p class="small text-muted mb-2">@L["booking.visits_schedule_help"]</p>
                                 <div id="visitSlotsContainer" class="row g-3"></div>
                                 <div class="alert alert-info mt-2 py-2 px-3 small d-none" id="dailyHint">
-                                    <i class="bi bi-info-circle"></i> الباقة اليومية: زيارة في نفس الوقت كل يوم. حدّد وقت البدء فقط.
+                                    <i class="bi bi-info-circle"></i> @L["booking.daily_hint"]
                                 </div>
                                 <div class="text-danger small mt-1" id="slotsValidationMsg"></div>
                             </div>
                             <div class="col-12">
-                                <label asp-for="Address" class="form-label">العنوان</label>
-                                <textarea asp-for="Address" rows="2" class="form-control" placeholder="الحي، الشارع، رقم المبنى..."></textarea>
+                                <label asp-for="Address" class="form-label">@L["booking.address_label"]</label>
+                                <textarea asp-for="Address" rows="2" class="form-control" placeholder="@L["booking.address_placeholder"]"></textarea>
                                 <span asp-validation-for="Address" class="text-danger small"></span>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">حدّد الموقع على الخريطة</label>
+                                <label class="form-label">@L["booking.map_label"]</label>
                                 <div class="d-flex gap-2 mb-2 flex-wrap">
                                     <button type="button" id="btnGeoMon" class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-geo-alt-fill"></i> موقعي الحالي
+                                        <i class="bi bi-geo-alt-fill"></i> @L["booking.use_my_location"]
                                     </button>
                                     <a id="openGmapsMon" href="#" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm d-none">
-                                        <i class="bi bi-google"></i> فتح في Google Maps
+                                        <i class="bi bi-google"></i> @L["booking.open_in_google_maps"]
                                     </a>
-                                    <span class="small text-muted align-self-center" id="coordsLabelMon">اضغط على الخريطة لتحديد الموقع</span>
+                                    <span class="small text-muted align-self-center" id="coordsLabelMon">@L["booking.map_hint"]</span>
                                 </div>
                                 <div id="bookingMapMon" style="height: 320px; border-radius: 14px; overflow: hidden; border: 1px solid var(--hm-border);"></div>
                                 <input type="hidden" asp-for="Latitude" id="MonLatitude" />
                                 <input type="hidden" asp-for="Longitude" id="MonLongitude" />
                             </div>
                             <div class="col-12">
-                                <label asp-for="CouponCode" class="form-label">كوبون الخصم (اختياري)</label>
+                                <label asp-for="CouponCode" class="form-label">@L["booking.coupon_label"]</label>
                                 <div class="input-group">
-                                    <input asp-for="CouponCode" id="MonthlyCouponCode" class="form-control" placeholder="مثلاً WELCOME20" autocomplete="off" />
-                                    <button type="button" id="btnApplyMonthlyCoupon" class="btn btn-outline-primary"><i class="bi bi-check2"></i> تطبيق</button>
+                                    <input asp-for="CouponCode" id="MonthlyCouponCode" class="form-control" placeholder="@L["booking.coupon_placeholder"]" autocomplete="off" />
+                                    <button type="button" id="btnApplyMonthlyCoupon" class="btn btn-outline-primary"><i class="bi bi-check2"></i> @L["booking.apply_coupon"]</button>
                                 </div>
                                 <div id="monCouponMsg" class="small mt-1"></div>
-                                <small class="text-muted d-block mt-1">جرّب: <code>WELCOME20</code> أو <code>SAVE2</code></small>
                                 <span asp-validation-for="CouponCode" class="text-danger small d-block"></span>
                             </div>
                             <div class="col-12">
-                                <label asp-for="Notes" class="form-label">ملاحظات (اختياري)</label>
+                                <label asp-for="Notes" class="form-label">@L["booking.notes_label"]</label>
                                 <textarea asp-for="Notes" rows="2" class="form-control"></textarea>
                             </div>
                         </div>
@@ -126,34 +125,33 @@
 
                 <div class="col-lg-4">
                     <div class="summary-box sticky-top" style="top: 90px;">
-                        <h6 class="fw-bold mb-3">ملخص العقد الشهري</h6>
-                        <div class="row"><div class="col-6 text-muted">السعر/ساعة</div><div class="col-6 text-end" id="monRate">@(Model.Worker?.HourlyRate.ToString("N3"))</div></div>
-                        <div class="row"><div class="col-6 text-muted">الزيارات الشهرية</div><div class="col-6 text-end" id="monVisits">4</div></div>
-                        <div class="row"><div class="col-6 text-muted">ساعات/زيارة</div><div class="col-6 text-end" id="monHpv">3</div></div>
-                        <div class="row"><div class="col-6 text-muted">إجمالي الساعات</div><div class="col-6 text-end" id="monTotalH">12</div></div>
+                        <h6 class="fw-bold mb-3">@L["booking.summary_heading"]</h6>
+                        <div class="row"><div class="col-6 text-muted">@L["booking.rate_per_hour"]</div><div class="col-6 text-end" id="monRate">@(Model.Worker?.HourlyRate.ToString("N3"))</div></div>
+                        <div class="row"><div class="col-6 text-muted">@L["booking.visits_per_month"]</div><div class="col-6 text-end" id="monVisits">4</div></div>
+                        <div class="row"><div class="col-6 text-muted">@L["booking.hours_per_visit"]</div><div class="col-6 text-end" id="monHpv">3</div></div>
+                        <div class="row"><div class="col-6 text-muted">@L["booking.visits_total"]</div><div class="col-6 text-end" id="monTotalH">12</div></div>
                         <hr class="my-2" />
-                        <div class="row"><div class="col-6 text-muted"><i class="bi bi-calendar-event"></i> بداية العقد</div><div class="col-6 text-end fw-bold" id="monStartDate">—</div></div>
-                        <div class="row"><div class="col-6 text-muted"><i class="bi bi-calendar-check"></i> نهاية العقد</div><div class="col-6 text-end fw-bold text-primary" id="monEndDate">—</div></div>
-                        <div class="row"><div class="col-6 text-muted">مدة العقد</div><div class="col-6 text-end" id="monDuration">—</div></div>
+                        <div class="row"><div class="col-6 text-muted"><i class="bi bi-calendar-event"></i> @L["booking.contract_start_date"]</div><div class="col-6 text-end fw-bold" id="monStartDate">—</div></div>
+                        <div class="row"><div class="col-6 text-muted"><i class="bi bi-calendar-check"></i> @L["booking.contract_end_date"]</div><div class="col-6 text-end fw-bold text-primary" id="monEndDate">—</div></div>
+                        <div class="row"><div class="col-6 text-muted">@L["booking.contract_duration"]</div><div class="col-6 text-end" id="monDuration">—</div></div>
                         <hr class="my-2" />
-                        <div class="row"><div class="col-6 text-muted">المجموع الفرعي</div><div class="col-6 text-end"><span id="monSub">—</span> ر.ع.</div></div>
-                        <div class="row" id="monDiscRow" style="display:none;"><div class="col-6 text-muted">الخصم</div><div class="col-6 text-end text-success">- <span id="monDisc">0</span> ر.ع.</div></div>
-                        <div class="row"><div class="col-6 text-muted">ضريبة 5%</div><div class="col-6 text-end"><span id="monTax">—</span> ر.ع.</div></div>
-                        <div class="row"><div class="col-6">الإجمالي</div><div class="col-6 text-end total"><span id="monTotal">—</span> ر.ع.</div></div>
+                        <div class="row"><div class="col-6 text-muted">@L["booking.subtotal_label"]</div><div class="col-6 text-end"><span id="monSub">—</span></div></div>
+                        <div class="row" id="monDiscRow" style="display:none;"><div class="col-6 text-muted">@L["booking.discount_label"]</div><div class="col-6 text-end text-success">- <span id="monDisc">0</span></div></div>
+                        <div class="row"><div class="col-6 text-muted">@L["booking.tax_label"]</div><div class="col-6 text-end"><span id="monTax">—</span></div></div>
+                        <div class="row"><div class="col-6">@L["booking.total_label"]</div><div class="col-6 text-end total"><span id="monTotal">—</span></div></div>
 
                         <div class="form-check mt-3 p-3 bg-light rounded border">
                             <input asp-for="AcceptTerms" class="form-check-input" id="AcceptTermsCheckMonthly" />
                             <label class="form-check-label small" for="AcceptTermsCheckMonthly">
-                                أقرّ بأنني قرأت ووافقت على
+                                @L["booking.terms_label"]
                                 <a href="@Url.Action("Terms", "Home")" target="_blank" class="text-primary fw-bold">
-                                    <i class="bi bi-file-text"></i> الشروط والأحكام
+                                    <i class="bi bi-file-text"></i> @L["footer.terms"]
                                 </a>
-                                الخاصة بعقد التنظيف.
                             </label>
                             <span asp-validation-for="AcceptTerms" class="text-danger small d-block mt-1"></span>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 mt-3"><i class="bi bi-check-circle"></i> إنشاء العقد ومتابعة الدفع</button>
+                        <button type="submit" class="btn btn-primary w-100 mt-3"><i class="bi bi-check-circle"></i> @L["booking.create_monthly_btn"]</button>
                     </div>
                 </div>
             </div>

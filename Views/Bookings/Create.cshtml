@@ -1,11 +1,11 @@
 @model CreateBookingViewModel
-@{ ViewData["Title"] = "إنشاء حجز"; }
+@{ ViewData["Title"] = L["booking.create_title"].ToString(); }
 
 <section class="section page-with-logo-bg">
     <div class="container">
         <partial name="_BookingStepper" model="2" />
-        <h1 class="fw-bold mb-1">احجز موعدك</h1>
-        <p class="text-muted mb-3">اختر <strong>التاريخ</strong> ثم <strong>عدد الساعات</strong> ثم <strong>وقت البداية</strong>، وحدّد العنوان على الخريطة. الحد الأدنى ساعتان.</p>
+        <h1 class="fw-bold mb-1">@L["booking.create_title"]</h1>
+        <p class="text-muted mb-3">@L["booking.min_hours_note"]</p>
         <form method="post" asp-action="Create" id="bookingForm">
             <input type="hidden" asp-for="WorkerId" />
             <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none-empty"></div>
@@ -20,37 +20,37 @@
                                 <div>
                                     <h5 class="mb-0 fw-bold">@Model.Worker.FullName</h5>
                                     <div class="small text-muted">@Model.Worker.Nationality • @Model.Worker.Languages</div>
-                                    <div><strong class="text-primary">@Model.Worker.HourlyRate.ToString("0") ر.ع. / ساعة</strong></div>
+                                    <div><strong class="text-primary">@Model.Worker.HourlyRate.ToString("0") @L["workers.currency_per_hour"]</strong></div>
                                 </div>
                             </div>
                         }
                     </div>
 
                     <div class="card-modern p-4">
-                        <h5 class="fw-bold mb-3">تفاصيل الحجز</h5>
+                        <h5 class="fw-bold mb-3">@L["booking.title"]</h5>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label asp-for="BookingDate" class="form-label">التاريخ</label>
+                                <label asp-for="BookingDate" class="form-label">@L["booking.date"]</label>
                                 <input asp-for="BookingDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
                                 <span asp-validation-for="BookingDate" class="text-danger small"></span>
                             </div>
                             <div class="col-md-3">
-                                <label asp-for="Hours" class="form-label">عدد الساعات <span class="text-danger">*</span></label>
+                                <label asp-for="Hours" class="form-label">@L["booking.hours"] <span class="text-danger">*</span></label>
                                 <input asp-for="Hours" type="number" min="2" max="12" step="1" required class="form-control" />
-                                <small class="text-muted"><i class="bi bi-info-circle"></i> الحد الأدنى ساعتان</small>
+                                <small class="text-muted"><i class="bi bi-info-circle"></i> @L["booking.min_hours_note"]</small>
                                 <span asp-validation-for="Hours" class="text-danger small d-block"></span>
                             </div>
                             <div class="col-md-3">
-                                <label asp-for="StartTime" class="form-label">وقت البداية</label>
+                                <label asp-for="StartTime" class="form-label">@L["booking.start_time"]</label>
                                 <select asp-for="StartTime" class="form-select" id="StartTime" data-worker="@Model.WorkerId" data-dynamic="1">
                                     <option value="@Model.StartTime">@Model.StartTime.ToString(@"hh\:mm")</option>
                                 </select>
                                 <span asp-validation-for="StartTime" class="text-danger small"></span>
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="ServiceId" class="form-label">نوع الخدمة</label>
+                                <label asp-for="ServiceId" class="form-label">@L["booking.choose_service"]</label>
                                 <select asp-for="ServiceId" class="form-select">
-                                    <option value="">حدد الخدمة</option>
+                                    <option value="">@L["booking.choose_service"]</option>
                                     @if (Model.Services != null)
                                     {
                                         foreach (var s in Model.Services)
@@ -61,17 +61,16 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="CouponCode" class="form-label">كوبون الخصم (اختياري)</label>
+                                <label asp-for="CouponCode" class="form-label">@L["booking.coupon_label"]</label>
                                 <div class="input-group">
-                                    <input asp-for="CouponCode" id="CouponCode" class="form-control" placeholder="مثلاً WELCOME20" autocomplete="off" />
-                                    <button type="button" id="btnApplyCoupon" class="btn btn-outline-primary"><i class="bi bi-check2"></i> تطبيق</button>
+                                    <input asp-for="CouponCode" id="CouponCode" class="form-control" placeholder="@L["booking.coupon_placeholder"]" autocomplete="off" />
+                                    <button type="button" id="btnApplyCoupon" class="btn btn-outline-primary"><i class="bi bi-check2"></i> @L["booking.apply_coupon"]</button>
                                 </div>
                                 <div id="couponMsg" class="small mt-1"></div>
-                                <small class="text-muted d-block mt-1">جرّب: <code>WELCOME20</code> أو <code>SAVE2</code></small>
                             </div>
                             <div class="col-12">
-                                <label asp-for="Address" class="form-label">العنوان <span class="text-danger">*</span></label>
-                                <textarea asp-for="Address" rows="2" class="form-control" placeholder="الحي، الشارع، رقم المبنى..."></textarea>
+                                <label asp-for="Address" class="form-label">@L["booking.address_label"] <span class="text-danger">*</span></label>
+                                <textarea asp-for="Address" rows="2" class="form-control" placeholder="@L["booking.address_placeholder"]"></textarea>
                                 <span asp-validation-for="Address" class="text-danger small"></span>
                                 @if (Model.SavedAddresses != null && Model.SavedAddresses.Any())
                                 {
@@ -84,19 +83,19 @@
                                 }
                             </div>
                             <div class="col-12">
-                                <label class="form-label">حدّد الموقع على الخريطة</label>
+                                <label class="form-label">@L["booking.map_label"]</label>
                                 <div class="d-flex gap-2 mb-2 flex-wrap">
                                     <button type="button" id="btnGeo" class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-geo-alt-fill"></i> موقعي الحالي
+                                        <i class="bi bi-geo-alt-fill"></i> @L["booking.use_my_location"]
                                     </button>
-                                    <span class="small text-muted align-self-center" id="coordsLabel">اضغط على الخريطة لتحديد الموقع</span>
+                                    <span class="small text-muted align-self-center" id="coordsLabel">@L["booking.map_hint"]</span>
                                 </div>
                                 <div id="bookingMap" style="height: 320px; border-radius: 14px; overflow: hidden; border: 1px solid var(--hm-border);"></div>
                                 <input type="hidden" asp-for="Latitude" id="Latitude" />
                                 <input type="hidden" asp-for="Longitude" id="Longitude" />
                             </div>
                             <div class="col-12">
-                                <label asp-for="Notes" class="form-label">ملاحظات (اختياري)</label>
+                                <label asp-for="Notes" class="form-label">@L["booking.notes_label"]</label>
                                 <textarea asp-for="Notes" rows="2" class="form-control"></textarea>
                             </div>
                         </div>
@@ -105,26 +104,25 @@
 
                 <div class="col-lg-4">
                     <div class="summary-box sticky-top" style="top: 90px;" id="priceQuote" data-worker="@Model.WorkerId">
-                        <h6 class="fw-bold mb-3">ملخص السعر</h6>
-                        <div class="row"><div class="col-6 text-muted">المجموع الفرعي</div><div class="col-6 text-end"><span data-f="sub">0.00</span> ر.ع.</div></div>
-                        <div class="row"><div class="col-6 text-muted">الخصم</div><div class="col-6 text-end text-success">- <span data-f="disc">0.00</span> ر.ع.</div></div>
-                        <div class="row"><div class="col-6 text-muted">الضريبة</div><div class="col-6 text-end"><span data-f="tax">0.00</span> ر.ع.</div></div>
-                        <div class="row"><div class="col-6">الإجمالي</div><div class="col-6 text-end total"><span data-f="total">0.00</span> ر.ع.</div></div>
+                        <h6 class="fw-bold mb-3">@L["booking.summary_heading"]</h6>
+                        <div class="row"><div class="col-6 text-muted">@L["booking.subtotal_label"]</div><div class="col-6 text-end"><span data-f="sub">0.00</span> @L["workers.currency_per_hour"].ToString().Split(' ')[0]</div></div>
+                        <div class="row"><div class="col-6 text-muted">@L["booking.discount_label"]</div><div class="col-6 text-end text-success">- <span data-f="disc">0.00</span></div></div>
+                        <div class="row"><div class="col-6 text-muted">@L["booking.tax_label"]</div><div class="col-6 text-end"><span data-f="tax">0.00</span></div></div>
+                        <div class="row"><div class="col-6">@L["booking.total_label"]</div><div class="col-6 text-end total"><span data-f="total">0.00</span></div></div>
 
                         <div class="form-check mt-3 p-3 bg-light rounded border">
                             <input asp-for="AcceptTerms" class="form-check-input" id="AcceptTermsCheck" />
                             <label class="form-check-label small" for="AcceptTermsCheck">
-                                أقرّ بأنني قرأت ووافقت على
+                                @L["booking.terms_label"]
                                 <a href="@Url.Action("Terms", "Home")" target="_blank" class="text-primary fw-bold">
-                                    <i class="bi bi-file-text"></i> الشروط والأحكام
+                                    <i class="bi bi-file-text"></i> @L["footer.terms"]
                                 </a>
-                                الخاصة بعقد التنظيف.
                             </label>
                             <span asp-validation-for="AcceptTerms" class="text-danger small d-block mt-1"></span>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 mt-3"><i class="bi bi-check-circle"></i> تأكيد الحجز ومتابعة الدفع</button>
-                        <div class="text-center small text-muted mt-2"><i class="bi bi-shield-lock"></i> دفع آمن ومشفّر</div>
+                        <button type="submit" class="btn btn-primary w-100 mt-3"><i class="bi bi-check-circle"></i> @L["booking.confirm_pay_btn"]</button>
+                        <div class="text-center small text-muted mt-2"><i class="bi bi-shield-lock"></i> @L["payment.secure_note"]</div>
                     </div>
                 </div>
             </div>
