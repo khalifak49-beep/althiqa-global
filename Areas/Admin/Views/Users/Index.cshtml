@@ -1,13 +1,13 @@
 @model List<ApplicationUser>
-@{ ViewData["Title"] = "المستخدمون"; }
-<h1 class="fw-bold mb-3">المستخدمون</h1>
+@{ ViewData["Title"] = L["admin.nav.users"].ToString(); }
+<h1 class="fw-bold mb-3">@L["admin.nav.users"]</h1>
 <form method="get" class="mb-3">
-    <div class="input-group"><input name="q" value="@ViewBag.Q" class="form-control" placeholder="ابحث بالاسم أو البريد" /><button class="btn btn-outline-primary"><i class="bi bi-search"></i></button></div>
+    <div class="input-group"><input name="q" value="@ViewBag.Q" class="form-control" placeholder="@(L.IsArabic ? "ابحث بالاسم أو البريد" : "Search by name or email")" /><button class="btn btn-outline-primary"><i class="bi bi-search"></i></button></div>
 </form>
 
 <div class="card-modern p-0 overflow-hidden">
     <table class="table table-modern mb-0">
-        <thead><tr><th>الاسم</th><th>البريد</th><th>الجوال</th><th>النقاط</th><th>منذ</th><th>الحالة</th><th></th></tr></thead>
+        <thead><tr><th>@L["admin.common.name"]</th><th>@L["admin.common.email"]</th><th>@L["admin.common.phone"]</th><th>@(L.IsArabic ? "النقاط" : "Points")</th><th>@(L.IsArabic ? "منذ" : "Since")</th><th>@L["admin.common.status"]</th><th></th></tr></thead>
         <tbody>
         @foreach (var u in Model)
         {
@@ -20,11 +20,11 @@
                 <td>
                     @if (u.IsActive)
                     {
-                        <span class="status-pill status-Confirmed">نشط</span>
+                        <span class="status-pill status-Confirmed">@(L.IsArabic ? "نشط" : "Active")</span>
                     }
                     else
                     {
-                        <span class="status-pill status-Cancelled">معطّل</span>
+                        <span class="status-pill status-Cancelled">@(L.IsArabic ? "معطّل" : "Disabled")</span>
                     }
                 </td>
                 <td>

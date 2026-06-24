@@ -8,11 +8,11 @@
 
         <div class="row g-3">
             <div class="col-md-3 text-center">
-                <label class="form-label d-block">صورة العاملة</label>
+                <label class="form-label d-block">@(L.IsArabic ? "صورة العاملة" : "Worker photo")</label>
                 <div class="position-relative d-inline-block">
                     <img id="photoPreview"
                          src="@(string.IsNullOrEmpty(Model.PhotoUrl) ? "/images/logo/al-thiqa-icon.svg" : Model.PhotoUrl)"
-                         alt="معاينة"
+                         alt="preview"
                          style="width: 160px; height: 160px; object-fit: cover; border-radius: 14px; border: 1px solid var(--hm-border); background: var(--hm-bg);" />
                     <label for="PhotoFile" class="position-absolute btn btn-primary btn-sm"
                            style="bottom: 6px; left: 6px; cursor: pointer;">
@@ -20,43 +20,43 @@
                     </label>
                 </div>
                 <input asp-for="PhotoFile" type="file" id="PhotoFile" accept="image/*" class="form-control d-none" />
-                <small class="text-muted d-block mt-2">PNG / JPG / WEBP — حتى 5 ميجابايت</small>
+                <small class="text-muted d-block mt-2">PNG / JPG / WEBP — @(L.IsArabic ? "حتى 5 ميجابايت" : "up to 5 MB")</small>
                 <span asp-validation-for="PhotoFile" class="text-danger small d-block"></span>
             </div>
 
             <div class="col-md-9">
                 <div class="row g-3">
                     <div class="col-md-8">
-                        <label asp-for="FullName" class="form-label">الاسم</label>
+                        <label asp-for="FullName" class="form-label">@L["admin.common.name"]</label>
                         <input asp-for="FullName" class="form-control" />
                         <span asp-validation-for="FullName" class="text-danger small"></span>
                     </div>
                     <div class="col-md-4">
-                        <label asp-for="Age" class="form-label">العمر</label>
+                        <label asp-for="Age" class="form-label">@(L.IsArabic ? "العمر" : "Age")</label>
                         <input asp-for="Age" type="number" class="form-control" />
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="Nationality" class="form-label">الجنسية</label>
+                        <label asp-for="Nationality" class="form-label">@L["workers.nationality"]</label>
                         <input asp-for="Nationality" class="form-control" />
                     </div>
                     <div class="col-md-3">
-                        <label asp-for="YearsOfExperience" class="form-label">سنوات الخبرة</label>
+                        <label asp-for="YearsOfExperience" class="form-label">@L["workers.experience"]</label>
                         <input asp-for="YearsOfExperience" type="number" class="form-control" />
                     </div>
                     <div class="col-md-3">
-                        <label asp-for="HourlyRate" class="form-label">السعر / الساعة (ر.ع.)</label>
+                        <label asp-for="HourlyRate" class="form-label">@(L.IsArabic ? "السعر / الساعة" : "Rate / hour") (@(L.IsArabic ? "ر.ع." : "OMR"))</label>
                         <input asp-for="HourlyRate" type="number" step="0.001" class="form-control" />
                     </div>
                     <div class="col-12">
-                        <label asp-for="Languages" class="form-label">اللغات</label>
-                        <input asp-for="Languages" class="form-control" placeholder="مثلاً: العربية، الإنجليزية" />
+                        <label asp-for="Languages" class="form-label">@L["workers.languages"]</label>
+                        <input asp-for="Languages" class="form-control" />
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="ServiceId" class="form-label">الخدمة</label>
-                        <select asp-for="ServiceId" asp-items="ViewBag.Services" class="form-select"><option value="">— اختر —</option></select>
+                        <label asp-for="ServiceId" class="form-label">@(L.IsArabic ? "الخدمة" : "Service")</label>
+                        <select asp-for="ServiceId" asp-items="ViewBag.Services" class="form-select"><option value="">— @(L.IsArabic ? "اختر" : "select") —</option></select>
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="Availability" class="form-label">حالة التوفر</label>
+                        <label asp-for="Availability" class="form-label">@(L.IsArabic ? "حالة التوفر" : "Availability")</label>
                         <select asp-for="Availability" class="form-select">
                             @foreach (var a in Enum.GetValues<WorkerAvailability>())
                             {
@@ -65,13 +65,13 @@
                         </select>
                     </div>
                     <div class="col-12">
-                        <label asp-for="Bio" class="form-label">نبذة</label>
+                        <label asp-for="Bio" class="form-label">@L["workers.about"]</label>
                         <textarea asp-for="Bio" rows="3" class="form-control"></textarea>
                     </div>
                     <div class="col-12">
                         <div class="form-check form-switch">
                             <input asp-for="IsActive" class="form-check-input" />
-                            <label asp-for="IsActive" class="form-check-label">العاملة نشطة</label>
+                            <label asp-for="IsActive" class="form-check-label">@(L.IsArabic ? "العاملة نشطة" : "Worker active")</label>
                         </div>
                     </div>
                 </div>
@@ -79,8 +79,8 @@
         </div>
 
         <hr class="my-4" />
-        <button class="btn btn-primary"><i class="bi bi-check2"></i> حفظ</button>
-        <a class="btn btn-link" asp-action="Index">إلغاء</a>
+        <button class="btn btn-primary"><i class="bi bi-check2"></i> @L["admin.common.save"]</button>
+        <a class="btn btn-link" asp-action="Index">@L["admin.common.cancel"]</a>
     </form>
 </div>
 
@@ -95,7 +95,7 @@
                 const f = input.files && input.files[0];
                 if (!f) return;
                 if (f.size > 5 * 1024 * 1024) {
-                    alert('حجم الصورة أكبر من 5 ميجابايت.');
+                    alert('@(L.IsArabic ? "حجم الصورة أكبر من 5 ميجا" : "Image size exceeds 5 MB")');
                     input.value = '';
                     return;
                 }

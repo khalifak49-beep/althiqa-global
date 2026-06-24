@@ -1,30 +1,30 @@
 @model Booking
-@{ ViewData["Title"] = "تفاصيل الحجز"; }
-<h1 class="fw-bold mb-3">حجز <code>@Model.BookingNumber</code></h1>
+@{ ViewData["Title"] = (L.IsArabic ? "تفاصيل الحجز" : "Booking details"); }
+<h1 class="fw-bold mb-3">#<code>@Model.BookingNumber</code></h1>
 
 <div class="row g-3">
     <div class="col-lg-8">
         <div class="card-modern p-4 mb-3">
-            <h5 class="fw-bold">العميل والعاملة</h5>
+            <h5 class="fw-bold">@(L.IsArabic ? "العميل والعاملة" : "Customer & worker")</h5>
             <div class="row">
                 <div class="col-md-6"><strong>@(Model.Customer?.FullName ?? "-")</strong><div class="text-muted small">@Model.Customer?.Email • @Model.Customer?.PhoneNumber</div></div>
-                <div class="col-md-6"><strong>@(Model.Worker?.FullName ?? "-")</strong><div class="text-muted small">@Model.Worker?.Nationality • @Model.Worker?.HourlyRate.ToString("0") ر.ع./ساعة</div></div>
+                <div class="col-md-6"><strong>@(Model.Worker?.FullName ?? "-")</strong><div class="text-muted small">@Model.Worker?.Nationality • @Model.Worker?.HourlyRate.ToString("0") @L["workers.currency_per_hour"]</div></div>
             </div>
         </div>
         <div class="card-modern p-4 mb-3">
-            <h5 class="fw-bold">المعلومات</h5>
+            <h5 class="fw-bold">@(L.IsArabic ? "المعلومات" : "Details")</h5>
             <div class="row g-2">
-                <div class="col-md-4"><div class="text-muted small">التاريخ</div><strong>@Model.BookingDate.ToString("yyyy-MM-dd")</strong></div>
-                <div class="col-md-4"><div class="text-muted small">من-إلى</div><strong>@Model.StartTime.ToString("hh\\:mm") - @Model.EndTime.ToString("hh\\:mm")</strong></div>
-                <div class="col-md-4"><div class="text-muted small">عدد الساعات</div><strong>@Model.Hours</strong></div>
+                <div class="col-md-4"><div class="text-muted small">@L["booking.date"]</div><strong>@Model.BookingDate.ToString("yyyy-MM-dd")</strong></div>
+                <div class="col-md-4"><div class="text-muted small">@L["booking.start_time"]</div><strong>@Model.StartTime.ToString("hh\\:mm") - @Model.EndTime.ToString("hh\\:mm")</strong></div>
+                <div class="col-md-4"><div class="text-muted small">@L["booking.hours"]</div><strong>@Model.Hours</strong></div>
                 <div class="col-12">
-                    <div class="text-muted small">العنوان</div>
+                    <div class="text-muted small">@L["booking.address_label"]</div>
                     <strong>@Model.Address</strong>
                     @if (Model.Latitude.HasValue && Model.Longitude.HasValue)
                     {
                         <a class="btn btn-sm btn-outline-primary ms-2" target="_blank"
                            href="https://www.openstreetmap.org/?mlat=@Model.Latitude&mlon=@Model.Longitude#map=17/@Model.Latitude/@Model.Longitude">
-                            <i class="bi bi-geo-alt"></i> فتح في OpenStreetMap
+                            <i class="bi bi-geo-alt"></i> OpenStreetMap
                         </a>
                         <a class="btn btn-sm btn-outline-success ms-1" target="_blank"
                            href="https://www.google.com/maps/?q=@Model.Latitude,@Model.Longitude">
@@ -34,26 +34,25 @@
                 </div>
                 @if (!string.IsNullOrEmpty(Model.Notes))
                 {
-                    <div class="col-12"><div class="text-muted small">ملاحظات</div><span>@Model.Notes</span></div>
+                    <div class="col-12"><div class="text-muted small">@L["booking.notes_label"]</div><span>@Model.Notes</span></div>
                 }
             </div>
         </div>
         <div class="card-modern p-4 mb-3">
-            <h5 class="fw-bold"><i class="bi bi-file-text"></i> الشروط والأحكام</h5>
+            <h5 class="fw-bold"><i class="bi bi-file-text"></i> @L["footer.terms"]</h5>
             @if (Model.TermsAcceptedAt.HasValue)
             {
                 <div class="alert alert-success mb-0 mt-2">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-check-circle-fill fs-3"></i>
                         <div>
-                            <strong>وافق العميل على الشروط والأحكام</strong>
+                            <strong>@(L.IsArabic ? "وافق العميل على الشروط" : "Customer accepted the terms")</strong>
                             <div class="small">
-                                📅 تاريخ الموافقة:
-                                <strong dir="ltr">@Model.TermsAcceptedAt.Value.ToString("yyyy-MM-dd HH:mm:ss")</strong> UTC
+                                📅 <strong dir="ltr">@Model.TermsAcceptedAt.Value.ToString("yyyy-MM-dd HH:mm:ss")</strong> UTC
                             </div>
                             @if (!string.IsNullOrEmpty(Model.TermsVersion))
                             {
-                                <div class="small">📄 إصدار العقد: <code>@Model.TermsVersion</code></div>
+                                <div class="small">📄 @(L.IsArabic ? "إصدار العقد:" : "Terms version:") <code>@Model.TermsVersion</code></div>
                             }
                         </div>
                     </div>
@@ -63,21 +62,21 @@
             {
                 <div class="alert alert-warning mb-0 mt-2">
                     <i class="bi bi-exclamation-triangle"></i>
-                    <strong>حجز قديم — قبل تفعيل ميزة الموافقة على الشروط.</strong>
+                    <strong>@(L.IsArabic ? "حجز قديم — قبل تفعيل ميزة الموافقة." : "Old booking — before the terms-acceptance feature.")</strong>
                 </div>
             }
         </div>
         @if (Model.Payment != null)
         {
             <div class="card-modern p-4">
-                <h5 class="fw-bold">معلومات الدفع</h5>
+                <h5 class="fw-bold">@(L.IsArabic ? "معلومات الدفع" : "Payment info")</h5>
                 <table class="table table-sm">
                     <tbody>
-                    <tr><td>الحالة</td><td><span class="status-pill status-@Model.Payment.Status">@Model.Payment.Status</span></td></tr>
-                    <tr><td>رقم العملية</td><td><code>@Model.Payment.TransactionRef</code></td></tr>
-                    <tr><td>الوسيلة</td><td>@Model.Payment.Method</td></tr>
-                    <tr><td>المبلغ</td><td>@Model.Payment.Amount.ToString("N2") ر.ع.</td></tr>
-                    <tr><td>تاريخ الدفع</td><td>@(Model.Payment.PaidAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td></tr>
+                    <tr><td>@L["admin.common.status"]</td><td><span class="status-pill status-@Model.Payment.Status">@Model.Payment.Status</span></td></tr>
+                    <tr><td>@(L.IsArabic ? "رقم العملية" : "Transaction")</td><td><code>@Model.Payment.TransactionRef</code></td></tr>
+                    <tr><td>@(L.IsArabic ? "الوسيلة" : "Method")</td><td>@Model.Payment.Method</td></tr>
+                    <tr><td>@L["admin.common.amount"]</td><td>@Model.Payment.Amount.ToString("N2") @(L.IsArabic ? "ر.ع." : "OMR")</td></tr>
+                    <tr><td>@(L.IsArabic ? "تاريخ الدفع" : "Paid at")</td><td>@(Model.Payment.PaidAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -85,7 +84,7 @@
     </div>
     <div class="col-lg-4">
         <div class="card-modern p-4 mb-3">
-            <h5 class="fw-bold mb-3">تغيير الحالة</h5>
+            <h5 class="fw-bold mb-3">@(L.IsArabic ? "تغيير الحالة" : "Change status")</h5>
             <form asp-action="ChangeStatus" asp-route-id="@Model.Id" method="post" class="d-flex gap-2">
                 <select name="status" class="form-select">
                     @foreach (BookingStatus s in Enum.GetValues<BookingStatus>())
@@ -93,17 +92,17 @@
                         <option value="@s" selected="@(Model.Status == s)">@s</option>
                     }
                 </select>
-                <button class="btn btn-primary">حفظ</button>
+                <button class="btn btn-primary">@L["admin.common.save"]</button>
             </form>
         </div>
         <div class="card-modern p-4">
-            <h6 class="fw-bold">الفاتورة</h6>
-            <div class="row"><div class="col-6 text-muted">المجموع</div><div class="col-6 text-end">@Model.SubTotal.ToString("N2")</div></div>
-            <div class="row"><div class="col-6 text-muted">الخصم</div><div class="col-6 text-end">- @Model.DiscountAmount.ToString("N2")</div></div>
-            <div class="row"><div class="col-6 text-muted">الضريبة</div><div class="col-6 text-end">@Model.TaxAmount.ToString("N2")</div></div>
-            <div class="row"><div class="col-6">الإجمالي</div><div class="col-6 text-end total">@Model.TotalAmount.ToString("N2")</div></div>
+            <h6 class="fw-bold">@L["booking.summary_heading"]</h6>
+            <div class="row"><div class="col-6 text-muted">@L["booking.subtotal_label"]</div><div class="col-6 text-end">@Model.SubTotal.ToString("N2")</div></div>
+            <div class="row"><div class="col-6 text-muted">@L["booking.discount_label"]</div><div class="col-6 text-end">- @Model.DiscountAmount.ToString("N2")</div></div>
+            <div class="row"><div class="col-6 text-muted">@L["booking.tax_label"]</div><div class="col-6 text-end">@Model.TaxAmount.ToString("N2")</div></div>
+            <div class="row"><div class="col-6">@L["booking.total_label"]</div><div class="col-6 text-end total">@Model.TotalAmount.ToString("N2")</div></div>
             <a asp-action="Invoice" asp-route-id="@Model.Id" class="btn btn-primary w-100 mt-3" target="_blank">
-                <i class="bi bi-file-earmark-pdf"></i> تحميل الفاتورة PDF
+                <i class="bi bi-file-earmark-pdf"></i> @L["payment.download_invoice"]
             </a>
         </div>
     </div>

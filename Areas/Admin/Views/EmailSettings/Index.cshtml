@@ -1,24 +1,24 @@
 @model HomeMaids.Models.EmailConfig
-@{ ViewData["Title"] = "إعدادات البريد (Gmail SMTP)"; }
+@{ ViewData["Title"] = L["admin.nav.email_settings"].ToString(); }
 
 <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
     <div>
-        <h1 class="fw-bold mb-0"><i class="bi bi-envelope-at text-primary"></i> إعدادات SMTP للبريد</h1>
-        <small class="text-muted">عدّل بيانات Gmail هنا — تُحفظ في القاعدة بدون إعادة بناء الكود.</small>
+        <h1 class="fw-bold mb-0"><i class="bi bi-envelope-at text-primary"></i> @L["admin.nav.email_settings"]</h1>
+        <small class="text-muted">@(L.IsArabic ? "عدّل بيانات Gmail هنا — تُحفظ في القاعدة بدون إعادة بناء الكود." : "Edit Gmail SMTP settings — stored in DB, no rebuild needed.")</small>
     </div>
     @{
         var ready = !string.IsNullOrWhiteSpace(Model.Username) && !string.IsNullOrWhiteSpace(Model.AppPassword);
     }
     <span class="chip @(ready ? "chip-grad" : "")">
-        @if (ready) { <text><i class="bi bi-check-circle"></i> SMTP جاهز</text> }
-        else { <text><i class="bi bi-exclamation-triangle"></i> غير مكتمل</text> }
+        @if (ready) { <text><i class="bi bi-check-circle"></i> @(L.IsArabic ? "SMTP جاهز" : "SMTP ready")</text> }
+        else { <text><i class="bi bi-exclamation-triangle"></i> @(L.IsArabic ? "غير مكتمل" : "Incomplete")</text> }
     </span>
 </div>
 
 <div class="row g-3">
     <div class="col-lg-8">
         <form method="post" asp-action="Save" class="card-modern p-4">
-            <h5 class="fw-bold mb-3">بيانات SMTP</h5>
+            <h5 class="fw-bold mb-3">@(L.IsArabic ? "بيانات SMTP" : "SMTP settings")</h5>
             <input type="hidden" asp-for="Id" />
 
             <div class="row g-3">
@@ -39,17 +39,16 @@
 
                 <div class="col-md-6">
                     <label asp-for="Username" class="form-label">Gmail (Username)</label>
-                    <input asp-for="Username" class="form-control" placeholder="althiqaglobalom@gmail.com" dir="ltr" />
+                    <input asp-for="Username" class="form-control" dir="ltr" />
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="AppPassword" class="form-label">App Password (16 حرف من Google)</label>
-                    <input asp-for="AppPassword" type="password" class="form-control" placeholder="@(string.IsNullOrEmpty(Model.AppPassword) ? "abcd efgh ijkl mnop" : "•••••• مُهيّأ — اتركه فارغاً للإبقاء •••••")" dir="ltr" autocomplete="new-password" />
-                    <small class="text-muted">ينشأ من <a href="https://myaccount.google.com/apppasswords" target="_blank">myaccount.google.com/apppasswords</a></small>
+                    <label asp-for="AppPassword" class="form-label">@(L.IsArabic ? "App Password (16 حرف من Google)" : "App Password (16-char from Google)")</label>
+                    <input asp-for="AppPassword" type="password" class="form-control" placeholder="@(string.IsNullOrEmpty(Model.AppPassword) ? "abcd efgh ijkl mnop" : (L.IsArabic ? "•••••• مُهيّأ — اتركه فارغاً للإبقاء •••••" : "•••••• configured — leave empty to keep •••••"))" dir="ltr" autocomplete="new-password" />
                 </div>
 
                 <div class="col-md-6">
                     <label asp-for="FromEmail" class="form-label">From Email</label>
-                    <input asp-for="FromEmail" class="form-control" placeholder="نفس Gmail عادةً" dir="ltr" />
+                    <input asp-for="FromEmail" class="form-control" dir="ltr" />
                 </div>
                 <div class="col-md-6">
                     <label asp-for="FromName" class="form-label">From Name</label>
@@ -58,27 +57,27 @@
 
                 <div class="col-md-6 form-check ms-3">
                     <input asp-for="IsActive" class="form-check-input" />
-                    <label asp-for="IsActive" class="form-check-label">الإعدادات مفعّلة</label>
+                    <label asp-for="IsActive" class="form-check-label">@(L.IsArabic ? "الإعدادات مفعّلة" : "Settings active")</label>
                 </div>
                 <div class="col-md-6 form-check ms-3">
                     <input asp-for="ShowOtpInDev" class="form-check-input" />
-                    <label asp-for="ShowOtpInDev" class="form-check-label">إظهار الرمز للتطوير إذا فشل SMTP</label>
+                    <label asp-for="ShowOtpInDev" class="form-check-label">@(L.IsArabic ? "إظهار الرمز للتطوير إذا فشل SMTP" : "Show OTP in dev if SMTP fails")</label>
                 </div>
             </div>
 
-            <button class="btn btn-primary mt-4"><i class="bi bi-check2"></i> حفظ الإعدادات</button>
-            <small class="text-muted d-block mt-2">آخر تعديل: @Model.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</small>
+            <button class="btn btn-primary mt-4"><i class="bi bi-check2"></i> @L["admin.common.save"]</button>
+            <small class="text-muted d-block mt-2">@(L.IsArabic ? "آخر تعديل:" : "Last update:") @Model.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</small>
         </form>
 
         <div class="card-modern p-4 mt-3">
-            <h5 class="fw-bold mb-3">اختبار الإرسال</h5>
+            <h5 class="fw-bold mb-3">@(L.IsArabic ? "اختبار الإرسال" : "Test sending")</h5>
             <form method="post" asp-action="Test" class="row g-2 align-items-end">
                 <div class="col-md-7">
-                    <label class="form-label">بريد المستلم</label>
-                    <input name="toEmail" type="email" class="form-control" placeholder="you@gmail.com" dir="ltr" value="@Model.Username" />
+                    <label class="form-label">@(L.IsArabic ? "بريد المستلم" : "Recipient email")</label>
+                    <input name="toEmail" type="email" class="form-control" dir="ltr" value="@Model.Username" />
                 </div>
                 <div class="col-md-5">
-                    <button class="btn btn-primary w-100"><i class="bi bi-send"></i> إرسال رمز اختبار</button>
+                    <button class="btn btn-primary w-100"><i class="bi bi-send"></i> @(L.IsArabic ? "إرسال رمز اختبار" : "Send test code")</button>
                 </div>
             </form>
         </div>
@@ -86,24 +85,16 @@
 
     <div class="col-lg-4">
         <div class="card-modern p-4">
-            <h5 class="fw-bold mb-3">🆓 إنشاء App Password لـ Gmail</h5>
+            <h5 class="fw-bold mb-3">🆓 @(L.IsArabic ? "إنشاء App Password لـ Gmail" : "Create a Gmail App Password")</h5>
             <ol class="small text-muted">
-                <li>سجّل دخول على Gmail: <code dir="ltr">althiqaglobalom@gmail.com</code></li>
-                <li>افتح <a href="https://myaccount.google.com/security" target="_blank">إعدادات الأمان</a></li>
-                <li>فعّل <strong>التحقق بخطوتين</strong> (إن لم تكن مفعّلة)</li>
-                <li>افتح <a href="https://myaccount.google.com/apppasswords" target="_blank">صفحة App Passwords</a></li>
-                <li>اختر "Mail" + "Other (Custom)" واكتب اسماً مثل <code>AlThiqa-OTP</code></li>
-                <li>Google يولّد 16 حرفاً مثل <code dir="ltr">abcd efgh ijkl mnop</code></li>
-                <li>انسخها كاملة (بمسافات أو بدون) والصقها في <strong>App Password</strong> أعلاه</li>
-                <li>اضغط <strong>حفظ الإعدادات</strong></li>
-                <li>اضغط <strong>إرسال رمز اختبار</strong> لتأكيد</li>
+                <li>@(L.IsArabic ? "افتح" : "Open") <a href="https://myaccount.google.com/security" target="_blank">@(L.IsArabic ? "إعدادات الأمان" : "Security settings")</a></li>
+                <li>@(L.IsArabic ? "فعّل التحقق بخطوتين" : "Enable 2-Step Verification")</li>
+                <li>@(L.IsArabic ? "افتح" : "Open") <a href="https://myaccount.google.com/apppasswords" target="_blank">App Passwords</a></li>
+                <li>@(L.IsArabic ? "اختر \"Mail\" + \"Other\" واكتب اسماً" : "Pick \"Mail\" + \"Other\" and name it")</li>
+                <li>@(L.IsArabic ? "انسخ الـ 16 حرف والصقها هنا" : "Copy the 16-char password and paste it above")</li>
             </ol>
-            <hr />
-            <small class="text-success d-block">
-                <i class="bi bi-check-circle"></i> مجاني — 500 رسالة/يوم بحساب شخصي
-            </small>
             <small class="text-warning d-block mt-2">
-                <i class="bi bi-info-circle"></i> App Password ≠ كلمة سر Gmail العادية. استخدم App Password فقط.
+                <i class="bi bi-info-circle"></i> @(L.IsArabic ? "App Password ≠ كلمة سر Gmail العادية." : "App Password is NOT your normal Gmail password.")
             </small>
         </div>
     </div>

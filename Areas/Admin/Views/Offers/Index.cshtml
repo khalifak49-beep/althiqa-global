@@ -1,8 +1,8 @@
 @model List<Offer>
-@{ ViewData["Title"] = "العروض"; }
+@{ ViewData["Title"] = L["admin.nav.offers"].ToString(); }
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="fw-bold mb-0">العروض</h1>
-    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus"></i> إضافة عرض</a>
+    <h1 class="fw-bold mb-0">@L["admin.nav.offers"]</h1>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus"></i> @L["admin.common.add"]</a>
 </div>
 
 <div class="row g-3">
@@ -10,13 +10,13 @@
 {
     <div class="col-md-6 col-lg-4">
         <div class="offer-card h-100">
-            <span class="badge mb-2">@(o.DiscountType == DiscountType.Percent ? $"خصم {o.DiscountValue:0}%" : $"خصم {o.DiscountValue:0} ر.ع.")</span>
+            <span class="badge mb-2">@(o.DiscountType == DiscountType.Percent ? L.T("home.offer_percent", o.DiscountValue.ToString("0")) : L.T("home.offer_amount", o.DiscountValue.ToString("0")))</span>
             <h5 class="fw-bold">@o.Title</h5>
             <p class="text-muted small">@o.Description</p>
             <div class="small text-muted"><i class="bi bi-clock"></i> @o.ValidFrom.ToString("yyyy-MM-dd") - @o.ValidTo.ToString("yyyy-MM-dd")</div>
             <div class="d-flex gap-2 mt-3">
-                <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@o.Id"><i class="bi bi-pencil"></i> تعديل</a>
-                <form asp-action="Delete" asp-route-id="@o.Id" method="post" onsubmit="return confirm('تعطيل العرض؟');">
+                <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@o.Id"><i class="bi bi-pencil"></i> @L["admin.common.edit"]</a>
+                <form asp-action="Delete" asp-route-id="@o.Id" method="post" onsubmit="return confirm(@Html.Raw("'" + L["admin.common.confirm_delete"] + "'"));">
                     <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                 </form>
             </div>

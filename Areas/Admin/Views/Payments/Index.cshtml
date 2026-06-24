@@ -1,10 +1,10 @@
 @model List<Payment>
-@{ ViewData["Title"] = "المدفوعات"; }
-<h1 class="fw-bold mb-3">المدفوعات</h1>
+@{ ViewData["Title"] = L["admin.nav.payments"].ToString(); }
+<h1 class="fw-bold mb-3">@L["admin.nav.payments"]</h1>
 
 <form method="get" class="mb-3">
     <select name="status" class="form-select w-auto d-inline-block" onchange="this.form.submit()">
-        <option value="">كل الحالات</option>
+        <option value="">@(L.IsArabic ? "كل الحالات" : "All statuses")</option>
         @foreach (PaymentStatus s in Enum.GetValues<PaymentStatus>())
         {
             <option value="@s" selected="@(ViewBag.Status as PaymentStatus? == s)">@s</option>
@@ -14,7 +14,7 @@
 
 <div class="card-modern p-0 overflow-hidden">
     <table class="table table-modern mb-0">
-        <thead><tr><th>المرجع</th><th>الحجز</th><th>العميل</th><th>المبلغ</th><th>الوسيلة</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+        <thead><tr><th>@(L.IsArabic ? "المرجع" : "Transaction")</th><th>@L["admin.nav.bookings"]</th><th>@(L.IsArabic ? "العميل" : "Customer")</th><th>@L["admin.common.amount"]</th><th>@(L.IsArabic ? "الوسيلة" : "Method")</th><th>@L["admin.common.status"]</th><th>@L["admin.common.date"]</th></tr></thead>
         <tbody>
         @foreach (var p in Model)
         {
@@ -22,7 +22,7 @@
                 <td><code>@p.TransactionRef</code></td>
                 <td><a asp-controller="Bookings" asp-action="Details" asp-route-id="@p.BookingId">@p.Booking?.BookingNumber</a></td>
                 <td>@(p.Booking?.Customer?.FullName ?? "-")</td>
-                <td>@p.Amount.ToString("N2") ر.ع.</td>
+                <td>@p.Amount.ToString("N2") @(L.IsArabic ? "ر.ع." : "OMR")</td>
                 <td>@p.Method</td>
                 <td><span class="status-pill status-@p.Status">@p.Status</span></td>
                 <td>@p.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>

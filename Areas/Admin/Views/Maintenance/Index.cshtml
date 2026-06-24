@@ -1,53 +1,51 @@
 @{
-    ViewData["Title"] = "الصيانة والنسخ الاحتياطي";
+    ViewData["Title"] = L["admin.nav.maintenance"].ToString();
     var isOn = (bool)(ViewBag.IsOn ?? false);
     var message = (string?)ViewBag.Message;
     var backups = ViewBag.Backups as List<FileInfo> ?? new();
 }
 
-<h1 class="fw-bold mb-3"><i class="bi bi-tools text-warning"></i> الصيانة</h1>
+<h1 class="fw-bold mb-3"><i class="bi bi-tools text-warning"></i> @L["admin.nav.maintenance"]</h1>
 
 <div class="row g-3">
-    <!-- Maintenance Mode -->
     <div class="col-lg-6">
         <div class="card-modern p-4">
-            <h5 class="fw-bold mb-3">وضع الصيانة</h5>
+            <h5 class="fw-bold mb-3">@(L.IsArabic ? "وضع الصيانة" : "Maintenance mode")</h5>
             <div class="alert @(isOn ? "alert-warning" : "alert-success") d-flex align-items-center">
                 <i class="bi bi-@(isOn ? "exclamation-triangle" : "check-circle") fs-3 me-2"></i>
                 <div>
-                    <strong>الحالة: @(isOn ? "مفعّل (الموقع يعرض صفحة الصيانة)" : "غير مفعّل (الموقع شغّال للعملاء)")</strong>
+                    <strong>@L["admin.common.status"]: @(isOn ? (L.IsArabic ? "مفعّل (صفحة الصيانة معروضة)" : "On (maintenance page is shown)") : (L.IsArabic ? "غير مفعّل (الموقع شغّال)" : "Off (site is live)"))</strong>
                 </div>
             </div>
 
             <form method="post" asp-action="Toggle">
                 <div class="form-check form-switch mb-3">
                     <input class="form-check-input" type="checkbox" id="isOn" name="isOn" value="true" @(isOn ? "checked" : "") />
-                    <label class="form-check-label" for="isOn">تفعيل وضع الصيانة</label>
+                    <label class="form-check-label" for="isOn">@(L.IsArabic ? "تفعيل وضع الصيانة" : "Enable maintenance mode")</label>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">رسالة العرض (اختياري)</label>
-                    <textarea name="message" rows="2" class="form-control" placeholder="نعتذر، الموقع تحت الصيانة وسنعود قريباً.">@message</textarea>
+                    <label class="form-label">@(L.IsArabic ? "رسالة العرض (اختياري)" : "Display message (optional)")</label>
+                    <textarea name="message" rows="2" class="form-control">@message</textarea>
                 </div>
-                <button class="btn btn-primary"><i class="bi bi-check2"></i> حفظ</button>
+                <button class="btn btn-primary"><i class="bi bi-check2"></i> @L["admin.common.save"]</button>
             </form>
             <small class="text-muted d-block mt-3">
-                <i class="bi bi-info-circle"></i> الأدمن يتجاوز وضع الصيانة ويرى الموقع طبيعياً.
+                <i class="bi bi-info-circle"></i> @(L.IsArabic ? "الأدمن يتجاوز وضع الصيانة ويرى الموقع طبيعياً." : "Admins bypass maintenance mode and see the site normally.")
             </small>
         </div>
     </div>
 
-    <!-- Backups -->
     <div class="col-lg-6">
         <div class="card-modern p-4">
-            <h5 class="fw-bold mb-3">النسخ الاحتياطي لقاعدة البيانات</h5>
+            <h5 class="fw-bold mb-3">@(L.IsArabic ? "النسخ الاحتياطي لقاعدة البيانات" : "Database backup")</h5>
             <form method="post" asp-action="Backup" class="mb-3">
-                <button class="btn btn-primary"><i class="bi bi-download"></i> إنشاء نسخة جديدة الآن</button>
+                <button class="btn btn-primary"><i class="bi bi-download"></i> @(L.IsArabic ? "إنشاء نسخة الآن" : "Create backup now")</button>
             </form>
 
             @if (backups.Any())
             {
                 <table class="table table-sm">
-                    <thead><tr><th>الاسم</th><th>الحجم</th><th>التاريخ</th><th></th></tr></thead>
+                    <thead><tr><th>@L["admin.common.name"]</th><th>@(L.IsArabic ? "الحجم" : "Size")</th><th>@L["admin.common.date"]</th><th></th></tr></thead>
                     <tbody>
                         @foreach (var f in backups)
                         {
@@ -57,7 +55,7 @@
                                 <td class="small text-muted">@f.LastWriteTime.ToString("yyyy-MM-dd HH:mm")</td>
                                 <td class="text-nowrap">
                                     <a class="btn btn-sm btn-outline-primary" asp-action="Download" asp-route-fileName="@f.Name"><i class="bi bi-cloud-download"></i></a>
-                                    <form asp-action="Delete" asp-route-fileName="@f.Name" method="post" class="d-inline" onsubmit="return confirm('حذف هذه النسخة؟');">
+                                    <form asp-action="Delete" asp-route-fileName="@f.Name" method="post" class="d-inline" onsubmit="return confirm(@Html.Raw("'" + L["admin.common.confirm_delete"] + "'"));">
                                         <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                                     </form>
                                 </td>
@@ -70,10 +68,10 @@
             {
                 <div class="text-muted text-center py-3">
                     <i class="bi bi-archive fs-1 d-block"></i>
-                    لا توجد نسخ احتياطية بعد
+                    @(L.IsArabic ? "لا توجد نسخ احتياطية بعد" : "No backups yet")
                 </div>
             }
-            <small class="text-muted d-block">النسخ تُحفظ في <code>Backups/</code> داخل مجلد المشروع</small>
+            <small class="text-muted d-block">@(L.IsArabic ? "النسخ تُحفظ في" : "Backups are stored in") <code>Backups/</code></small>
         </div>
     </div>
 </div>

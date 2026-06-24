@@ -1,54 +1,54 @@
 @model HomeMaids.Services.WhatsAppOptions
-@{ ViewData["Title"] = "إعدادات واتساب OTP"; }
+@{ ViewData["Title"] = L["admin.nav.whatsapp"].ToString(); }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-        <h1 class="fw-bold mb-0"><i class="bi bi-whatsapp text-success"></i> إعدادات واتساب</h1>
-        <small class="text-muted">إعدادات إرسال رمز التحقق عبر واتساب (تُقرأ من appsettings.json)</small>
+        <h1 class="fw-bold mb-0"><i class="bi bi-whatsapp text-success"></i> @L["admin.nav.whatsapp"]</h1>
+        <small class="text-muted">@(L.IsArabic ? "إعدادات إرسال رمز التحقق عبر واتساب" : "WhatsApp OTP delivery settings")</small>
     </div>
 </div>
 
 <div class="row g-3">
     <div class="col-md-8">
         <div class="card-modern p-4 mb-3">
-            <h5 class="fw-bold">الوضع الحالي</h5>
+            <h5 class="fw-bold">@(L.IsArabic ? "الوضع الحالي" : "Current mode")</h5>
             <div class="alert @(Model.Mode == "log" ? "alert-warning" : "alert-success") mb-3">
                 <strong>Mode:</strong> <code>@Model.Mode</code>
                 @if (Model.Mode == "log")
                 {
-                    <div class="small mt-1">يطبع الرمز في السجل ويعرضه على الشاشة (للتطوير فقط).</div>
+                    <div class="small mt-1">@(L.IsArabic ? "يطبع الرمز في السجل (للتطوير فقط)." : "Logs the code (development only).")</div>
                 }
                 else if (Model.Mode == "callmebot")
                 {
-                    <div class="small mt-1">يستخدم CallMeBot — مجاني للاختبار الشخصي (يحتاج المستلم أن يكون فعّل البوت أولاً).</div>
+                    <div class="small mt-1">@(L.IsArabic ? "CallMeBot — مجاني للاختبار الشخصي." : "CallMeBot — free for personal testing.")</div>
                 }
                 else if (Model.Mode == "cloud")
                 {
-                    <div class="small mt-1">يستخدم WhatsApp Cloud API من Meta — جاهز للإنتاج.</div>
+                    <div class="small mt-1">@(L.IsArabic ? "WhatsApp Cloud API من Meta — جاهز للإنتاج." : "Meta WhatsApp Cloud API — production-ready.")</div>
                 }
             </div>
 
             <table class="table table-sm align-middle mb-0">
                 <tbody>
-                <tr><th class="w-25">إظهار الرمز للتطوير</th><td>@(Model.ShowOtpInDev ? "نعم" : "لا")</td></tr>
-                <tr><th>CallMeBot API Key</th><td>@(string.IsNullOrEmpty(Model.CallMeBotApiKey) ? "—" : "•••••• مُهيأ ••••••")</td></tr>
+                <tr><th class="w-25">@(L.IsArabic ? "إظهار الرمز للتطوير" : "Show OTP in dev")</th><td>@(Model.ShowOtpInDev ? (L.IsArabic ? "نعم" : "Yes") : (L.IsArabic ? "لا" : "No"))</td></tr>
+                <tr><th>CallMeBot API Key</th><td>@(string.IsNullOrEmpty(Model.CallMeBotApiKey) ? "—" : "•••• configured ••••")</td></tr>
                 <tr><th>Phone Number ID (Cloud)</th><td>@(string.IsNullOrEmpty(Model.PhoneNumberId) ? "—" : Model.PhoneNumberId)</td></tr>
-                <tr><th>Access Token (Cloud)</th><td>@(string.IsNullOrEmpty(Model.AccessToken) ? "—" : "•••••• مُهيأ ••••••")</td></tr>
-                <tr><th>اسم القالب</th><td><code>@Model.TemplateName</code></td></tr>
-                <tr><th>لغة القالب</th><td><code>@Model.TemplateLanguage</code></td></tr>
+                <tr><th>Access Token (Cloud)</th><td>@(string.IsNullOrEmpty(Model.AccessToken) ? "—" : "•••• configured ••••")</td></tr>
+                <tr><th>@(L.IsArabic ? "اسم القالب" : "Template name")</th><td><code>@Model.TemplateName</code></td></tr>
+                <tr><th>@(L.IsArabic ? "لغة القالب" : "Template language")</th><td><code>@Model.TemplateLanguage</code></td></tr>
                 </tbody>
             </table>
         </div>
 
         <div class="card-modern p-4">
-            <h5 class="fw-bold mb-3">اختبار الإرسال</h5>
+            <h5 class="fw-bold mb-3">@(L.IsArabic ? "اختبار الإرسال" : "Test sending")</h5>
             <form method="post" asp-action="Test" class="row g-2 align-items-end">
                 <div class="col-md-7">
-                    <label class="form-label">رقم الجوال (مع أو بدون +968)</label>
+                    <label class="form-label">@L["account.phone"]</label>
                     <input name="phone" class="form-control" placeholder="77005570" dir="ltr" />
                 </div>
                 <div class="col-md-5">
-                    <button class="btn btn-primary w-100"><i class="bi bi-send"></i> إرسال رمز تجريبي</button>
+                    <button class="btn btn-primary w-100"><i class="bi bi-send"></i> @(L.IsArabic ? "إرسال رمز تجريبي" : "Send test code")</button>
                 </div>
             </form>
         </div>
@@ -56,39 +56,15 @@
 
     <div class="col-md-4">
         <div class="card-modern p-4">
-            <h5 class="fw-bold mb-3">كيف تُفعّل الإرسال الحقيقي؟</h5>
-
-            <h6 class="mt-3">🆓 الخيار 1: CallMeBot (مجاني — للاختبار)</h6>
+            <h5 class="fw-bold mb-3">@(L.IsArabic ? "كيف تُفعّل الإرسال الحقيقي؟" : "How to enable real sending")</h5>
+            <h6>✅ @(L.IsArabic ? "WhatsApp Cloud API (للإنتاج)" : "WhatsApp Cloud API (production)")</h6>
             <ol class="small text-muted">
-                <li>أرسل من رقمك للبوت <code dir="ltr">+34 644 51 95 23</code> رسالة:<br /><code>I allow callmebot to send me messages</code></li>
-                <li>ستصلك رسالة فيها API Key</li>
-                <li>افتح <code>appsettings.json</code> وضع:<br />
-                    <pre class="small mb-0"><code>"WhatsApp": {
-  "Mode": "callmebot",
-  "CallMeBotApiKey": "YOUR-KEY"
-}</code></pre></li>
-                <li>أعد تشغيل النظام</li>
+                <li>@(L.IsArabic ? "سجّل على" : "Sign up at") <a href="https://business.facebook.com" target="_blank">business.facebook.com</a></li>
+                <li>@(L.IsArabic ? "أنشئ WhatsApp Business Account + سجّل رقم" : "Create a WhatsApp Business Account and register a number")</li>
+                <li>@(L.IsArabic ? "أنشئ قالب \"Authentication\"" : "Create an Authentication message template")</li>
+                <li>@(L.IsArabic ? "احصل على Phone Number ID + System User Access Token" : "Get the Phone Number ID + a System User Access Token")</li>
             </ol>
-            <small class="text-warning d-block">⚠️ كل مستلم يجب أن يُفعّل البوت لنفسه — غير عملي للعملاء.</small>
-
-            <hr />
-
-            <h6>✅ الخيار 2: WhatsApp Cloud API (للإنتاج)</h6>
-            <ol class="small text-muted">
-                <li>سجّل حساب Meta Business على <a href="https://business.facebook.com" target="_blank">business.facebook.com</a></li>
-                <li>أنشئ WhatsApp Business Account + سجّل رقم</li>
-                <li>أنشئ قالب "Authentication" في Message Templates</li>
-                <li>احصل على Phone Number ID + System User Access Token</li>
-                <li>اضبط في <code>appsettings.json</code>:
-                    <pre class="small mb-0"><code>"WhatsApp": {
-  "Mode": "cloud",
-  "PhoneNumberId": "...",
-  "AccessToken": "...",
-  "TemplateName": "authentication",
-  "TemplateLanguage": "ar"
-}</code></pre></li>
-            </ol>
-            <small class="text-success d-block">✅ مجاني لأول 1000 محادثة شهرياً</small>
+            <small class="text-success d-block">✅ @(L.IsArabic ? "مجاني لأول 1000 محادثة شهرياً" : "Free for the first 1,000 conversations / month")</small>
         </div>
     </div>
 </div>

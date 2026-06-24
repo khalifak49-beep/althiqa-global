@@ -1,21 +1,30 @@
 @model List<Worker>
-@{ ViewData["Title"] = "العاملات"; }
+@{ ViewData["Title"] = L["admin.nav.workers"].ToString(); }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="fw-bold mb-0">العاملات (@Model.Count)</h1>
-    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus"></i> إضافة عاملة</a>
+    <h1 class="fw-bold mb-0">@L["admin.nav.workers"] (@Model.Count)</h1>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus"></i> @L["admin.common.add"]</a>
 </div>
 
 <form method="get" class="mb-3">
     <div class="input-group">
-        <input name="q" value="@ViewBag.Q" class="form-control" placeholder="ابحث بالاسم أو الجنسية" />
+        <input name="q" value="@ViewBag.Q" class="form-control" placeholder="@L["workers.filter_search_placeholder"]" />
         <button class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
     </div>
 </form>
 
 <div class="card-modern p-0 overflow-hidden">
     <table class="table table-modern mb-0">
-        <thead><tr><th>#</th><th>الاسم</th><th>الجنسية</th><th>الخدمة</th><th>السعر</th><th>التقييم</th><th>الحالة</th><th></th></tr></thead>
+        <thead><tr>
+            <th>@L["admin.common.id"]</th>
+            <th>@L["admin.common.name"]</th>
+            <th>@L["workers.nationality"]</th>
+            <th>@(L.IsArabic ? "الخدمة" : "Service")</th>
+            <th>@(L.IsArabic ? "السعر" : "Price")</th>
+            <th>@(L.IsArabic ? "التقييم" : "Rating")</th>
+            <th>@L["admin.common.status"]</th>
+            <th></th>
+        </tr></thead>
         <tbody>
         @foreach (var w in Model)
         {
@@ -24,15 +33,15 @@
                 <td>@w.FullName</td>
                 <td>@w.Nationality</td>
                 <td>@(w.Service?.Name ?? "-")</td>
-                <td>@w.HourlyRate.ToString("0") ر.ع.</td>
+                <td>@w.HourlyRate.ToString("0") @(L.IsArabic ? "ر.ع." : "OMR")</td>
                 <td><i class="bi bi-star-fill text-warning"></i> @w.AverageRating.ToString("0.0")</td>
                 <td><span class="chip availability-@w.Availability">@(w.IsActive ? w.Availability.ToString() : "Inactive")</span></td>
                 <td class="text-nowrap">
-                    <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@w.Id" title="تعديل البيانات"><i class="bi bi-pencil"></i></a>
-                    <a class="btn btn-sm btn-outline-secondary" asp-controller="Schedules" asp-action="Edit" asp-route-workerId="@w.Id" title="جدول الأوقات"><i class="bi bi-calendar-week"></i></a>
+                    <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@w.Id" title="@L["admin.common.edit"]"><i class="bi bi-pencil"></i></a>
+                    <a class="btn btn-sm btn-outline-secondary" asp-controller="Schedules" asp-action="Edit" asp-route-workerId="@w.Id" title="@(L.IsArabic ? "جدول الأوقات" : "Schedule")"><i class="bi bi-calendar-week"></i></a>
                     <form asp-action="Delete" asp-route-id="@w.Id" method="post" class="d-inline"
-                          onsubmit="return confirm('هل أنت متأكد من حذف \'@w.FullName\'؟ إذا كانت لديها حجوزات سابقة سيتم تعطيلها فقط.');">
-                        <button class="btn btn-sm btn-danger" title="حذف"><i class="bi bi-trash-fill"></i> حذف</button>
+                          onsubmit="return confirm(@Html.Raw("'" + L["admin.common.confirm_delete"] + "'"));">
+                        <button class="btn btn-sm btn-danger" title="@L["admin.common.delete"]"><i class="bi bi-trash-fill"></i> @L["admin.common.delete"]</button>
                     </form>
                 </td>
             </tr>

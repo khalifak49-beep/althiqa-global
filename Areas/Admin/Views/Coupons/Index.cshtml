@@ -1,27 +1,27 @@
 @model List<Coupon>
-@{ ViewData["Title"] = "الكوبونات"; }
+@{ ViewData["Title"] = L["admin.nav.coupons"].ToString(); }
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="fw-bold mb-0">الكوبونات</h1>
-    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus"></i> إضافة كوبون</a>
+    <h1 class="fw-bold mb-0">@L["admin.nav.coupons"]</h1>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus"></i> @L["admin.common.add"]</a>
 </div>
 
 <div class="card-modern p-0 overflow-hidden">
     <table class="table table-modern mb-0">
-        <thead><tr><th>الكود</th><th>النوع</th><th>القيمة</th><th>الحد الأدنى</th><th>الاستخدام</th><th>الفترة</th><th>الحالة</th><th></th></tr></thead>
+        <thead><tr><th>@(L.IsArabic ? "الكود" : "Code")</th><th>@(L.IsArabic ? "النوع" : "Type")</th><th>@(L.IsArabic ? "القيمة" : "Value")</th><th>@(L.IsArabic ? "الحد الأدنى" : "Min order")</th><th>@(L.IsArabic ? "الاستخدام" : "Usage")</th><th>@(L.IsArabic ? "الفترة" : "Validity")</th><th>@L["admin.common.status"]</th><th></th></tr></thead>
         <tbody>
         @foreach (var c in Model)
         {
             <tr>
                 <td><code>@c.Code</code></td>
                 <td>@c.DiscountType</td>
-                <td>@c.DiscountValue.ToString("0.##") @(c.DiscountType == DiscountType.Percent ? "%" : "ر.ع.")</td>
+                <td>@c.DiscountValue.ToString("0.##") @(c.DiscountType == DiscountType.Percent ? "%" : (L.IsArabic ? "ر.ع." : "OMR"))</td>
                 <td>@(c.MinOrderAmount?.ToString("N2") ?? "—")</td>
                 <td>@c.UsedCount / @(c.UsageLimit?.ToString() ?? "∞")</td>
                 <td>@c.ValidFrom.ToString("yyyy-MM-dd") → @c.ValidTo.ToString("yyyy-MM-dd")</td>
-                <td>@(c.IsActive ? "نشط" : "معطّل")</td>
+                <td>@(c.IsActive ? (L.IsArabic ? "نشط" : "Active") : (L.IsArabic ? "معطّل" : "Disabled"))</td>
                 <td>
                     <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@c.Id"><i class="bi bi-pencil"></i></a>
-                    <form asp-action="Delete" asp-route-id="@c.Id" method="post" class="d-inline" onsubmit="return confirm('تعطيل الكوبون؟');">
+                    <form asp-action="Delete" asp-route-id="@c.Id" method="post" class="d-inline" onsubmit="return confirm(@Html.Raw("'" + L["admin.common.confirm_delete"] + "'"));">
                         <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                     </form>
                 </td>

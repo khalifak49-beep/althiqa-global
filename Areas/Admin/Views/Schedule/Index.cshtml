@@ -1,7 +1,16 @@
 @model AdminScheduleViewModel
 @{
-    ViewData["Title"] = "جدول العاملات";
-    var dayNames = new[] { "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت" };
+    ViewData["Title"] = L["admin.nav.worker_schedule"].ToString();
+    var dayNames = new[]
+    {
+        L["booking.day_sunday"].ToString(),
+        L["booking.day_monday"].ToString(),
+        L["booking.day_tuesday"].ToString(),
+        L["booking.day_wednesday"].ToString(),
+        L["booking.day_thursday"].ToString(),
+        L["booking.day_friday"].ToString(),
+        L["booking.day_saturday"].ToString()
+    };
     int startHour = 7;
     int endHour = 22;
     var hours = Enumerable.Range(startHour, endHour - startHour).ToArray();
@@ -21,28 +30,28 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h1 class="fw-bold mb-0"><i class="bi bi-calendar-week"></i> جدول العاملات</h1>
+    <h1 class="fw-bold mb-0"><i class="bi bi-calendar-week"></i> @L["admin.nav.worker_schedule"]</h1>
     <form method="get" class="d-flex gap-2 align-items-center">
-        <label class="form-label mb-0 small">من</label>
+        <label class="form-label mb-0 small">@(L.IsArabic ? "من" : "From")</label>
         <input type="date" name="from" value="@Model.From.ToString("yyyy-MM-dd")" class="form-control form-control-sm" style="width: 160px;" />
-        <label class="form-label mb-0 small">عدد الأيام</label>
+        <label class="form-label mb-0 small">@(L.IsArabic ? "عدد الأيام" : "Days")</label>
         <select name="days" class="form-select form-select-sm" style="width: 100px;">
             @foreach (var d in new[] { 3, 7, 14, 21, 30 })
             {
                 <option value="@d" selected="@(d == Model.Days)">@d</option>
             }
         </select>
-        <button class="btn btn-sm btn-primary">عرض</button>
-        <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-from="@DateTime.Today.ToString("yyyy-MM-dd")" asp-route-days="7">هذا الأسبوع</a>
+        <button class="btn btn-sm btn-primary">@(L.IsArabic ? "عرض" : "Show")</button>
+        <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-from="@DateTime.Today.ToString("yyyy-MM-dd")" asp-route-days="7">@(L.IsArabic ? "هذا الأسبوع" : "This week")</a>
     </form>
 </div>
 
 <div class="card-modern p-3 mb-3">
     <div class="d-flex gap-3 flex-wrap small">
-        <span><span class="d-inline-block" style="width:14px;height:14px;background:#d4edda;border-radius:3px;"></span> متاحة</span>
-        <span><span class="d-inline-block" style="width:14px;height:14px;background:#f8d7da;border-radius:3px;"></span> مشغولة</span>
-        <span><span class="d-inline-block" style="width:14px;height:14px;background:#fff3cd;border-radius:3px;"></span> فترة مقدّرة الفراغ بعد الحجز</span>
-        <span><span class="d-inline-block" style="width:14px;height:14px;background:#e9ecef;border-radius:3px;"></span> خارج ساعات العمل</span>
+        <span><span class="d-inline-block" style="width:14px;height:14px;background:#d4edda;border-radius:3px;"></span> @L["workers.status_available"]</span>
+        <span><span class="d-inline-block" style="width:14px;height:14px;background:#f8d7da;border-radius:3px;"></span> @L["workers.status_busy"]</span>
+        <span><span class="d-inline-block" style="width:14px;height:14px;background:#fff3cd;border-radius:3px;"></span> @(L.IsArabic ? "فترة مقدّرة الفراغ" : "Estimated free")</span>
+        <span><span class="d-inline-block" style="width:14px;height:14px;background:#e9ecef;border-radius:3px;"></span> @(L.IsArabic ? "خارج ساعات العمل" : "Outside work hours")</span>
     </div>
 </div>
 
@@ -56,10 +65,10 @@
             <div style="width:56px;height:56px;border-radius:12px;background-size:cover;background-position:center;background-image:url('@(string.IsNullOrEmpty(worker.PhotoUrl) ? $"https://i.pravatar.cc/120?u={worker.Id}" : worker.PhotoUrl)');"></div>
             <div>
                 <h5 class="fw-bold mb-0">@worker.FullName</h5>
-                <div class="small text-muted">@worker.Nationality • @(worker.Service?.Name ?? "—") • @worker.HourlyRate.ToString("N3") ر.ع./ساعة</div>
+                <div class="small text-muted">@worker.Nationality • @(worker.Service?.Name ?? "—") • @worker.HourlyRate.ToString("N3") @L["workers.currency_per_hour"]</div>
             </div>
             <div class="ms-auto small">
-                <span class="badge bg-light text-dark">إجمالي مشغول: @totalBusyHours.ToString("0.#") ساعة في @Model.Days يوم</span>
+                <span class="badge bg-light text-dark">@(L.IsArabic ? "إجمالي مشغول:" : "Total busy:") @totalBusyHours.ToString("0.#") @(L.IsArabic ? "ساعة" : "h") / @Model.Days @(L.IsArabic ? "يوم" : "days")</span>
             </div>
         </div>
 
@@ -67,7 +76,7 @@
             <table class="table table-bordered mb-0 small text-center" style="min-width: 900px;">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 90px;">الوقت</th>
+                        <th style="width: 90px;">@L["booking.start_time"]</th>
                         @foreach (var d in days)
                         {
                             <th>
@@ -106,7 +115,7 @@
                                 string bg, content, tip;
                                 if (!working)
                                 {
-                                    bg = "#e9ecef"; content = ""; tip = "خارج ساعات العمل";
+                                    bg = "#e9ecef"; content = ""; tip = L.IsArabic ? "خارج ساعات العمل" : "Outside work hours";
                                 }
                                 else if (slot != null)
                                 {
@@ -116,11 +125,11 @@
                                 }
                                 else if (estimatedFree)
                                 {
-                                    bg = "#fff3cd"; content = "★"; tip = "فراغ متوقع بعد انتهاء حجز سابق";
+                                    bg = "#fff3cd"; content = "★"; tip = L.IsArabic ? "فراغ متوقع بعد انتهاء حجز سابق" : "Estimated free after a previous booking";
                                 }
                                 else
                                 {
-                                    bg = "#d4edda"; content = ""; tip = "متاحة";
+                                    bg = "#d4edda"; content = ""; tip = L["workers.status_available"].ToString();
                                 }
 
                                 <td style="background:@bg; padding:4px;" title="@tip">
@@ -144,5 +153,5 @@
 
 @if (!Model.Workers.Any())
 {
-    <div class="alert alert-warning"><i class="bi bi-info-circle"></i> لا توجد عاملات نشطات.</div>
+    <div class="alert alert-warning"><i class="bi bi-info-circle"></i> @(L.IsArabic ? "لا توجد عاملات نشطات." : "No active workers.")</div>
 }

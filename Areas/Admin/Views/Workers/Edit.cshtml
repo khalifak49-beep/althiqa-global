@@ -1,4 +1,4 @@
 @model WorkerEditViewModel
-@{ ViewData["Title"] = "تعديل عاملة"; }
-<h1 class="fw-bold mb-3">تعديل عاملة</h1>
+@{ ViewData["Title"] = (L.IsArabic ? "تعديل عاملة" : "Edit worker"); }
+<h1 class="fw-bold mb-3">@(L.IsArabic ? "تعديل عاملة" : "Edit worker")</h1>
 <partial name="_Form" model="Model" />

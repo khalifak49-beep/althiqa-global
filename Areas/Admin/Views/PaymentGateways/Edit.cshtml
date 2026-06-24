@@ -1,14 +1,14 @@
 @model PaymentGatewayConfig
-@{ ViewData["Title"] = "تعديل بوابة الدفع"; }
+@{ ViewData["Title"] = (L.IsArabic ? "تعديل بوابة الدفع" : "Edit payment gateway"); }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="fw-bold mb-0">@Model.Provider — تعديل الإعدادات</h1>
-    <a class="btn btn-outline-secondary" asp-action="Index"><i class="bi bi-arrow-right"></i> رجوع</a>
+    <h1 class="fw-bold mb-0">@Model.Provider — @L["admin.common.edit"]</h1>
+    <a class="btn btn-outline-secondary" asp-action="Index"><i class="bi bi-arrow-@(L.IsArabic ? "right" : "left")"></i> @L["common.back"]</a>
 </div>
 
 <div class="alert alert-warning small">
     <i class="bi bi-exclamation-triangle"></i>
-    احرص على عدم مشاركة الـ Secret Key. لاستخدام بيئة الإنتاج فعّل خيار "Live" واستبدل المفاتيح بالقيم الحقيقية من لوحة Thawani.
+    @(L.IsArabic ? "لا تشارك الـ Secret Key. للإنتاج فعّل \"Live\" واستبدل المفاتيح بالقيم الحقيقية." : "Never share the Secret Key. For production, switch on \"Live\" and replace keys with real values from Thawani dashboard.")
 </div>
 
 <form method="post" class="card-modern p-4">
@@ -18,53 +18,50 @@
 
     <div class="row g-3">
         <div class="col-md-6">
-            <label asp-for="DisplayName" class="form-label">اسم العرض</label>
+            <label asp-for="DisplayName" class="form-label">@(L.IsArabic ? "اسم العرض" : "Display name")</label>
             <input asp-for="DisplayName" class="form-control" />
         </div>
         <div class="col-md-6 d-flex align-items-end gap-3">
             <div class="form-check form-switch">
                 <input asp-for="IsLive" class="form-check-input" />
-                <label asp-for="IsLive" class="form-check-label">بيئة الإنتاج (Live)</label>
+                <label asp-for="IsLive" class="form-check-label">@(L.IsArabic ? "بيئة الإنتاج (Live)" : "Live")</label>
             </div>
             <div class="form-check form-switch">
                 <input asp-for="IsActive" class="form-check-input" />
-                <label asp-for="IsActive" class="form-check-label">نشط</label>
+                <label asp-for="IsActive" class="form-check-label">@(L.IsArabic ? "نشط" : "Active")</label>
             </div>
         </div>
 
         <div class="col-md-6">
             <label asp-for="ApiBaseUrl" class="form-label">API Base URL</label>
-            <input asp-for="ApiBaseUrl" class="form-control" placeholder="https://uatcheckout.thawani.om/api/v1" />
+            <input asp-for="ApiBaseUrl" class="form-control" />
             <small class="text-muted">UAT: <code>https://uatcheckout.thawani.om/api/v1</code> — Live: <code>https://checkout.thawani.om/api/v1</code></small>
         </div>
         <div class="col-md-6">
             <label asp-for="CheckoutBaseUrl" class="form-label">Checkout Base URL</label>
-            <input asp-for="CheckoutBaseUrl" class="form-control" placeholder="https://uatcheckout.thawani.om/pay/" />
+            <input asp-for="CheckoutBaseUrl" class="form-control" />
         </div>
 
         <div class="col-md-6">
             <label asp-for="SecretKey" class="form-label">Secret API Key</label>
             <input asp-for="SecretKey" class="form-control font-monospace" />
-            <small class="text-muted">يستخدم في رأس <code>Thawani-Api-Key</code></small>
         </div>
         <div class="col-md-6">
             <label asp-for="PublishableKey" class="form-label">Publishable Key</label>
             <input asp-for="PublishableKey" class="form-control font-monospace" />
-            <small class="text-muted">يضاف لرابط الدفع كـ <code>?key=</code></small>
         </div>
 
         <div class="col-md-6">
             <label asp-for="SuccessUrl" class="form-label">Success URL</label>
-            <input asp-for="SuccessUrl" class="form-control" placeholder="/Payments/ThawaniSuccess" />
-            <small class="text-muted">رابط نسبي يبدأ بـ / أو رابط كامل</small>
+            <input asp-for="SuccessUrl" class="form-control" />
         </div>
         <div class="col-md-6">
             <label asp-for="CancelUrl" class="form-label">Cancel URL</label>
-            <input asp-for="CancelUrl" class="form-control" placeholder="/Payments/ThawaniCancel" />
+            <input asp-for="CancelUrl" class="form-control" />
         </div>
     </div>
 
-    <button class="btn btn-primary mt-4"><i class="bi bi-check2"></i> حفظ الإعدادات</button>
+    <button class="btn btn-primary mt-4"><i class="bi bi-check2"></i> @L["admin.common.save"]</button>
 </form>
 
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

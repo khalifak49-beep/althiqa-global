@@ -1,4 +1,4 @@
 @model OfferEditViewModel
-@{ ViewData["Title"] = "إضافة عرض"; }
-<h1 class="fw-bold mb-3">إضافة عرض</h1>
+@{ ViewData["Title"] = (L.IsArabic ? "إضافة عرض" : "Add offer"); }
+<h1 class="fw-bold mb-3">@(L.IsArabic ? "إضافة عرض" : "Add offer")</h1>
 <partial name="_Form" model="Model" />

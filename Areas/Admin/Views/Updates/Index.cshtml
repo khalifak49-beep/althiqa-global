@@ -1,73 +1,75 @@
 @{
-    ViewData["Title"] = "تحديثات النظام";
+    ViewData["Title"] = L["admin.nav.updates"].ToString();
     var asm = typeof(Program).Assembly;
     var version = asm.GetName().Version?.ToString() ?? "1.0.0";
 }
 
-<h1 class="fw-bold mb-3"><i class="bi bi-arrow-up-circle text-primary"></i> تحديثات النظام</h1>
+<h1 class="fw-bold mb-3"><i class="bi bi-arrow-up-circle text-primary"></i> @L["admin.nav.updates"]</h1>
 
 <div class="row g-3">
     <div class="col-lg-4">
         <div class="card-modern p-4 text-center">
             <i class="bi bi-box-seam text-primary" style="font-size:3rem"></i>
-            <h5 class="fw-bold mt-2">الإصدار الحالي</h5>
+            <h5 class="fw-bold mt-2">@(L.IsArabic ? "الإصدار الحالي" : "Current version")</h5>
             <div class="display-6 text-primary fw-bold">@version</div>
             <small class="text-muted">.NET @Environment.Version</small>
         </div>
     </div>
     <div class="col-lg-8">
         <div class="card-modern p-4">
-            <h5 class="fw-bold mb-3">سجل التغييرات (Changelog)</h5>
+            <h5 class="fw-bold mb-3">@(L.IsArabic ? "سجل التغييرات (Changelog)" : "Changelog")</h5>
             <div class="timeline">
-                <div class="border-start ps-3 mb-3">
-                    <strong>v1.5</strong> <span class="text-muted small">— مايو 2026</span>
-                    <ul class="text-muted small mb-0 mt-1">
-                        <li>أدوات مراقبة الصحة + سجلات النظام + نسخ احتياطي</li>
-                        <li>وضع الصيانة بصفحة مخصصة</li>
-                        <li>اكتمال بيانات العميل (Customer Metadata)</li>
-                    </ul>
-                </div>
-                <div class="border-start ps-3 mb-3">
-                    <strong>v1.4</strong> <span class="text-muted small">— مايو 2026</span>
-                    <ul class="text-muted small mb-0 mt-1">
-                        <li>OTP بالبريد الإلكتروني عبر Gmail SMTP</li>
-                        <li>OTP بالجوال (WhatsApp - 3 modes)</li>
-                        <li>تكامل Thawani Pay مع 10 customer metadata</li>
-                    </ul>
-                </div>
-                <div class="border-start ps-3 mb-3">
-                    <strong>v1.3</strong> <span class="text-muted small">— مايو 2026</span>
-                    <ul class="text-muted small mb-0 mt-1">
-                        <li>نظام العقد الشهري + كوبونات + خصومات</li>
-                        <li>خريطة Leaflet لتحديد الموقع</li>
-                        <li>PWA + Bottom Nav للجوال</li>
-                    </ul>
-                </div>
-                <div class="border-start ps-3 mb-3">
-                    <strong>v1.2</strong> <span class="text-muted small">— مايو 2026</span>
-                    <ul class="text-muted small mb-0 mt-1">
-                        <li>ريديزاين شامل بأسلوب Maharah (ألوان + AOS animations)</li>
-                        <li>شعار "الثقة العالمية" + ألوان البزنس</li>
-                        <li>تحويل العملة للريال العماني + ضريبة 5%</li>
-                    </ul>
-                </div>
-                <div class="border-start ps-3 mb-3">
-                    <strong>v1.0–1.1</strong> <span class="text-muted small">— مايو 2026</span>
-                    <ul class="text-muted small mb-0 mt-1">
-                        <li>الإطلاق الأولي: حجز بالساعات + لوحة أدمن + REST API</li>
-                    </ul>
-                </div>
+                @if (L.IsArabic)
+                {
+                    <div class="border-start ps-3 mb-3">
+                        <strong>v1.6</strong> <span class="text-muted small">— يونيو 2026</span>
+                        <ul class="text-muted small mb-0 mt-1">
+                            <li>دعم لغتين كاملاً (عربي / إنجليزي) مع زر تبديل من النافبار</li>
+                            <li>فاتورة PDF محسّنة بشعار وخط Amiri عربي</li>
+                            <li>جدول العاملات + نظام العقد الشهري بزيارات محددة</li>
+                        </ul>
+                    </div>
+                    <div class="border-start ps-3 mb-3">
+                        <strong>v1.5</strong> <span class="text-muted small">— مايو 2026</span>
+                        <ul class="text-muted small mb-0 mt-1">
+                            <li>أدوات مراقبة الصحة + سجلات النظام + نسخ احتياطي</li>
+                            <li>وضع الصيانة بصفحة مخصصة</li>
+                        </ul>
+                    </div>
+                    <div class="border-start ps-3 mb-3">
+                        <strong>v1.4</strong> <span class="text-muted small">— مايو 2026</span>
+                        <ul class="text-muted small mb-0 mt-1">
+                            <li>OTP بالبريد الإلكتروني + الجوال (واتساب)</li>
+                            <li>تكامل Thawani Pay مع customer metadata</li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <div class="border-start ps-3 mb-3">
+                        <strong>v1.6</strong> <span class="text-muted small">— June 2026</span>
+                        <ul class="text-muted small mb-0 mt-1">
+                            <li>Full bilingual support (Arabic / English) with a navbar toggle</li>
+                            <li>Polished PDF invoice with logo and Amiri Arabic font</li>
+                            <li>Worker schedule + per-visit monthly contract scheduling</li>
+                        </ul>
+                    </div>
+                    <div class="border-start ps-3 mb-3">
+                        <strong>v1.5</strong> <span class="text-muted small">— May 2026</span>
+                        <ul class="text-muted small mb-0 mt-1">
+                            <li>Health monitoring + system logs + backups</li>
+                            <li>Maintenance mode with custom page</li>
+                        </ul>
+                    </div>
+                    <div class="border-start ps-3 mb-3">
+                        <strong>v1.4</strong> <span class="text-muted small">— May 2026</span>
+                        <ul class="text-muted small mb-0 mt-1">
+                            <li>OTP via email + phone (WhatsApp)</li>
+                            <li>Thawani Pay with customer metadata integration</li>
+                        </ul>
+                    </div>
+                }
             </div>
         </div>
     </div>
-</div>
-
-<div class="card-modern p-4 mt-3">
-    <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-info"></i> كيف يتم التحديث؟</h5>
-    <ol class="text-muted small">
-        <li>التحديثات تتم بتعديل الكود وإعادة البناء — <code>dotnet build</code></li>
-        <li>الـ Watchdog يعيد تشغيل السيرفر تلقائياً بعد البناء</li>
-        <li>أي تغيير في القاعدة يحتاج <code>dotnet ef database update</code></li>
-        <li>قبل أي تحديث كبير، فعّل <a asp-controller="Maintenance" asp-action="Index">وضع الصيانة</a> وخذ نسخة احتياطية</li>
-    </ol>
 </div>

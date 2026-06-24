@@ -1,16 +1,25 @@
 @model List<WorkerSchedule>
 @{
-    ViewData["Title"] = "جدول العاملة";
+    ViewData["Title"] = (L.IsArabic ? "جدول العاملة" : "Worker schedule");
     var worker = ViewBag.Worker as Worker;
-    var dayNames = new[] { "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت" };
+    var dayNames = new[]
+    {
+        L["booking.day_sunday"].ToString(),
+        L["booking.day_monday"].ToString(),
+        L["booking.day_tuesday"].ToString(),
+        L["booking.day_wednesday"].ToString(),
+        L["booking.day_thursday"].ToString(),
+        L["booking.day_friday"].ToString(),
+        L["booking.day_saturday"].ToString()
+    };
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-        <h1 class="fw-bold mb-0">جدول العاملة: @worker?.FullName</h1>
-        <small class="text-muted">حدد ساعات العمل لكل يوم. أزل الإتاحة لأيام الراحة.</small>
+        <h1 class="fw-bold mb-0">@(L.IsArabic ? "جدول العاملة:" : "Schedule:") @worker?.FullName</h1>
+        <small class="text-muted">@(L.IsArabic ? "حدد ساعات العمل لكل يوم. أزل الإتاحة لأيام الراحة." : "Set work hours per day. Untick days off.")</small>
     </div>
-    <a class="btn btn-outline-secondary" asp-area="Admin" asp-controller="Workers" asp-action="Index"><i class="bi bi-arrow-right"></i> رجوع</a>
+    <a class="btn btn-outline-secondary" asp-area="Admin" asp-controller="Workers" asp-action="Index"><i class="bi bi-arrow-@(L.IsArabic ? "right" : "left")"></i> @L["common.back"]</a>
 </div>
 
 <form method="post" asp-action="Edit" asp-route-workerId="@worker?.Id">
@@ -18,10 +27,10 @@
     <div class="card-modern p-0 overflow-hidden">
         <table class="table table-modern mb-0 align-middle">
             <thead><tr>
-                <th>اليوم</th>
-                <th>متاحة؟</th>
-                <th>من</th>
-                <th>إلى</th>
+                <th>@(L.IsArabic ? "اليوم" : "Day")</th>
+                <th>@(L.IsArabic ? "متاحة؟" : "Available?")</th>
+                <th>@(L.IsArabic ? "من" : "From")</th>
+                <th>@(L.IsArabic ? "إلى" : "To")</th>
             </tr></thead>
             <tbody>
             @for (var i = 0; i < Model.Count; i++)
@@ -53,10 +62,5 @@
         </table>
     </div>
 
-    <div class="alert alert-info mt-3 small">
-        <i class="bi bi-info-circle"></i>
-        مثلاً لجعل العاملة متاحة من 8 الصبح إلى 12 الظهر فقط: من <code>08:00</code>، إلى <code>12:00</code>.
-    </div>
-
-    <button class="btn btn-primary"><i class="bi bi-check2"></i> حفظ الجدول</button>
+    <button class="btn btn-primary mt-3"><i class="bi bi-check2"></i> @L["admin.common.save"]</button>
 </form>
