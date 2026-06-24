@@ -1,12 +1,25 @@
-@{ ViewData["Title"] = "سياسة الخصوصية"; }
+@{ ViewData["Title"] = L["footer.privacy"].ToString(); }
 <section class="section">
     <div class="container">
-        <h1 class="fw-bold">سياسة الخصوصية</h1>
-        <p class="text-muted">نلتزم بحماية بياناتك. لا نشارك معلوماتك الشخصية مع طرف ثالث، باستثناء ما يلزم لإتمام الخدمة (مثل بوابات الدفع).</p>
-        <ul class="text-muted">
-            <li>نخزن بياناتك بشكل آمن ومشفّر.</li>
-            <li>يمكنك حذف حسابك في أي وقت.</li>
-            <li>لا نشارك بياناتك لأغراض تسويقية بدون إذنك.</li>
-        </ul>
+        @if (L.IsArabic)
+        {
+            <h1 class="fw-bold">سياسة الخصوصية</h1>
+            <p class="text-muted">نلتزم بحماية بياناتك. لا نشارك معلوماتك الشخصية مع طرف ثالث، باستثناء ما يلزم لإتمام الخدمة (مثل بوابات الدفع).</p>
+            <ul class="text-muted">
+                <li>نخزن بياناتك بشكل آمن ومشفّر.</li>
+                <li>يمكنك حذف حسابك في أي وقت.</li>
+                <li>لا نشارك بياناتك لأغراض تسويقية بدون إذنك.</li>
+            </ul>
+        }
+        else
+        {
+            <h1 class="fw-bold">Privacy Policy</h1>
+            <p class="text-muted">We are committed to protecting your data. We do not share your personal information with third parties, except where required to deliver the service (such as payment gateways).</p>
+            <ul class="text-muted">
+                <li>Your data is stored securely and encrypted.</li>
+                <li>You can delete your account at any time.</li>
+                <li>We never share your data for marketing without your explicit consent.</li>
+            </ul>
+        }
     </div>
 </section>

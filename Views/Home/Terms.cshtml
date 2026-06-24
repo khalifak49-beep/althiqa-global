@@ -1,160 +1,171 @@
-@{
-    ViewData["Title"] = "الشروط والأحكام — عقد تنظيف";
-}
+@{ ViewData["Title"] = L["footer.terms"].ToString(); }
 
 <section class="section page-with-logo-bg">
     <div class="container">
         <div class="card-modern p-4 p-md-5">
             <div class="text-center mb-4">
-                <h1 class="fw-bold mb-1">عقد تنظيف — الشروط والأحكام</h1>
-                <h2 class="h5 text-muted">Cleaning Agreement — Terms &amp; Conditions</h2>
-                <div class="small text-muted mt-2">إصدار 17-02-2026 • الثقة العالمية لخدمات التنظيف</div>
+                <h1 class="fw-bold mb-1">@L["footer.terms"]</h1>
+                <div class="small text-muted mt-2">@L["site.brand"]</div>
             </div>
 
             <hr class="my-4" />
 
             <div class="terms-content" style="line-height: 1.9;">
+                @if (L.IsArabic)
+                {
+                    <h3 class="fw-bold text-primary mt-4">الطرف الأول (مقدم الخدمة)</h3>
+                    <ul class="list-unstyled">
+                        <li><strong>الاسم التجاري:</strong> الثقة العالمية</li>
+                        <li><strong>السجل التجاري:</strong> 1630048</li>
+                        <li><strong>العنوان:</strong> المعبيلة الجنوبية / السيب / محافظة مسقط</li>
+                        <li><strong>ص.ب:</strong> 82 — <strong>ر.ب:</strong> 107</li>
+                        <li><strong>هاتف:</strong> 77005570</li>
+                    </ul>
 
-                <h3 class="fw-bold text-primary mt-4">الطرف الأول (مقدم الخدمة)</h3>
-                <ul class="list-unstyled">
-                    <li><strong>الاسم التجاري:</strong> الثقة العالمية</li>
-                    <li><strong>السجل التجاري:</strong> 1630048</li>
-                    <li><strong>العنوان:</strong> المعبيلة الجنوبية / السيب / محافظة مسقط</li>
-                    <li><strong>ص.ب:</strong> 82 — <strong>ر.ب:</strong> 107</li>
-                    <li><strong>هاتف:</strong> 77005570</li>
-                    <li><strong>الممثل:</strong> هلال عبدالله سعيد الغيثي — رقم الهوية: 99850983</li>
-                </ul>
+                    <h3 class="fw-bold text-primary mt-4">البند الأول: موضوع العقد</h3>
+                    <p>اتفق الطرفان على أن تقوم الشركة بتقديم خدمات تنظيف للعميل وفق البنود التالية.</p>
 
-                <h3 class="fw-bold text-primary mt-4">البند الأول: موضوع العقد</h3>
-                <p>اتفق الطرفان على أن تقوم الشركة بتقديم خدمات تنظيف للعميل وفق البنود التالية.</p>
+                    <h3 class="fw-bold text-primary mt-4">البند الثاني: مدة العقد</h3>
+                    <p>تبدأ مدة هذا العقد من تاريخ الحجز وتستمر حسب نوع الخدمة المختارة (ساعية أو شهرية).</p>
 
-                <h3 class="fw-bold text-primary mt-4">البند الثاني: مدة العقد</h3>
-                <p>تبدأ مدة هذا العقد من تاريخ الحجز وتستمر حسب نوع الخدمة المختارة (ساعية أو شهرية)، ويجوز تجديد العقد بموافقة الطرفين.</p>
+                    <h3 class="fw-bold text-primary mt-4">البند الثالث: طبيعة الخدمات</h3>
+                    <ul>
+                        <li>تنظيف الأرضيات، النوافذ، الجدران، والمفروشات.</li>
+                        <li>تنظيف الحمامات.</li>
+                        <li>إزالة الغبار وترتيب الأثاث.</li>
+                        <li>أي خدمات تنظيف أخرى يتفق عليها كتابياً.</li>
+                    </ul>
 
-                <h3 class="fw-bold text-primary mt-4">البند الثالث: طبيعة الخدمات</h3>
-                <ul>
-                    <li>تنظيف الأرضيات، النوافذ، الجدران، والمفروشات.</li>
-                    <li>تنظيف الحمامات.</li>
-                    <li>إزالة الغبار وترتيب الأثاث.</li>
-                    <li>أي خدمات تنظيف أخرى يتفق عليها كتابياً بين الطرفين.</li>
-                </ul>
+                    <h3 class="fw-bold text-primary mt-4">البند الرابع: نظام العمل والأجور</h3>
+                    <ul>
+                        <li>الحد الأدنى للحجز ساعتان.</li>
+                        <li>قيمة الساعة الواحدة تتراوح بين 2.5 و 3.5 ر.ع. حسب نوع الخدمة.</li>
+                        <li>الدفع يكون مسبقاً عبر بوابة الدفع الإلكترونية (Thawani).</li>
+                    </ul>
 
-                <h3 class="fw-bold text-primary mt-4">البند الرابع: نظام العمل والأجور</h3>
-                <ul>
-                    <li>يتم تقديم الخدمة بناءً على عدد الساعات المطلوبة من العميل.</li>
-                    <li>الحد الأدنى للحجز ساعتان.</li>
-                    <li>قيمة الساعة الواحدة تتراوح بين 2.5 و 3.5 ر.ع. حسب نوع الخدمة.</li>
-                    <li>تُحتسب الأجرة الإجمالية بناءً على عدد الساعات الفعلية المنفذة.</li>
-                    <li>الدفع يكون مسبقاً عبر بوابة الدفع الإلكترونية (Thawani).</li>
-                </ul>
+                    <h3 class="fw-bold text-primary mt-4">البند الخامس: التزامات الشركة</h3>
+                    <ul>
+                        <li>توفير عمالة مدربة ومؤهلة.</li>
+                        <li>الالتزام بالمواعيد المتفق عليها.</li>
+                        <li>توفير أدوات ومواد التنظيف (إذا تم الاتفاق مسبقاً).</li>
+                    </ul>
 
-                <h3 class="fw-bold text-primary mt-4">البند الخامس: التزامات الشركة</h3>
-                <ul>
-                    <li>توفير عمالة مدربة ومؤهلة لأداء مهام التنظيف.</li>
-                    <li>الالتزام بالمواعيد المتفق عليها.</li>
-                    <li>توفير أدوات ومواد التنظيف اللازمة (إذا تم الاتفاق على ذلك مسبقاً).</li>
-                    <li>تحمل مسؤولية أي أضرار ناتجة عن تقصير موظفيها أثناء العمل، وفق ما يثبته التحقيق.</li>
-                </ul>
+                    <h3 class="fw-bold text-primary mt-4">البند السادس: التزامات العميل</h3>
+                    <ul>
+                        <li>عدم تكليف العمال بأعمال خارج نطاق التنظيف.</li>
+                        <li>عدم التعدي على العاملة لفظياً أو جسدياً.</li>
+                        <li>تسديد الأجور في مواعيدها.</li>
+                        <li>الإبلاغ عن المخاطر المحتملة قبل 24 ساعة على الأقل.</li>
+                    </ul>
 
-                <h3 class="fw-bold text-primary mt-4">البند السادس: التزامات العميل</h3>
-                <ul>
-                    <li>عدم تكليف العمال بأي أعمال خارج نطاق التنظيف دون موافقة الشركة.</li>
-                    <li>عدم التعدي على العاملة لفظياً أو جسدياً.</li>
-                    <li>تسديد الأجور في مواعيدها المحددة.</li>
-                    <li>إبلاغ الشركة فوراً بأي ملاحظات أو أضرار لاحظها أثناء أو بعد الخدمة.</li>
-                    <li>الإبلاغ عن المخاطر المحتملة في موقع العمل قبل 24 ساعة على الأقل.</li>
-                </ul>
-
-                <h4 class="fw-bold mt-3">⚠️ مسؤوليات العميل التفصيلية:</h4>
-
-                <div class="alert alert-warning border-start border-warning border-4 ps-3">
-                    <strong>🌡️ درجة الحرارة والتهوية:</strong>
-                    يرجى التأكد من أن المكان جيد التهوية وبدرجة حرارة بين 17 و 26 درجة مئوية.
-                </div>
-
-                <div class="alert alert-warning border-start border-warning border-4 ps-3">
-                    <strong>🧬 المخاطر البيولوجية:</strong>
-                    الدم أو أي سوائل من الجسم — نحن لسنا مؤمنين ولا مدربين ولا مجهزين للتعامل مع ذلك.
-                </div>
-
-                <div class="alert alert-warning border-start border-warning border-4 ps-3">
-                    <strong>🔥 المخاطر العامة:</strong>
-                    حريق، تلف المياه، تسرب الغاز، أشياء حادة، أو زجاج مكسور.
-                </div>
-
-                <div class="alert alert-warning border-start border-warning border-4 ps-3">
-                    <strong>🐛 الإصابة بالحشرات:</strong>
-                    البراغيث، الصراصير، النمل الأبيض، البق، القوارض/الأفاعي... إلخ.
-                </div>
-
-                <div class="alert alert-warning border-start border-warning border-4 ps-3">
-                    <strong>🤒 الأمراض المعدية:</strong>
-                    من أجل سلامتك وسلامة العملاء الآخرين، يجب على العميل إبلاغنا عبر الواتساب.
-                    تشمل: الكوليرا، الحمى، أمراض الطفح الجلدي، الحصبة، فيروس كورونا، حمى التيفوئيد، التهاب الكبد، التسمم الغذائي لأسباب معدية.
-                </div>
-
-                <div class="alert alert-warning border-start border-warning border-4 ps-3">
-                    <strong>🪵 العناصر الخاصة والحساسة:</strong>
-                    الخشب، المخمل، الجلود، الشاموا، جلود الحيوانات... إلخ.
-                    يجب تحديدها عبر الواتساب ولعاملة النظافة شخصياً.
-                    نحن نخلي مسؤوليتنا تجاه أي ضرر قد يلحق بهذه العناصر إذا لم يتم الإبلاغ.
-                </div>
-
-                <div class="alert alert-danger border-start border-danger border-4 ps-3">
-                    <strong>💎 الأغراض الشخصية والثمينة:</strong>
-                    لا يتم تنظيفها للحفاظ على أمنها — يرجى تأمينها قبل وصول عمال النظافة.
-                    تشمل: المجوهرات، جوازات السفر، الخواتم، العملات النقدية، بطاقات الفيزا، بطاقات الهوية.
-                    <strong>نخلي مسؤوليتنا عن خسارة أو تلف أي أشياء ثمينة لم يتم تأمينها.</strong>
-                </div>
-
-                <div class="alert alert-danger border-start border-danger border-4 ps-3">
-                    <strong>🏺 التحف والإرث العائلي:</strong>
-                    جميع المقتنيات التي يزيد سعرها عن <strong>300 ر.ع.</strong> (كالزجاج والمزهريات).
-                    إذا كنت ترغب بعدم تنظيفها، يجب الإبلاغ عن طريق الواتساب وكذلك لعاملة النظافة شخصياً عند وصولها.
-                </div>
-
-                <div class="alert alert-info border-start border-info border-4 ps-3">
-                    <strong>🍳 الطبخ وتحضير الطعام:</strong>
-                    لا نقدم هذه الخدمة لأسباب صحية.
-                    إذا طُلبت، يجب إبلاغ الإدارة قبل بدء الخدمة، وعند الحصول على موافقة خطية، يتحمل العميل أي خطر قد يحدثه عامل التنظيف.
-                </div>
-
-                <h3 class="fw-bold text-primary mt-4">البند السابع: المسؤولية</h3>
-                <ul>
-                    <li>لا تتحمل الشركة مسؤولية فقدان أو تلف أي ممتلكات لم يتم الإبلاغ عنها مسبقاً قبل بدء العمل.</li>
-                    <li>يلتزم الطرفان بحسن النية والتعاون لتفادي أي نزاعات.</li>
-                </ul>
-
-                <h3 class="fw-bold text-primary mt-4">البند الثامن: إنهاء العقد</h3>
-                <ul>
-                    <li>يحق لأي من الطرفين إنهاء العقد بإشعار خطي قبل (30) يوماً من التاريخ المطلوب للإلغاء.</li>
-                    <li>سياسة الإلغاء للحجوزات الفردية: يمكن الإلغاء قبل (6) ساعات من موعد الخدمة بدون رسوم.</li>
-                    <li>في حال الإخلال بأحد بنود العقد، للطرف المتضرر الحق في المطالبة بالتعويض المناسب.</li>
-                </ul>
-
-                <hr class="my-4" />
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <strong>📞 الهاتف:</strong>
-                        <a href="tel:+96877005570" dir="ltr">+968-77005570</a>
+                    <div class="alert alert-warning border-start border-warning border-4 ps-3 mt-3">
+                        <strong>🌡️ درجة الحرارة:</strong>
+                        التأكد من أن المكان جيد التهوية وبدرجة حرارة بين 17 و 26 درجة مئوية.
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>✉️ البريد الإلكتروني:</strong>
-                        <a href="mailto:althiqa_om@outlook.com">althiqa_om@outlook.com</a>
+
+                    <div class="alert alert-danger border-start border-danger border-4 ps-3">
+                        <strong>💎 الأغراض الثمينة:</strong>
+                        لا يتم تنظيفها للحفاظ على أمنها — يرجى تأمينها قبل وصول العاملة.
+                        نخلي مسؤوليتنا عن خسارة أي أشياء ثمينة لم يتم تأمينها.
                     </div>
-                </div>
 
-                <div class="alert alert-success mt-4 text-center">
-                    <i class="bi bi-shield-check"></i>
-                    <strong>بالضغط على "أوافق على الشروط" في صفحة الحجز، أنت تُقرّ بأنك قد قرأت ووافقت على جميع البنود أعلاه.</strong>
-                </div>
+                    <h3 class="fw-bold text-primary mt-4">البند السابع: المسؤولية</h3>
+                    <ul>
+                        <li>لا تتحمل الشركة مسؤولية فقدان أي ممتلكات لم يتم الإبلاغ عنها مسبقاً.</li>
+                        <li>يلتزم الطرفان بحسن النية والتعاون.</li>
+                    </ul>
 
+                    <h3 class="fw-bold text-primary mt-4">البند الثامن: إنهاء العقد</h3>
+                    <ul>
+                        <li>سياسة الإلغاء للحجوزات الفردية: قبل 6 ساعات من الموعد بدون رسوم.</li>
+                        <li>في حال الإخلال بالعقد، للطرف المتضرر الحق في التعويض المناسب.</li>
+                    </ul>
+
+                    <div class="alert alert-success mt-4 text-center">
+                        <i class="bi bi-shield-check"></i>
+                        <strong>بالضغط على "أوافق على الشروط" في صفحة الحجز، أنت تُقرّ بأنك قد قرأت ووافقت على جميع البنود أعلاه.</strong>
+                    </div>
+                }
+                else
+                {
+                    <h3 class="fw-bold text-primary mt-4">Party One (Service Provider)</h3>
+                    <ul class="list-unstyled">
+                        <li><strong>Business name:</strong> Al Thiqa Global</li>
+                        <li><strong>Commercial registry:</strong> 1630048</li>
+                        <li><strong>Address:</strong> Mabela South / Seeb / Muscat Governorate</li>
+                        <li><strong>P.O. Box:</strong> 82 — <strong>Postal code:</strong> 107</li>
+                        <li><strong>Phone:</strong> 77005570</li>
+                    </ul>
+
+                    <h3 class="fw-bold text-primary mt-4">Article 1: Subject of the agreement</h3>
+                    <p>The parties agree that the company will provide cleaning services to the customer under the following terms.</p>
+
+                    <h3 class="fw-bold text-primary mt-4">Article 2: Duration</h3>
+                    <p>This agreement starts on the booking date and continues based on the chosen service type (hourly or monthly).</p>
+
+                    <h3 class="fw-bold text-primary mt-4">Article 3: Nature of services</h3>
+                    <ul>
+                        <li>Cleaning floors, windows, walls, and furniture.</li>
+                        <li>Bathroom cleaning.</li>
+                        <li>Dusting and tidying up.</li>
+                        <li>Any other cleaning service agreed upon in writing.</li>
+                    </ul>
+
+                    <h3 class="fw-bold text-primary mt-4">Article 4: Work and pricing</h3>
+                    <ul>
+                        <li>Minimum 2 hours per booking.</li>
+                        <li>Hourly rate between 2.5 and 3.5 OMR based on service type.</li>
+                        <li>Payment is made in advance via the Thawani payment gateway.</li>
+                    </ul>
+
+                    <h3 class="fw-bold text-primary mt-4">Article 5: Company obligations</h3>
+                    <ul>
+                        <li>Provide trained and qualified workers.</li>
+                        <li>Honor the agreed appointments.</li>
+                        <li>Provide cleaning tools and materials (if agreed in advance).</li>
+                    </ul>
+
+                    <h3 class="fw-bold text-primary mt-4">Article 6: Customer obligations</h3>
+                    <ul>
+                        <li>Not assigning workers tasks outside cleaning scope.</li>
+                        <li>No verbal or physical abuse of the worker.</li>
+                        <li>Paying on time.</li>
+                        <li>Reporting potential hazards at least 24 hours in advance.</li>
+                    </ul>
+
+                    <div class="alert alert-warning border-start border-warning border-4 ps-3 mt-3">
+                        <strong>🌡️ Temperature:</strong>
+                        Please make sure the site is well ventilated, between 17 and 26 °C.
+                    </div>
+
+                    <div class="alert alert-danger border-start border-danger border-4 ps-3">
+                        <strong>💎 Valuables:</strong>
+                        Not cleaned for safety — please secure them before the worker arrives.
+                        We disclaim responsibility for unsecured valuables.
+                    </div>
+
+                    <h3 class="fw-bold text-primary mt-4">Article 7: Liability</h3>
+                    <ul>
+                        <li>The company is not liable for items not reported before the service.</li>
+                        <li>Both parties commit to good-faith cooperation.</li>
+                    </ul>
+
+                    <h3 class="fw-bold text-primary mt-4">Article 8: Termination</h3>
+                    <ul>
+                        <li>Single bookings can be cancelled fee-free up to 6 hours before the appointment.</li>
+                        <li>In case of breach, the harmed party can claim appropriate compensation.</li>
+                    </ul>
+
+                    <div class="alert alert-success mt-4 text-center">
+                        <i class="bi bi-shield-check"></i>
+                        <strong>By ticking "I agree to the terms" on the booking page, you confirm that you have read and agreed to all the clauses above.</strong>
+                    </div>
+                }
             </div>
 
             <div class="text-center mt-4">
-                <a href="javascript:history.back()" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> الرجوع</a>
-                <button onclick="window.print()" class="btn btn-outline-secondary"><i class="bi bi-printer"></i> طباعة</button>
+                <a href="javascript:history.back()" class="btn btn-primary"><i class="bi bi-arrow-@(L.IsArabic ? "right" : "left")-circle"></i> @L["common.back"]</a>
+                <button onclick="window.print()" class="btn btn-outline-secondary"><i class="bi bi-printer"></i> @(L.IsArabic ? "طباعة" : "Print")</button>
             </div>
         </div>
     </div>
