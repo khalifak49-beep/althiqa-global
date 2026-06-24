@@ -71,9 +71,15 @@ public class Translator : ITranslator
         ["تنظيف داخلي تفصيلي للأرضيات والمطبخ والحمامات"] = "Detailed indoor cleaning for floors, kitchen and bathrooms",
         ["خدمات غسيل وكي مع التوصيل"] = "Wash + iron with delivery",
         ["تنظيف الواجهات والأسطح والحديقة"] = "Facades, rooftops and garden cleaning",
-        // Offers (sample)
+        // Offers (titles + descriptions)
+        ["خصم الترحيب 20%"] = "Welcome 20% off",
+        ["خصم 20% على أول حجز للعملاء الجدد"] = "20% off your first booking for new customers",
+        ["عرض رمضان"] = "Ramadan offer",
+        ["خصم خاص بمناسبة شهر رمضان المبارك"] = "Special discount for the holy month of Ramadan",
         ["خصم رمضان"] = "Ramadan discount",
         ["باقة الصيف"] = "Summer package",
+        // Coupon descriptions
+        ["خصم 20% للعملاء الجدد (حد أقصى 5 ر.ع.)"] = "20% off for new customers (max 5 OMR)",
         // Booking type
         ["عقد شهري"] = "Monthly contract",
         ["حجز ساعي"] = "Hourly booking",

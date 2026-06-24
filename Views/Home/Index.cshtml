@@ -187,8 +187,8 @@
                                     @L.T("home.offer_amount", o.DiscountValue.ToString("0"))
                                 }
                             </span>
-                            <h5 class="fw-bold">@o.Title</h5>
-                            <p class="text-muted">@o.Description</p>
+                            <h5 class="fw-bold">@L.D(o.Title)</h5>
+                            <p class="text-muted">@L.D(o.Description)</p>
                             <div class="small text-muted"><i class="bi bi-clock"></i> @L.T("home.offer_expires", o.ValidTo.ToString("yyyy-MM-dd"))</div>
                         </div>
                     </div>
