@@ -1,25 +1,17 @@
 @model int
-@*
-    Booking flow progress indicator.
-    Model = current step index (1..4).
-    Steps:
-      1 = اختيار العاملة
-      2 = تفاصيل الحجز
-      3 = الدفع
-      4 = التأكيد
-*@
+@inject HomeMaids.Services.Localization.ITranslator L
 @{
     var steps = new (int Num, string Title, string Icon)[]
     {
-        (1, "اختر العاملة", "bi-person-check"),
-        (2, "تفاصيل الحجز", "bi-calendar2-week"),
-        (3, "الدفع",        "bi-credit-card"),
-        (4, "التأكيد",      "bi-check-circle")
+        (1, L["booking.step1"].ToString(), "bi-person-check"),
+        (2, L["booking.step2"].ToString(), "bi-calendar2-week"),
+        (3, L["booking.step3"].ToString(), "bi-credit-card"),
+        (4, L["booking.step4"].ToString(), "bi-check-circle")
     };
     var current = Math.Clamp(Model, 1, 4);
 }
 
-<div class="booking-stepper" role="navigation" aria-label="خطوات الحجز">
+<div class="booking-stepper" role="navigation" aria-label="@L["booking.steps_label"]">
     @for (var i = 0; i < steps.Length; i++)
     {
         var s = steps[i];

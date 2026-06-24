@@ -1,4 +1,13 @@
 @model Worker
+@inject HomeMaids.Services.Localization.ITranslator L
+@{
+    string statusLabel = Model.Availability switch
+    {
+        WorkerAvailability.Available => L["workers.status_available"].ToString(),
+        WorkerAvailability.Busy => L["workers.status_busy"].ToString(),
+        _ => L["workers.status_unavailable"].ToString()
+    };
+}
 <div class="col-12 col-sm-6 col-lg-3">
     <div class="card-modern worker-card h-100">
         <div class="photo" style="background-image: url('@(string.IsNullOrEmpty(Model.PhotoUrl) ? $"https://i.pravatar.cc/400?u={Model.Id}" : Model.PhotoUrl)');">
@@ -7,21 +16,21 @@
         <div class="body">
             <div class="d-flex justify-content-between align-items-start">
                 <a asp-controller="Workers" asp-action="Details" asp-route-id="@Model.Id" class="name text-decoration-none">@Model.FullName</a>
-                <button class="fav-btn" data-worker="@Model.Id" type="button" title="المفضلة">
+                <button class="fav-btn" data-worker="@Model.Id" type="button" title="@L["workers.favorites_title"]">
                     <i class="bi bi-heart"></i>
                 </button>
             </div>
             <div class="d-flex flex-wrap gap-1 mt-2">
                 <span class="chip"><i class="bi bi-globe2"></i> @Model.Nationality</span>
-                <span class="chip"><i class="bi bi-briefcase"></i> @Model.YearsOfExperience سنوات</span>
-                <span class="chip availability-@Model.Availability"><i class="bi bi-circle-fill" style="font-size:.5rem"></i> @(Model.Availability == WorkerAvailability.Available ? "متاحة" : Model.Availability == WorkerAvailability.Busy ? "مشغولة" : "غير متاحة")</span>
+                <span class="chip"><i class="bi bi-briefcase"></i> @Model.YearsOfExperience @L["workers.years"]</span>
+                <span class="chip availability-@Model.Availability"><i class="bi bi-circle-fill" style="font-size:.5rem"></i> @statusLabel</span>
             </div>
             <div class="mt-3 d-flex justify-content-between align-items-center">
                 <div>
                     <strong class="fs-5 text-primary">@Model.HourlyRate.ToString("0")</strong>
-                    <span class="text-muted small">ر.ع. / ساعة</span>
+                    <span class="text-muted small">@L["workers.currency_per_hour"]</span>
                 </div>
-                <a asp-controller="Workers" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">احجز الآن</a>
+                <a asp-controller="Workers" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">@L["workers.book_now"]</a>
             </div>
         </div>
     </div>

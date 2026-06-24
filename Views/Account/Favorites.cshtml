@@ -1,14 +1,14 @@
 @model List<Favorite>
-@{ ViewData["Title"] = "المفضلة"; }
+@{ ViewData["Title"] = L["profile.favorites_title"].ToString(); }
 <section class="section">
     <div class="container">
-        <h1 class="fw-bold mb-3">المفضلة</h1>
+        <h1 class="fw-bold mb-3">@L["profile.favorites_title"]</h1>
         @if (!Model.Any())
         {
             <div class="card-modern p-5 text-center">
                 <i class="bi bi-heart text-muted" style="font-size:3rem;"></i>
-                <h4 class="mt-3">لا توجد عاملات في المفضلة</h4>
-                <a class="btn btn-primary mt-2" asp-controller="Workers" asp-action="Index">تصفّح العاملات</a>
+                <h4 class="mt-3">@L["profile.no_favorites"]</h4>
+                <a class="btn btn-primary mt-2" asp-controller="Workers" asp-action="Index">@L["workers.browse_title"]</a>
             </div>
         }
         else

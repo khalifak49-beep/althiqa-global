@@ -1,29 +1,31 @@
 @model BookingListViewModel
-@{ ViewData["Title"] = "حجوزاتي"; }
+@{ ViewData["Title"] = L["booking.list_title"].ToString(); }
 
 <section class="section">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1 class="fw-bold mb-0">حجوزاتي</h1>
-            <a class="btn btn-primary" asp-controller="Workers" asp-action="Index"><i class="bi bi-plus"></i> حجز جديد</a>
+            <h1 class="fw-bold mb-0">@L["booking.list_title"]</h1>
+            <a class="btn btn-primary" asp-controller="Workers" asp-action="Index"><i class="bi bi-plus"></i> @L["nav.book_now"]</a>
         </div>
 
         @{
-            var statusNames = new Dictionary<BookingStatus, string> {
-                [BookingStatus.Pending] = "قيد الانتظار",
-                [BookingStatus.Confirmed] = "مؤكد",
-                [BookingStatus.InProgress] = "قيد التنفيذ",
-                [BookingStatus.Completed] = "مكتمل",
-                [BookingStatus.Cancelled] = "ملغى",
-                [BookingStatus.Refunded] = "مُسترجع"
+            string StatusLabel(BookingStatus st) => st switch
+            {
+                BookingStatus.Pending => L["booking.status_pending"].ToString(),
+                BookingStatus.Confirmed => L["booking.status_confirmed"].ToString(),
+                BookingStatus.InProgress => L["booking.status_in_progress"].ToString(),
+                BookingStatus.Completed => L["booking.status_completed"].ToString(),
+                BookingStatus.Cancelled => L["booking.status_cancelled"].ToString(),
+                BookingStatus.Refunded => L["booking.status_refunded"].ToString(),
+                _ => st.ToString()
             };
         }
         <ul class="nav nav-pills mb-3 flex-wrap gap-1">
-            <li class="nav-item"><a class="nav-link @(Model.StatusFilter == null ? "active" : "")" href="?">الكل</a></li>
+            <li class="nav-item"><a class="nav-link @(Model.StatusFilter == null ? "active" : "")" href="?">@L["workers.filter_all"]</a></li>
             @foreach (BookingStatus st in Enum.GetValues<BookingStatus>())
             {
                 <li class="nav-item">
-                    <a class="nav-link @(Model.StatusFilter == st ? "active" : "")" href="?status=@st">@statusNames[st]</a>
+                    <a class="nav-link @(Model.StatusFilter == st ? "active" : "")" href="?status=@st">@StatusLabel(st)</a>
                 </li>
             }
         </ul>
@@ -32,9 +34,9 @@
         {
             <div class="card-modern p-5 text-center">
                 <i class="bi bi-calendar-x text-muted" style="font-size:3rem;"></i>
-                <h4 class="mt-3">لا توجد حجوزات</h4>
-                <p class="text-muted">ابدأ أول حجز الآن.</p>
-                <a class="btn btn-primary" asp-controller="Workers" asp-action="Index">تصفّح العاملات</a>
+                <h4 class="mt-3">@L["booking.list_empty"]</h4>
+                <p class="text-muted">@L["booking.list_empty_cta"]</p>
+                <a class="btn btn-primary" asp-controller="Workers" asp-action="Index">@L["workers.browse_title"]</a>
             </div>
         }
         else
@@ -42,7 +44,7 @@
             <div class="card-modern p-0 overflow-hidden">
                 <table class="table table-modern mb-0 align-middle">
                     <thead><tr>
-                        <th>رقم الحجز</th><th>العاملة</th><th>التاريخ</th><th>الساعات</th><th>الإجمالي</th><th>الحالة</th><th></th>
+                        <th>#</th><th>@L["booking.step1"]</th><th>@L["booking.date"]</th><th>@L["booking.hours"]</th><th>@L["booking.total_label"]</th><th>@L["booking.status_pending"]</th><th></th>
                     </tr></thead>
                     <tbody>
                     @foreach (var b in Model.Bookings)
@@ -52,8 +54,8 @@
                             <td>@(b.Worker?.FullName ?? "-")</td>
                             <td>@b.BookingDate.ToString("yyyy-MM-dd")<br /><small class="text-muted">@b.StartTime.ToString("hh\\:mm")</small></td>
                             <td>@b.Hours</td>
-                            <td><strong>@b.TotalAmount.ToString("N2") ر.ع.</strong></td>
-                            <td><span class="status-pill status-@b.Status">@b.Status</span></td>
+                            <td><strong>@b.TotalAmount.ToString("N2") @L["workers.currency_per_hour"].ToString().Split(' ')[0]</strong></td>
+                            <td><span class="status-pill status-@b.Status">@StatusLabel(b.Status)</span></td>
                             <td><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@b.Id"><i class="bi bi-eye"></i></a></td>
                         </tr>
                     }

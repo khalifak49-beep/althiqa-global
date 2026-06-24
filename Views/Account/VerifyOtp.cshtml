@@ -1,5 +1,5 @@
 @model PhoneOtpViewModel
-@{ ViewData["Title"] = "تأكيد رمز التحقق"; }
+@{ ViewData["Title"] = L["auth.verify_title"].ToString(); }
 
 <section class="section">
     <div class="container">
@@ -9,21 +9,19 @@
                     <div class="text-center mb-4">
                         <img src="~/images/logo/al-thiqa-full.png"
                              onerror="this.onerror=null;this.src='/images/logo/al-thiqa-full.svg';"
-                             alt="الثقة العالمية" class="auth-logo mb-2" />
+                             alt="@L["site.brand"]" class="auth-logo mb-2" />
                         @if (Model.IsExisting)
                         {
-                            <h3 class="fw-bold mt-3 text-primary">أهلاً بعودتك، @Model.ExistingName 👋</h3>
+                            <h3 class="fw-bold mt-3 text-primary">@L["auth.welcome_back"], @Model.ExistingName 👋</h3>
                             <p class="text-muted mb-0">
-                                <i class="bi bi-whatsapp text-success"></i> هذا الرقم <strong dir="ltr">@Model.Phone</strong> مسجّل مسبقاً —
-                                أدخل الرمز لتسجيل الدخول
+                                <i class="bi bi-whatsapp text-success"></i> <strong dir="ltr">@Model.Phone</strong>
                             </p>
                         }
                         else
                         {
-                            <h3 class="fw-bold mt-3">أدخل رمز التحقق</h3>
+                            <h3 class="fw-bold mt-3">@L["auth.verify_title"]</h3>
                             <p class="text-muted mb-0">
-                                <i class="bi bi-whatsapp text-success"></i> أُرسل الرمز عبر واتساب إلى
-                                <strong dir="ltr">@Model.Phone</strong>
+                                <i class="bi bi-whatsapp text-success"></i> <strong dir="ltr">@Model.Phone</strong>
                             </p>
                         }
                     </div>
@@ -48,7 +46,7 @@
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none-empty"></div>
 
                         <div class="mb-3">
-                            <label class="form-label text-center w-100">رمز التحقق (6 أرقام)</label>
+                            <label class="form-label text-center w-100">@L["auth.code_otp"]</label>
                             <div class="otp-boxes" dir="ltr">
                                 <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" data-idx="0" autocomplete="one-time-code" />
                                 <input type="text" maxlength="1" inputmode="numeric" class="otp-digit" data-idx="1" />
@@ -66,16 +64,16 @@
                         @if (!isExistingPhone)
                         {
                             <div class="alert alert-info small py-2 mb-3">
-                                <i class="bi bi-info-circle"></i> أكمل بياناتك مرة واحدة لتسهيل التواصل والحجز
+                                <i class="bi bi-info-circle"></i> @L["auth.first_time_name_required"]
                             </div>
                             <div class="mb-3">
-                                <label asp-for="FullName" class="form-label">الاسم الكامل <span class="text-danger">*</span></label>
-                                <input asp-for="FullName" class="form-control" placeholder="مثلاً: محمد العامري" required />
+                                <label asp-for="FullName" class="form-label">@L["account.full_name"] <span class="text-danger">*</span></label>
+                                <input asp-for="FullName" class="form-control" required />
                                 <span asp-validation-for="FullName" class="text-danger small"></span>
                             </div>
                             <div class="mb-3">
-                                <label asp-for="Email" class="form-label">البريد الإلكتروني <small class="text-muted">(اختياري، للفواتير)</small></label>
-                                <input asp-for="Email" type="email" class="form-control text-start" dir="ltr" placeholder="you@example.com" />
+                                <label asp-for="Email" class="form-label">@L["auth.optional_email"]</label>
+                                <input asp-for="Email" type="email" class="form-control text-start" dir="ltr" placeholder="@L["auth.email_placeholder"]" />
                                 <span asp-validation-for="Email" class="text-danger small"></span>
                             </div>
                         }
@@ -85,20 +83,17 @@
                         }
 
                         <button class="btn btn-primary w-100 btn-lg" id="btnVerify">
-                            <i class="bi bi-check2-circle"></i> تحقّق ودخول
+                            <i class="bi bi-check2-circle"></i> @L["auth.verify_btn"]
                         </button>
                     </form>
 
                     <hr />
                     <div class="text-center small">
-                        لم يصلك الرمز؟
                         <form method="post" asp-action="SendOtp" class="d-inline">
                             <input type="hidden" asp-for="Phone" />
                             <input type="hidden" asp-for="ReturnUrl" />
-                            <button type="submit" class="btn btn-link btn-sm p-0 align-baseline">أعد الإرسال</button>
+                            <button type="submit" class="btn btn-link btn-sm p-0 align-baseline">@L["auth.resend_otp"]</button>
                         </form>
-                        ·
-                        <a asp-action="Phone">تغيير الرقم</a>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 @model EmailOtpViewModel
-@{ ViewData["Title"] = "دخول/تسجيل بالبريد"; }
+@{ ViewData["Title"] = L["auth.email_login_title"].ToString(); }
 
 <section class="section">
     <div class="container">
@@ -9,32 +9,31 @@
                     <div class="text-center mb-4">
                         <img src="~/images/logo/al-thiqa-full.png"
                              onerror="this.onerror=null;this.src='/images/logo/al-thiqa-full.svg';"
-                             alt="الثقة العالمية" class="auth-logo mb-2" />
-                        <h3 class="fw-bold mt-3">دخول بالبريد الإلكتروني</h3>
-                        <p class="text-muted mb-0"><i class="bi bi-envelope-fill text-primary"></i> سنرسل لك رمز التحقق عبر البريد</p>
+                             alt="@L["site.brand"]" class="auth-logo mb-2" />
+                        <h3 class="fw-bold mt-3">@L["auth.email_login_title"]</h3>
+                        <p class="text-muted mb-0"><i class="bi bi-envelope-fill text-primary"></i> @L["auth.email_login_subtitle"]</p>
                     </div>
 
                     <form method="post" asp-action="SendEmailOtp">
                         <input type="hidden" asp-for="ReturnUrl" />
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none-empty"></div>
                         <div class="mb-3">
-                            <label asp-for="Email" class="form-label">البريد الإلكتروني</label>
+                            <label asp-for="Email" class="form-label">@L["account.email"]</label>
                             <div class="input-group input-group-lg">
                                 <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                <input asp-for="Email" type="email" class="form-control text-start" dir="ltr" placeholder="you@example.com" autocomplete="email" />
+                                <input asp-for="Email" type="email" class="form-control text-start" dir="ltr" placeholder="@L["auth.email_placeholder"]" autocomplete="email" />
                             </div>
                             <span asp-validation-for="Email" class="text-danger small d-block"></span>
                         </div>
                         <button class="btn btn-primary w-100 btn-lg">
-                            <i class="bi bi-send"></i> أرسل الرمز إلى بريدي
+                            <i class="bi bi-send"></i> @L["account.send_otp"]
                         </button>
                     </form>
 
                     <hr />
                     <div class="text-center text-muted small">
-                        أو سجّل دخول بـ
-                        <a asp-action="Login">كلمة المرور</a> ·
-                        <a asp-action="Phone">رقم الجوال</a>
+                        <a asp-action="Login">@L["auth.login_btn"]</a> ·
+                        <a asp-action="Phone">@L["auth.login_with_phone_btn"]</a>
                     </div>
                 </div>
             </div>
