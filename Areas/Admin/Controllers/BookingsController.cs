@@ -1,5 +1,6 @@
 using HomeMaids.Data;
 using HomeMaids.Models;
+using HomeMaids.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,8 +12,13 @@ namespace HomeMaids.Areas.Admin.Controllers;
 public class BookingsController : Controller
 {
     private readonly ApplicationDbContext _db;
+    private readonly IInvoiceService _invoices;
 
-    public BookingsController(ApplicationDbContext db) => _db = db;
+    public BookingsController(ApplicationDbContext db, IInvoiceService invoices)
+    {
+        _db = db;
+        _invoices = invoices;
+    }
 
     public async Task<IActionResult> Index(BookingStatus? status, string? q)
     {
@@ -59,5 +65,19 @@ public class BookingsController : Controller
         await _db.SaveChangesAsync();
         TempData["Success"] = "تم تحديث حالة الحجز.";
         return RedirectToAction(nameof(Details), new { id });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Invoice(int id)
+    {
+        var booking = await _db.Bookings
+            .Include(b => b.Customer)
+            .Include(b => b.Worker)
+            .Include(b => b.Service)
+            .Include(b => b.Payment)
+            .FirstOrDefaultAsync(b => b.Id == id);
+        if (booking == null) return NotFound();
+        var bytes = _invoices.GenerateInvoicePdf(booking);
+        return File(bytes, "application/pdf", $"Invoice-{booking.BookingNumber}.pdf");
     }
 }

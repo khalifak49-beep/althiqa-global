@@ -102,6 +102,9 @@
             <div class="row"><div class="col-6 text-muted">الخصم</div><div class="col-6 text-end">- @Model.DiscountAmount.ToString("N2")</div></div>
             <div class="row"><div class="col-6 text-muted">الضريبة</div><div class="col-6 text-end">@Model.TaxAmount.ToString("N2")</div></div>
             <div class="row"><div class="col-6">الإجمالي</div><div class="col-6 text-end total">@Model.TotalAmount.ToString("N2")</div></div>
+            <a asp-action="Invoice" asp-route-id="@Model.Id" class="btn btn-primary w-100 mt-3" target="_blank">
+                <i class="bi bi-file-earmark-pdf"></i> تحميل الفاتورة PDF
+            </a>
         </div>
     </div>
 </div>
