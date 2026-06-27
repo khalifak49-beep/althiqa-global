@@ -79,14 +79,17 @@ public class GmailOtpSender : IEmailOtpSender
                 DeliveryMethod = SmtpDeliveryMethod.Network
             };
 
-            // Use the authenticated Gmail address as From to align with SPF/DKIM.
-            // Using a "claimed-but-unverified" From makes Gmail bounce or mark as spam.
-            var senderAddr = new MailAddress(opts.Username, opts.FromName);
+            // The From address MUST be a verified sender at the SMTP provider:
+            //   - Gmail: same as the authenticated account (SPF/DKIM alignment).
+            //   - Brevo / SendGrid / Mailgun: a verified sender that you confirmed via email.
+            // If FromEmail is set, use it. Otherwise fall back to Username (Gmail flow).
+            var fromAddress = !string.IsNullOrWhiteSpace(opts.FromEmail) ? opts.FromEmail : opts.Username;
+            var fromAddr = new MailAddress(fromAddress, opts.FromName);
 
             using var msg = new MailMessage
             {
-                From = senderAddr,
-                Sender = senderAddr,
+                From = fromAddr,
+                Sender = fromAddr,
                 Subject = $"Your verification code: {code}",
                 SubjectEncoding = System.Text.Encoding.UTF8,
                 HeadersEncoding = System.Text.Encoding.UTF8,
@@ -94,10 +97,10 @@ public class GmailOtpSender : IEmailOtpSender
                 Priority = MailPriority.Normal
             };
             msg.To.Add(email);
-            msg.ReplyToList.Add(senderAddr);
+            msg.ReplyToList.Add(fromAddr);
 
             // RFC headers that drastically improve inbox placement on Gmail / Outlook
-            var hostDomain = opts.Username.Contains('@') ? opts.Username.Split('@')[1] : "althiqaom.com";
+            var hostDomain = fromAddress.Contains('@') ? fromAddress.Split('@')[1] : "althiqaom.com";
             var messageId = $"<{Guid.NewGuid():N}@{hostDomain}>";
             msg.Headers.Add("Message-ID", messageId);
             msg.Headers.Add("Date", DateTime.UtcNow.ToString("ddd, dd MMM yyyy HH:mm:ss") + " +0000");
@@ -113,6 +116,11 @@ public class GmailOtpSender : IEmailOtpSender
             msg.Headers.Add("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
             // Marks it as a transactional code (Gmail bypasses promo tab)
             msg.Headers.Add("Feedback-ID", $"otp:althiqa:{hostDomain}");
+            // Identify the SMTP envelope sender separately if Brevo/SendGrid expects it
+            if (!string.IsNullOrWhiteSpace(opts.Username) && opts.Username != fromAddress)
+            {
+                msg.Headers.Add("X-Envelope-From", opts.Username);
+            }
 
             // Plain text first, HTML second — important for spam scoring
             var plain = BuildPlainBody(code);
