@@ -362,14 +362,14 @@ namespace HomeMaids.Data.Migrations
                             Id = 1,
                             AppPassword = "",
                             EnableSsl = true,
-                            FromEmail = "althiqaglobalom@gmail.com",
-                            FromName = "الثقة العالمية لخدمات التنظيف",
-                            Host = "smtp.gmail.com",
+                            FromEmail = "al-thiqa_om@outlook.com",
+                            FromName = "Al Thiqa Global Cleaning",
+                            Host = "smtp-mail.outlook.com",
                             IsActive = true,
                             Port = 587,
                             ShowOtpInDev = true,
                             UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Username = "althiqaglobalom@gmail.com"
+                            Username = "al-thiqa_om@outlook.com"
                         });
                 });
 

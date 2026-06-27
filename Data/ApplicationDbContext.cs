@@ -165,13 +165,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<EmailConfig>().HasData(new EmailConfig
         {
             Id = 1,
-            Host = "smtp.gmail.com",
+            Host = "smtp-mail.outlook.com",
             Port = 587,
             EnableSsl = true,
-            Username = "althiqaglobalom@gmail.com",
+            Username = "al-thiqa_om@outlook.com",
+            // AppPassword and other secrets MUST be set via /Admin/EmailSettings — never committed.
             AppPassword = "",
-            FromEmail = "althiqaglobalom@gmail.com",
-            FromName = "الثقة العالمية لخدمات التنظيف",
+            FromEmail = "al-thiqa_om@outlook.com",
+            FromName = "Al Thiqa Global Cleaning",
             IsActive = true,
             ShowOtpInDev = true,
             UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
