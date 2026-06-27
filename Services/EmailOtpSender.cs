@@ -12,7 +12,7 @@ public class EmailSettings
     public string Username { get; set; } = string.Empty;
     public string AppPassword { get; set; } = string.Empty;
     public string FromEmail { get; set; } = string.Empty;
-    public string FromName { get; set; } = "الثقة العالمية لخدمات التنظيف";
+    public string FromName { get; set; } = "Al Thiqa Global Cleaning";
     public bool EnableSsl { get; set; } = true;
     /// <summary>If true and SMTP not configured, falls back to log + showing code on screen.</summary>
     public bool ShowOtpInDev { get; set; } = true;
@@ -37,9 +37,6 @@ public class GmailOtpSender : IEmailOtpSender
         _logger = logger;
     }
 
-    /// <summary>
-    /// Loads live SMTP settings — DB first (admin-editable), then appsettings.json as fallback.
-    /// </summary>
     private async Task<EmailSettings> LoadSettingsAsync()
     {
         var row = await _db.EmailConfigs
@@ -69,7 +66,7 @@ public class GmailOtpSender : IEmailOtpSender
         var opts = await LoadSettingsAsync();
         if (string.IsNullOrWhiteSpace(opts.Username) || string.IsNullOrWhiteSpace(opts.AppPassword))
         {
-            _logger.LogWarning("=== EMAIL OTP DEV === To: {Email} Code: {Code} (SMTP not configured — set Username + AppPassword from /Admin/EmailSettings)", email, code);
+            _logger.LogWarning("=== EMAIL OTP DEV === To: {Email} Code: {Code} (SMTP not configured)", email, code);
             return opts.ShowOtpInDev ? code : null;
         }
 
@@ -82,32 +79,50 @@ public class GmailOtpSender : IEmailOtpSender
                 DeliveryMethod = SmtpDeliveryMethod.Network
             };
 
-            var fromEmail = string.IsNullOrEmpty(opts.FromEmail) ? opts.Username : opts.FromEmail;
-            var fromAddr = new MailAddress(fromEmail!, opts.FromName);
+            // Use the authenticated Gmail address as From to align with SPF/DKIM.
+            // Using a "claimed-but-unverified" From makes Gmail bounce or mark as spam.
+            var senderAddr = new MailAddress(opts.Username, opts.FromName);
 
             using var msg = new MailMessage
             {
-                From = fromAddr,
-                Sender = fromAddr,
-                Subject = "رمز التحقق - الثقة العالمية لخدمات التنظيف",
+                From = senderAddr,
+                Sender = senderAddr,
+                Subject = $"Your verification code: {code}",
                 SubjectEncoding = System.Text.Encoding.UTF8,
                 HeadersEncoding = System.Text.Encoding.UTF8,
+                BodyEncoding = System.Text.Encoding.UTF8,
                 Priority = MailPriority.Normal
             };
             msg.To.Add(email);
-            msg.ReplyToList.Add(fromAddr);
-            msg.Headers.Add("X-Mailer", "AlThiqa-OTP");
-            msg.Headers.Add("List-Unsubscribe", $"<mailto:{fromEmail}?subject=unsubscribe>");
+            msg.ReplyToList.Add(senderAddr);
 
-            // Multipart: plain-text first then HTML — improves Gmail deliverability significantly.
+            // RFC headers that drastically improve inbox placement on Gmail / Outlook
+            var hostDomain = opts.Username.Contains('@') ? opts.Username.Split('@')[1] : "althiqaom.com";
+            var messageId = $"<{Guid.NewGuid():N}@{hostDomain}>";
+            msg.Headers.Add("Message-ID", messageId);
+            msg.Headers.Add("Date", DateTime.UtcNow.ToString("ddd, dd MMM yyyy HH:mm:ss") + " +0000");
+            msg.Headers.Add("X-Entity-Ref-ID", Guid.NewGuid().ToString("N"));
+            msg.Headers.Add("X-Mailer", "AlThiqa-Mailer/2.0");
+            msg.Headers.Add("X-Priority", "3");
+            msg.Headers.Add("MIME-Version", "1.0");
+            // Mark as transactional, not bulk
+            msg.Headers.Add("Auto-Submitted", "auto-generated");
+            msg.Headers.Add("X-Auto-Response-Suppress", "OOF, AutoReply");
+            // One-click unsubscribe — Gmail loves this header on transactional mail
+            msg.Headers.Add("List-Unsubscribe", $"<mailto:{opts.Username}?subject=unsubscribe>");
+            msg.Headers.Add("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
+            // Marks it as a transactional code (Gmail bypasses promo tab)
+            msg.Headers.Add("Feedback-ID", $"otp:althiqa:{hostDomain}");
+
+            // Plain text first, HTML second — important for spam scoring
             var plain = BuildPlainBody(code);
             var html = BuildHtmlBody(code);
             msg.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(plain, System.Text.Encoding.UTF8, "text/plain"));
             msg.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(html, System.Text.Encoding.UTF8, "text/html"));
 
             await smtp.SendMailAsync(msg);
-            _logger.LogInformation("Email OTP sent to {Email}", email);
-            return null; // sent successfully — don't show code on screen
+            _logger.LogInformation("Email OTP sent to {Email} (Message-ID: {MessageId})", email, messageId);
+            return null;
         }
         catch (Exception ex)
         {
@@ -117,32 +132,55 @@ public class GmailOtpSender : IEmailOtpSender
     }
 
     private string BuildPlainBody(string code) =>
-        $@"الثقة العالمية لخدمات التنظيف
+        $@"Your verification code is: {code}
 
-رمز التحقق الخاص بك: {code}
+This code is valid for 5 minutes.
+If you didn't request this, you can ignore this message.
 
-الرمز صالح لمدة 5 دقائق.
-لم تطلب هذا الرمز؟ تجاهل هذه الرسالة.
-
-للتواصل: 77005570
-althiqaglobalom@gmail.com";
+—
+Al Thiqa Global Cleaning Services
+Phone: +968 77005570
+althiqaom.com
+";
 
     private string BuildHtmlBody(string code)
     {
+        // Preview text (shown in inbox preview, hidden in body)
+        var preview = $"Your verification code is {code}";
         return $@"<!DOCTYPE html>
-<html lang='ar' dir='rtl'>
-<head><meta charset='UTF-8'><title>رمز التحقق</title></head>
-<body style='font-family: Tahoma, Arial, sans-serif; background:#f3f8fb; padding:20px; margin:0;'>
-  <table style='max-width:520px; margin:auto; background:#fff; border-radius:18px; padding:32px; box-shadow:0 6px 24px rgba(14,197,164,.10);'>
-    <tr><td style='text-align:center;'>
-      <h2 style='color:#0ec5a4; margin:0 0 8px;'>الثقة العالمية لخدمات التنظيف</h2>
-      <p style='color:#6b7c87; margin:0 0 24px;'>Al Thiqa Global Cleaning Services</p>
-      <p style='color:#0f2730; font-size:16px; margin:0 0 12px;'>رمز التحقق الخاص بك:</p>
-      <div style='font-size:36px; font-weight:900; letter-spacing:8px; color:#0ec5a4; padding:16px 32px; background:linear-gradient(135deg, rgba(14,197,164,.10), rgba(28,177,216,.10)); border-radius:14px; display:inline-block; direction:ltr;'>{code}</div>
-      <p style='color:#6b7c87; font-size:14px; margin:24px 0 8px;'>الرمز صالح لمدة 5 دقائق فقط.</p>
-      <p style='color:#6b7c87; font-size:14px; margin:0 0 24px;'>لم تطلب هذا الرمز؟ تجاهل هذه الرسالة.</p>
-      <hr style='border:0; border-top:1px solid #e2ebf0; margin:24px 0;'/>
-      <p style='color:#6b7c87; font-size:12px; margin:0;'>للتواصل: <a href='tel:+96877005570' style='color:#0ec5a4;'>77005570</a> · <a href='mailto:althiqaglobalom@gmail.com' style='color:#0ec5a4;'>althiqaglobalom@gmail.com</a></p>
+<html lang=""en"">
+<head>
+<meta charset=""UTF-8"">
+<meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+<title>Verification code</title>
+</head>
+<body style=""margin:0; padding:0; background:#f4f7fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color:#0f2730;"">
+  <span style=""display:none !important; opacity:0; color:transparent; height:0; width:0; font-size:1px; line-height:1px;"">{preview}</span>
+  <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background:#f4f7fa; padding:24px 12px;"">
+    <tr><td align=""center"">
+      <table role=""presentation"" cellpadding=""0"" cellspacing=""0"" style=""max-width:520px; width:100%; background:#ffffff; border-radius:12px; box-shadow:0 1px 3px rgba(15,39,48,.06); overflow:hidden;"">
+        <tr><td style=""padding:32px 28px 24px;"">
+          <h1 style=""margin:0 0 6px; font-size:18px; color:#0f2730; font-weight:600;"">Al Thiqa Global Cleaning</h1>
+          <p style=""margin:0 0 24px; font-size:13px; color:#6b7c87;"">Verification code</p>
+
+          <p style=""margin:0 0 12px; font-size:15px; color:#0f2730; line-height:1.6;"">
+            Use the following one-time code to continue signing in:
+          </p>
+
+          <div style=""margin:8px 0 20px; padding:18px 24px; background:#f4f7fa; border-radius:8px; text-align:center;"">
+            <span style=""font-size:32px; font-weight:700; letter-spacing:6px; color:#0f2730; font-family: 'Courier New', Courier, monospace;"">{code}</span>
+          </div>
+
+          <p style=""margin:0 0 8px; font-size:13px; color:#6b7c87;"">This code will expire in 5 minutes.</p>
+          <p style=""margin:0; font-size:13px; color:#6b7c87;"">If you didn't try to sign in, you can safely ignore this email.</p>
+        </td></tr>
+        <tr><td style=""padding:16px 28px 24px; border-top:1px solid #eef2f5;"">
+          <p style=""margin:0; font-size:12px; color:#9aa5ad; line-height:1.6;"">
+            Need help? Reply to this email or call <a href=""tel:+96877005570"" style=""color:#0ec5a4; text-decoration:none;"">+968 77005570</a>.<br/>
+            Al Thiqa Global Cleaning Services · Sultanate of Oman
+          </p>
+        </td></tr>
+      </table>
     </td></tr>
   </table>
 </body>
