@@ -27,9 +27,12 @@
                             <input asp-for="Password" class="form-control" placeholder="@L["auth.password_placeholder"]" />
                             <span asp-validation-for="Password" class="text-danger small"></span>
                         </div>
-                        <div class="form-check mb-3">
-                            <input asp-for="RememberMe" class="form-check-input" />
-                            <label asp-for="RememberMe" class="form-check-label">@L["account.remember_me"]</label>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="form-check">
+                                <input asp-for="RememberMe" class="form-check-input" />
+                                <label asp-for="RememberMe" class="form-check-label">@L["account.remember_me"]</label>
+                            </div>
+                            <a asp-action="ForgotPassword" class="small text-primary">@L["account.forgot_password"]</a>
                         </div>
                         <button class="btn btn-primary w-100">@L["auth.login_btn"]</button>
                     </form>

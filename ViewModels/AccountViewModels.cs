@@ -121,3 +121,32 @@ public class ChangePasswordViewModel
     [DataType(DataType.Password), Compare(nameof(NewPassword))]
     public string ConfirmPassword { get; set; } = string.Empty;
 }
+
+public class ForgotPasswordViewModel
+{
+    [Required(ErrorMessage = "أدخل بريدك الإلكتروني")]
+    [EmailAddress(ErrorMessage = "بريد غير صالح")]
+    [StringLength(120)]
+    public string Email { get; set; } = string.Empty;
+
+    public string? DevCode { get; set; }
+}
+
+public class ResetPasswordViewModel
+{
+    [Required, EmailAddress, StringLength(120)]
+    public string Email { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "أدخل الرمز")]
+    [StringLength(6, MinimumLength = 6, ErrorMessage = "الرمز 6 أرقام")]
+    public string Code { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "كلمة المرور الجديدة مطلوبة")]
+    [DataType(DataType.Password)]
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "كلمة المرور 8 أحرف على الأقل")]
+    public string NewPassword { get; set; } = string.Empty;
+
+    [DataType(DataType.Password)]
+    [Compare(nameof(NewPassword), ErrorMessage = "كلمتا المرور غير متطابقتين")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+}

@@ -25,6 +25,18 @@
                             </p>
                         }
                     </div>
+
+                    <div class="alert alert-warning d-flex align-items-start gap-2 py-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill fs-4 text-warning mt-1"></i>
+                        <div class="small">
+                            <strong>@(L.IsArabic ? "ما وصلك الرمز؟" : "Didn't get the code?")</strong>
+                            <div class="mt-1">
+                                @(L.IsArabic
+                                    ? "تحقق من مجلد \"الرسائل غير المرغوب فيها\" (Spam / Junk). الرسالة قد تصل هناك أحياناً. إذا وجدتها، اضغط \"تعليم كرسالة مرغوبة\" لتصل في Inbox مستقبلاً."
+                                    : "Please check your Spam / Junk folder — the message sometimes lands there. If you find it, mark it as \"Not spam\" so future codes land in your Inbox.")
+                            </div>
+                        </div>
+                    </div>
                     @{ var isExisting = Model.IsExisting; }
 
                     @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnv

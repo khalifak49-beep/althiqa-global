@@ -470,4 +470,132 @@ public class AccountController : Controller
             return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
         return RedirectToAction("Index", "Home");
     }
+
+    // ============================================================
+    //  Forgot password — sends a 6-digit code by email, then lets the
+    //  user choose a new password without knowing the old one.
+    // ============================================================
+
+    [HttpGet]
+    public IActionResult ForgotPassword() => View(new ViewModels.ForgotPasswordViewModel());
+
+    [HttpPost]
+    public async Task<IActionResult> ForgotPassword(ViewModels.ForgotPasswordViewModel vm)
+    {
+        if (!ModelState.IsValid) return View(vm);
+
+        var email = vm.Email.Trim().ToLowerInvariant();
+
+        // Always pretend the email was sent (don't reveal whether the email exists).
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            _logger.LogInformation("Password reset requested for unknown email {Email}", email);
+            TempData["Success"] = "إذا كان البريد مسجلاً، سيصلك رمز الإعادة.";
+            return RedirectToAction(nameof(ResetPassword), new { email });
+        }
+
+        // Throttle
+        var recent = await _db.PhoneOtps
+            .Where(o => o.Phone == "reset:" + email)
+            .OrderByDescending(o => o.CreatedAt)
+            .FirstOrDefaultAsync();
+        if (recent != null && (DateTime.UtcNow - recent.CreatedAt).TotalSeconds < 30)
+        {
+            var wait = 30 - (int)(DateTime.UtcNow - recent.CreatedAt).TotalSeconds;
+            ModelState.AddModelError("", $"يرجى الانتظار {wait} ثانية قبل طلب رمز جديد.");
+            return View(vm);
+        }
+
+        var code = Random.Shared.Next(100000, 999999).ToString("D6");
+        _db.PhoneOtps.Add(new Models.PhoneOtp
+        {
+            Phone = "reset:" + email,
+            Code = code,
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(15),
+            Attempts = 0,
+            Used = false
+        });
+        await _db.SaveChangesAsync();
+
+        var devCode = await _emailOtp.SendOtpAsync(email, code);
+        _logger.LogInformation("Password reset code sent to {Email}", email);
+
+        TempData["Success"] = "أرسلنا رمز الإعادة إلى بريدك. تحقق من Spam/Junk أيضاً.";
+        return RedirectToAction(nameof(ResetPassword), new { email, dev = devCode });
+    }
+
+    [HttpGet]
+    public IActionResult ResetPassword(string? email, string? dev)
+    {
+        return View(new ViewModels.ResetPasswordViewModel
+        {
+            Email = email ?? string.Empty
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ResetPassword(ViewModels.ResetPasswordViewModel vm)
+    {
+        if (!ModelState.IsValid) return View(vm);
+
+        var email = vm.Email.Trim().ToLowerInvariant();
+        var otp = await _db.PhoneOtps
+            .Where(o => o.Phone == "reset:" + email && !o.Used)
+            .OrderByDescending(o => o.CreatedAt)
+            .FirstOrDefaultAsync();
+
+        if (otp == null)
+        {
+            ModelState.AddModelError(nameof(vm.Code), "لم يتم إرسال رمز لهذا البريد.");
+            return View(vm);
+        }
+        if (otp.ExpiresAt < DateTime.UtcNow)
+        {
+            ModelState.AddModelError(nameof(vm.Code), "انتهت صلاحية الرمز.");
+            return View(vm);
+        }
+        if (otp.Attempts >= 5)
+        {
+            ModelState.AddModelError(nameof(vm.Code), "تجاوزت الحد المسموح من المحاولات.");
+            return View(vm);
+        }
+        otp.Attempts++;
+        if (otp.Code != vm.Code.Trim())
+        {
+            await _db.SaveChangesAsync();
+            ModelState.AddModelError(nameof(vm.Code), "الرمز غير صحيح.");
+            return View(vm);
+        }
+
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            ModelState.AddModelError("", "حساب غير موجود.");
+            return View(vm);
+        }
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await _userManager.ResetPasswordAsync(user, token, vm.NewPassword);
+        if (!result.Succeeded)
+        {
+            foreach (var err in result.Errors) ModelState.AddModelError("", err.Description);
+            return View(vm);
+        }
+
+        otp.Used = true;
+        await _db.SaveChangesAsync();
+
+        // Unlock the account if it was locked due to failed attempts
+        if (await _userManager.IsLockedOutAsync(user))
+        {
+            await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow);
+            await _userManager.ResetAccessFailedCountAsync(user);
+        }
+
+        _logger.LogInformation("Password reset successfully for {Email}", email);
+        TempData["Success"] = "تم تغيير كلمة المرور. يمكنك الدخول الآن.";
+        return RedirectToAction(nameof(Login));
+    }
 }
