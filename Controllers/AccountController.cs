@@ -472,6 +472,73 @@ public class AccountController : Controller
     }
 
     // ============================================================
+    //  Change email — requires the current password as a safety check
+    // ============================================================
+
+    [Authorize]
+    [HttpGet]
+    public IActionResult ChangeEmail() => View(new ViewModels.ChangeEmailViewModel());
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> ChangeEmail(ViewModels.ChangeEmailViewModel vm)
+    {
+        if (!ModelState.IsValid) return View(vm);
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Challenge();
+
+        var newEmail = vm.NewEmail.Trim().ToLowerInvariant();
+        if (string.Equals(newEmail, user.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(vm.NewEmail), "هذا هو بريدك الحالي.");
+            return View(vm);
+        }
+
+        // Confirm current password before mutating identity
+        var ok = await _userManager.CheckPasswordAsync(user, vm.CurrentPassword);
+        if (!ok)
+        {
+            ModelState.AddModelError(nameof(vm.CurrentPassword), "كلمة المرور غير صحيحة.");
+            return View(vm);
+        }
+
+        // Reject if the new email is already taken by another account
+        var existing = await _userManager.FindByEmailAsync(newEmail);
+        if (existing != null && existing.Id != user.Id)
+        {
+            ModelState.AddModelError(nameof(vm.NewEmail), "هذا البريد مسجل لحساب آخر.");
+            return View(vm);
+        }
+
+        // Update Email + UserName together because our schema uses email as username.
+        var setEmail = await _userManager.SetEmailAsync(user, newEmail);
+        if (!setEmail.Succeeded)
+        {
+            foreach (var err in setEmail.Errors) ModelState.AddModelError("", err.Description);
+            return View(vm);
+        }
+
+        var setUser = await _userManager.SetUserNameAsync(user, newEmail);
+        if (!setUser.Succeeded)
+        {
+            foreach (var err in setUser.Errors) ModelState.AddModelError("", err.Description);
+            return View(vm);
+        }
+
+        // Mark the new email as confirmed (admin/self-service change).
+        user.EmailConfirmed = true;
+        await _userManager.UpdateAsync(user);
+
+        // Refresh the cookie so the new identity is used immediately.
+        await _signInManager.RefreshSignInAsync(user);
+
+        _logger.LogInformation("User {UserId} changed email to {Email}", user.Id, newEmail);
+        TempData["Success"] = "تم تغيير بريدك الإلكتروني بنجاح.";
+        return RedirectToAction(nameof(Profile));
+    }
+
+    // ============================================================
     //  Forgot password — sends a 6-digit code by email, then lets the
     //  user choose a new password without knowing the old one.
     // ============================================================

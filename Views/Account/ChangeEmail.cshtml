@@ -1,0 +1,55 @@
+@model ChangeEmailViewModel
+@{ ViewData["Title"] = (L.IsArabic ? "تغيير البريد الإلكتروني" : "Change email"); }
+
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card-modern p-4 p-md-5">
+                    <h3 class="fw-bold mb-3">
+                        <i class="bi bi-envelope-at text-primary"></i>
+                        @(L.IsArabic ? "تغيير البريد الإلكتروني" : "Change email")
+                    </h3>
+                    <p class="text-muted small">
+                        @(L.IsArabic
+                            ? "سيتم تغيير البريد المُسجّل + اسم الدخول. لا حاجة لتفعيل البريد الجديد لاحقاً."
+                            : "Your account email + sign-in username will both update. The new email is auto-confirmed.")
+                    </p>
+
+                    <form method="post">
+                        <div asp-validation-summary="All" class="alert alert-danger d-none-empty"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="NewEmail" class="form-label">@(L.IsArabic ? "البريد الجديد" : "New email")</label>
+                            <input asp-for="NewEmail" type="email" class="form-control text-start" dir="ltr" placeholder="new@example.com" autocomplete="email" />
+                            <span asp-validation-for="NewEmail" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CurrentPassword" class="form-label">
+                                @(L.IsArabic ? "كلمة المرور الحالية (للتأكيد)" : "Current password (for confirmation)")
+                            </label>
+                            <input asp-for="CurrentPassword" type="password" class="form-control" autocomplete="current-password" />
+                            <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+                        </div>
+
+                        <button class="btn btn-primary w-100">
+                            <i class="bi bi-check2-circle"></i>
+                            @(L.IsArabic ? "تغيير البريد" : "Change email")
+                        </button>
+                    </form>
+
+                    <hr />
+                    <div class="text-center">
+                        <a class="btn btn-link" asp-action="Profile">
+                            <i class="bi bi-arrow-@(L.IsArabic ? "right" : "left")"></i>
+                            @(L.IsArabic ? "العودة للملف الشخصي" : "Back to profile")
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

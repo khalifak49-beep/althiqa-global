@@ -122,6 +122,18 @@ public class ChangePasswordViewModel
     public string ConfirmPassword { get; set; } = string.Empty;
 }
 
+public class ChangeEmailViewModel
+{
+    [Required(ErrorMessage = "البريد الإلكتروني الجديد مطلوب")]
+    [EmailAddress(ErrorMessage = "بريد غير صالح")]
+    [StringLength(120)]
+    public string NewEmail { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "كلمة المرور الحالية مطلوبة للتحقق")]
+    [DataType(DataType.Password)]
+    public string CurrentPassword { get; set; } = string.Empty;
+}
+
 public class ForgotPasswordViewModel
 {
     [Required(ErrorMessage = "أدخل بريدك الإلكتروني")]

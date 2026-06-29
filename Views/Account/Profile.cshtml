@@ -55,7 +55,10 @@
                             </div>
                             <div class="col-md-6">
                                 <label asp-for="Email" class="form-label">@L["profile.email"]</label>
-                                <input value="@Model.Email" type="email" class="form-control" dir="ltr" readonly disabled />
+                                <div class="input-group">
+                                    <input value="@Model.Email" type="email" class="form-control" dir="ltr" readonly disabled />
+                                    <a asp-action="ChangeEmail" class="btn btn-outline-primary" title="@(L.IsArabic ? "تغيير البريد" : "Change email")"><i class="bi bi-pencil"></i></a>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">@L["profile.loyalty_points"]</label>
