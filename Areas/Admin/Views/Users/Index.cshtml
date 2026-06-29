@@ -27,9 +27,14 @@
                         <span class="status-pill status-Cancelled">@(L.IsArabic ? "معطّل" : "Disabled")</span>
                     }
                 </td>
-                <td>
-                    <form asp-action="ToggleActive" asp-route-id="@u.Id" method="post" class="d-inline">
+                <td class="text-nowrap">
+                    <form asp-action="ToggleActive" asp-route-id="@u.Id" method="post" class="d-inline" title="@(L.IsArabic ? "تفعيل/تعطيل" : "Toggle active")">
                         <button class="btn btn-sm btn-outline-primary"><i class="bi bi-power"></i></button>
+                    </form>
+                    <form asp-action="Delete" asp-route-id="@u.Id" method="post" class="d-inline"
+                          onsubmit="return confirm(@Html.Raw("'" + (L.IsArabic ? $"هل أنت متأكد من حذف \\'{u.FullName}\\'؟ هذا الإجراء غير قابل للتراجع." : $"Delete \\'{u.FullName}\\'? This cannot be undone.") + "'"));"
+                          title="@(L.IsArabic ? "حذف" : "Delete")">
+                        <button class="btn btn-sm btn-danger" type="submit"><i class="bi bi-trash-fill"></i></button>
                     </form>
                 </td>
             </tr>
